@@ -1,5 +1,6 @@
 # sungora
-GoLang application
+
+GoLang application library
 
 ## install
 
