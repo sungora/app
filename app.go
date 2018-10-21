@@ -4,12 +4,12 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/sungora/app.v1/utils"
 	"os"
+
+	"gopkg.in/sungora/app.v1/utils"
 )
 
 func main() {
-	os.Chdir("/home/konstantin/go/src/accounter")
 
 	if len(os.Args) == 1 {
 		fmt.Println("run - запуск приложения \n")
