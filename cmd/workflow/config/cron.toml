@@ -1,0 +1,9 @@
+# Task Description
+[SampleCron]
+name = "Task Description"
+isExecute = true
+minute = "*"
+hour = "*"
+day = "*"
+month = "*"
+week = "*"
