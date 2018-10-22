@@ -51,7 +51,7 @@ func Start() (code int) {
 	defer core.Wait()
 
 	// workflow
-	if confMain.Isworkflow == true {
+	if confMain.Workflow.Isworkflow == true {
 		if err = workflow.Start(confMain.Workflow); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return 1

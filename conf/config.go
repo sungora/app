@@ -15,7 +15,6 @@ type Config struct {
 	TimeZone    string
 	DriverDB    string // Драйвер DB
 	Mode        string // Режим работы приложения
-	Isworkflow  bool
 	AutoRestart bool
 	Server      Server
 	Mysql       Mysql
@@ -64,8 +63,9 @@ type Log struct {
 }
 
 type Workflow struct {
-	LimitCh   int // Лимит канала задач
-	LimitPool int // Лимит пула (количество воркеров)
+	Isworkflow bool
+	LimitCh    int // Лимит канала задач
+	LimitPool  int // Лимит пула (количество воркеров)
 }
 
 var conf *Config
