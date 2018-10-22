@@ -3,12 +3,13 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"github.com/logrusorgru/aurora"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strings"
 	"time"
+
+	"github.com/logrusorgru/aurora"
 )
 
 type run struct {
@@ -86,26 +87,27 @@ func (self *run) reBuild() (err error) {
 	return
 }
 
-func (self *run) start() (err error) {
+func (self *run) start() (buffError, buffOk bytes.Buffer, err error) {
 	fmt.Print("Start: ")
 	self.cmd = exec.Command(self.pathApp)
-	var buffError bytes.Buffer
-	var buffOk bytes.Buffer
+	// var buffError bytes.Buffer
+	// var buffOk bytes.Buffer
 	self.cmd.Stderr = &buffError
 	self.cmd.Stdout = &buffOk
 	if err = self.cmd.Start(); err != nil {
 		fmt.Println(aurora.Magenta("error command start: " + err.Error()))
 		return
 	}
-	if err = self.cmd.Wait(); err != nil {
-		fmt.Print(aurora.Red("error start: " + buffError.String()))
-		return
-	}
-	if buffOk.String() != "" {
-		fmt.Print(aurora.Green(buffOk.String()))
-	} else {
-		fmt.Println(aurora.Bold(aurora.Green("OK")))
-	}
+	// if err = self.cmd.Wait(); err != nil {
+	// 	fmt.Print(aurora.Red("error start: " + buffError.String()))
+	// 	return
+	// }
+	fmt.Println(aurora.Bold(aurora.Green("OK")))
+	// if buffOk.String() != "" {
+	// 	fmt.Print(aurora.Green(buffOk.String()))
+	// } else {
+	// 	fmt.Println(aurora.Bold(aurora.Green("OK")))
+	// }
 	return
 }
 

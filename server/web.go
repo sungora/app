@@ -1,5 +1,5 @@
 // Стандартный вебсервер работающий по протоколу http
-package core
+package server
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"time"
 
-	"gopkg.in/sungora/app.v1/core/web"
+	"gopkg.in/sungora/app.v1/server/core"
 	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/lg"
 )
@@ -45,12 +45,12 @@ type httpHandler struct{}
 func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var (
-		control web.ControllerFace
+		control core.ControllerFace
 		err     error
 	)
 
 	// search controller
-	if control, err = web.GetRouter(r.URL.Path); err != nil {
+	if control, err = core.GetRouter(r.URL.Path); err != nil {
 		lg.Error(err.Error())
 		return
 	}

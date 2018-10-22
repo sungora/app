@@ -1,5 +1,5 @@
 // Управление запуском и остановкой приложения
-package core
+package server
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"os/signal"
 
 	"gopkg.in/sungora/app.v1/conf"
-	"gopkg.in/sungora/app.v1/core/web"
 	"gopkg.in/sungora/app.v1/lg"
+	"gopkg.in/sungora/app.v1/server/core"
 	"gopkg.in/sungora/app.v1/workflow"
 )
 
@@ -30,11 +30,6 @@ func Start() (code int) {
 		confMain *conf.Config
 	)
 
-	//	mode, err = conf.GetCmdArgs() // входные данные командной строки
-	//	if err != nil {
-	//		return 0
-	//	}
-
 	// configuration
 	if confMain, err = conf.GetConfig(); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -48,12 +43,12 @@ func Start() (code int) {
 	}
 	defer lg.Wait()
 
-	// web - base controller
-	if err = web.Start(confMain); err != nil {
+	// base controller
+	if err = core.Start(confMain); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
-	defer web.Wait()
+	defer core.Wait()
 
 	// workflow
 	if confMain.Isworkflow == true {
