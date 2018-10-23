@@ -9,11 +9,10 @@ import (
 
 type response struct {
 	Response       http.ResponseWriter
-	ResponseType   string
 	responseStatus bool
 }
 
-type content struct {
+type contentJs struct {
 	Code    int
 	Message string
 	Error   bool
@@ -23,12 +22,11 @@ type content struct {
 func newresponse(w http.ResponseWriter) *response {
 	self := new(response)
 	self.Response = w
-	self.ResponseType = "json"
 	return self
 }
 
 func (self *response) JsonApi(object interface{}, code int, message string, status int) error {
-	res := new(content)
+	res := new(contentJs)
 	res.Code = code
 	res.Message = message
 	if status > 399 {
@@ -97,9 +95,11 @@ func (self *response) Html(con []byte, status int) (err error) {
 }
 
 func (self *response) Img(filePath string) (err error) {
+	self.responseStatus = true
 	return
 }
 
 func (self *response) File(filePath string) (err error) {
+	self.responseStatus = true
 	return
 }

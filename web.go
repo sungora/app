@@ -50,7 +50,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// search controller
-	if control, err = core.GetRouter(r.URL.Path); err != nil {
+	if control, err = core.GetRoute(r.URL.Path); err != nil {
 		lg.Error(err.Error())
 		return
 	}
@@ -79,7 +79,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		lg.Error(out[0].Interface().(error))
 	}
 
-	lg.Info(106, 200, r.URL.Path)
+	lg.Info(106, 200, r.Method, r.URL.Path)
 
 	// ответ
 	control.Render()

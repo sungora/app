@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"gopkg.in/sungora/app.v1/lg"
 )
@@ -14,7 +13,6 @@ import (
 type request struct {
 	Request     *http.Request
 	Params      map[string][]string
-	ContentType string
 }
 
 func newrequest(r *http.Request) *request {
@@ -28,8 +26,8 @@ func newrequest(r *http.Request) *request {
 		self.Params[i] = v
 	}
 	//
-	l := strings.Split(r.Header.Get("Content-Type"), ";")
-	self.ContentType = l[0]
+	// l := strings.Split(r.Header.Get("Content-Type"), ";")
+	// self.ContentType = l[0]
 	// switch l[0] {
 	// case "text/plain":
 	// case "application/x-www-form-urlencoded":
@@ -50,10 +48,10 @@ func (self *request) BodyDecode(object interface{}) error {
 	return nil
 }
 
-func (self *request) Send(url, method string, objSet, objGet interface{}) (err error) {
+func (self *request) NewRequest(url, method string, requestBody, responseBody interface{}) (err error) {
 	var request *http.Request
 	var response *http.Response
-	data, err := json.Marshal(objSet)
+	data, err := json.Marshal(requestBody)
 	body := new(bytes.Buffer)
 	if _, err = body.Write(data); err == nil {
 		if request, err = http.NewRequest(method, url, body); err == nil {
@@ -62,9 +60,12 @@ func (self *request) Send(url, method string, objSet, objGet interface{}) (err e
 			if response, err = c.Do(request); err == nil {
 				defer response.Body.Close()
 				bodyResponse, _ := ioutil.ReadAll(response.Body)
-				json.Unmarshal(bodyResponse, objGet)
+				json.Unmarshal(bodyResponse, responseBody)
 			}
 		}
 	}
 	return err
 }
+
+
+
