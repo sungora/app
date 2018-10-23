@@ -1,5 +1,5 @@
 // Стандартный вебсервер работающий по протоколу http
-package server
+package app
 
 import (
 	"errors"
@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"time"
 
-	"gopkg.in/sungora/app.v1/server/core"
 	"gopkg.in/sungora/app.v1/conf"
+	"gopkg.in/sungora/app.v1/core"
 	"gopkg.in/sungora/app.v1/lg"
 )
 
