@@ -2,11 +2,17 @@ package conf
 
 import (
 	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/BurntSushi/toml"
 )
+
+func init() {
+	dir, _ := os.Getwd()
+	sep := string(os.PathSeparator)
+	ConfigDir = dir + sep + "config" + sep
+}
+
+var ConfigDir string
+
+var Main *Config
 
 type Config struct {
 	NameApp     string
@@ -46,7 +52,6 @@ type Postgresql struct {
 }
 
 type Log struct {
-	ServiceName string
 	Info        bool
 	Notice      bool
 	Warning     bool
@@ -68,35 +73,4 @@ type Workflow struct {
 	LimitPool  int // Лимит пула (количество воркеров)
 }
 
-var conf *Config
 
-// ReadToml Функция читает конфигурационный файл в формате toml. Отдельный конфиг не связанный с beego.
-func GetConfig() (*Config, error) {
-	if conf != nil {
-		return conf, nil
-	}
-	var (
-		configFile string
-		nameApp    string
-		dir        string
-		err        error
-	)
-	sep := string(os.PathSeparator)
-	if dir, err = os.Getwd(); err == nil {
-		if ext := filepath.Ext(os.Args[0]); ext != "" {
-			sl := strings.Split(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
-			nameApp = sl[0]
-		} else {
-			nameApp = filepath.Base(os.Args[0])
-		}
-	}
-	configFile = dir + sep + "config" + sep + "main.toml"
-	if _, err := toml.DecodeFile(configFile, &conf); err != nil {
-		return nil, err
-	}
-	if conf.TimeZone == "" {
-		conf.TimeZone = "Europe/Moscow"
-	}
-	conf.NameApp = nameApp
-	return conf, nil
-}

@@ -13,19 +13,19 @@ import (
 var TimeLocation *time.Location
 var DB *gorm.DB
 
-func Start(conf *conf.Config) (err error) {
-	if loc, err := time.LoadLocation(conf.TimeZone); err == nil {
+func Start(c *conf.Config) (err error) {
+	if loc, err := time.LoadLocation(c.TimeZone); err == nil {
 		TimeLocation = loc
 	} else {
 		TimeLocation = time.UTC
 	}
-	switch conf.DriverDB {
+	switch c.DriverDB {
 	case "mysql":
-		if err = StartMysql(conf.Mysql, conf.TimeZone); err != nil {
+		if err = StartMysql(c.Mysql, c.TimeZone); err != nil {
 			return
 		}
 	case "postgresql":
-		if err = StartPostgresql(conf.Postgresql, conf.TimeZone); err != nil {
+		if err = StartPostgresql(c.Postgresql, c.TimeZone); err != nil {
 			return
 		}
 	}

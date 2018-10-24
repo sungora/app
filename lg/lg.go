@@ -29,20 +29,27 @@ var config conf.Log
 var timeLocation *time.Location
 var serviceName string
 
-func Start(c conf.Log, serviceName, timeZone string) (err error) {
-	config = c
-	config.ServiceName = serviceName
+func Start(c *conf.Config) (err error) {
+	config = c.Log
+	serviceName = c.NameApp
+	// if ext := filepath.Ext(os.Args[0]); ext != "" {
+	// 	sl := strings.Split(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
+	// 	config.ServiceName = sl[0]
+	// } else {
+	// 	config.ServiceName = filepath.Base(os.Args[0])
+	// }
+
 	// Инициализация временной зоны
-	if loc, err := time.LoadLocation(timeZone); err == nil {
+	if loc, err := time.LoadLocation(c.TimeZone); err == nil {
 		timeLocation = loc
 	} else {
 		timeLocation = time.UTC
 	}
 	// Инициализация логирования в ФС
-	sep := string(os.PathSeparator)
 	if config.OutFilePath == "" {
+		sep := string(os.PathSeparator)
 		if dir, err := os.Getwd(); err == nil {
-			config.OutFilePath = dir + sep + "logs" + sep + config.ServiceName + ".log"
+			config.OutFilePath = dir + sep + "logs" + sep + serviceName + ".log"
 		} else {
 			return err
 		}

@@ -15,9 +15,9 @@ import (
 )
 
 // newHTTP создание и запуск сервера
-func newWeb(conf conf.Server) (store net.Listener, err error) {
+func newWeb(c *conf.Config) (store net.Listener, err error) {
 	Server := &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", conf.Host, conf.Port),
+		Addr:           fmt.Sprintf("%s:%d", c.Server.Host, c.Server.Port),
 		Handler:        new(httpHandler),
 		ReadTimeout:    time.Second * time.Duration(300),
 		WriteTimeout:   time.Second * time.Duration(300),

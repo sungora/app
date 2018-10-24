@@ -30,8 +30,8 @@ var cronTaskPath string
 var cronControlCH chan struct{}
 
 // Start Создаем пул воркеров указанного размера на уровне пакета
-func Start(c conf.Workflow) (err error) {
-	p = NewPool(c.LimitCh, c.LimitPool)
+func Start(c *conf.Config) (err error) {
+	p = NewPool(c.Workflow.LimitCh, c.Workflow.LimitPool)
 
 	if err = reloadTasks(); err != nil {
 		return
