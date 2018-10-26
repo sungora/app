@@ -7,10 +7,23 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
-
-	"gopkg.in/sungora/app.v1/conf"
 )
+
+type Config struct {
+	Info        bool
+	Notice      bool
+	Warning     bool
+	Error       bool
+	Critical    bool
+	Fatal       bool
+	Debug       bool
+	Traces      bool
+	OutStd      bool
+	OutFile     bool
+	OutFilePath string
+	OutHttp     bool
+	OutHttpUrl  string // url куда отправляются логи
+}
 
 type msg struct {
 	Datetime   string
@@ -25,26 +38,18 @@ type msg struct {
 
 var logCh = make(chan msg, 10000)
 var logChClose = make(chan bool)
-var config conf.Log
-var timeLocation *time.Location
+var config Config
 var serviceName string
 
-func Start(c *conf.Config) (err error) {
-	config = c.Log
-	serviceName = c.NameApp
-	// if ext := filepath.Ext(os.Args[0]); ext != "" {
-	// 	sl := strings.Split(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
-	// 	config.ServiceName = sl[0]
-	// } else {
-	// 	config.ServiceName = filepath.Base(os.Args[0])
-	// }
-
-	// Инициализация временной зоны
-	if loc, err := time.LoadLocation(c.TimeZone); err == nil {
-		timeLocation = loc
+func Start(c Config) (err error) {
+	config = c
+	if ext := filepath.Ext(os.Args[0]); ext != "" {
+		sl := strings.Split(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
+		serviceName = sl[0]
 	} else {
-		timeLocation = time.UTC
+		serviceName = filepath.Base(os.Args[0])
 	}
+
 	// Инициализация логирования в ФС
 	if config.OutFilePath == "" {
 		sep := string(os.PathSeparator)

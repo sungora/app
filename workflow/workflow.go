@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/lg"
 	"gopkg.in/sungora/app.v1/utils"
 )
@@ -23,6 +22,12 @@ type manager struct {
 	Week      string
 }
 
+type Config struct {
+	IsWorkflow bool
+	LimitCh    int // Лимит канала задач
+	LimitPool  int // Лимит пула (количество воркеров)
+}
+
 var p *pool
 var cronTaskManager = make(map[string]*manager)
 var cronTaskRun = make(map[string]Task)
@@ -30,7 +35,7 @@ var cronTaskPath string
 var cronControlCH chan struct{}
 
 // Start Создаем пул воркеров указанного размера на уровне пакета
-func Start(c *conf.Config) (err error) {
+func Start(c Config) (err error) {
 
 	if cronTaskPath, err = os.Getwd(); err != nil {
 		return
@@ -38,7 +43,7 @@ func Start(c *conf.Config) (err error) {
 	sep := string(os.PathSeparator)
 	cronTaskPath = cronTaskPath + sep + "config" + sep + "cron.toml"
 
-	p = NewPool(c.Workflow.LimitCh, c.Workflow.LimitPool)
+	p = NewPool(c.LimitCh, c.LimitPool)
 
 	if err = reloadTasks(); err != nil {
 		return

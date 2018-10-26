@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"time"
 
+	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/lg/message"
 )
 
@@ -94,7 +95,7 @@ func Debug(key interface{}, messages ...interface{}) error {
 
 func sendLog(level string, login string, key interface{}, messages ...interface{}) string {
 	msg := msg{}
-	msg.Datetime = time.Now().In(timeLocation).Format("2006-01-02 15:04:05")
+	msg.Datetime = time.Now().In(conf.TimeLocation).Format("2006-01-02 15:04:05")
 	msg.Level = level
 	pc, _, line, ok := runtime.Caller(2)
 	if ok == true {
