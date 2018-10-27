@@ -9,15 +9,16 @@ import (
 	"reflect"
 	"time"
 
+	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/core"
 	"gopkg.in/sungora/app.v1/lg"
 )
 
 // newHTTP создание и запуск сервера
-func newWeb(c ConfigMain) (store net.Listener, err error) {
+func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
 	Server := &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", c.Host, c.Port),
-		Handler:        new(httpHandler),
+		Handler:        &httpHandler{config: c},
 		ReadTimeout:    time.Second * time.Duration(300),
 		WriteTimeout:   time.Second * time.Duration(300),
 		MaxHeaderBytes: 1048576,
@@ -38,7 +39,9 @@ func newWeb(c ConfigMain) (store net.Listener, err error) {
 	return nil, err
 }
 
-type httpHandler struct{}
+type httpHandler struct {
+	config *conf.ConfigMain
+}
 
 // ServeHTTP Точка входа запроса (в приложение).
 func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +58,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// init controller
-	control.Init(w, r)
+	control.Init(w, r, self.config)
 
 	// search controller method
 	objValue := reflect.ValueOf(control)

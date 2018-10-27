@@ -3,30 +3,18 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 )
 
-type response struct {
-	Response       http.ResponseWriter
-	responseStatus bool
-}
-
-type contentJs struct {
+type content struct {
 	Code    int
 	Message string
 	Error   bool
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func newresponse(w http.ResponseWriter) *response {
-	self := new(response)
-	self.Response = w
-	return self
-}
-
-func (self *response) JsonApi(object interface{}, code int, message string, status int) error {
-	res := new(contentJs)
+func (self *rw) JsonApi(object interface{}, code int, message string, status int) error {
+	res := new(content)
 	res.Code = code
 	res.Message = message
 	if status > 399 {
@@ -36,15 +24,15 @@ func (self *response) JsonApi(object interface{}, code int, message string, stat
 	return self.Json(res, status)
 }
 
-func (self *response) Json200(object interface{}) error {
+func (self *rw) Json200(object interface{}) error {
 	return self.Json(object, 200)
 }
 
-func (self *response) Json409(object interface{}) error {
+func (self *rw) Json409(object interface{}) error {
 	return self.Json(object, 409)
 }
 
-func (self *response) Json(object interface{}, status int) (err error) {
+func (self *rw) Json(object interface{}, status int) (err error) {
 	con, err := json.Marshal(object)
 	if err != nil {
 		return err
@@ -71,7 +59,7 @@ func (self *response) Json(object interface{}, status int) (err error) {
 	return
 }
 
-func (self *response) Html(con []byte, status int) (err error) {
+func (self *rw) Html(con []byte, status int) (err error) {
 	var loc *time.Location
 	if loc, err = time.LoadLocation(`Europe/Moscow`); err != nil {
 		loc = time.UTC
@@ -94,12 +82,12 @@ func (self *response) Html(con []byte, status int) (err error) {
 	return
 }
 
-func (self *response) Img(filePath string) (err error) {
+func (self *rw) Img(filePath string) (err error) {
 	self.responseStatus = true
 	return
 }
 
-func (self *response) File(filePath string) (err error) {
+func (self *rw) File(filePath string) (err error) {
 	self.responseStatus = true
 	return
 }

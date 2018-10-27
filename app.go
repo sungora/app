@@ -10,6 +10,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/core"
 	"gopkg.in/sungora/app.v1/lg"
@@ -17,36 +19,11 @@ import (
 )
 
 type Config struct {
-	Main       ConfigMain
-	Mysql      ConfigMysql
-	Postgresql ConfigPostgresql
+	Main       conf.ConfigMain
+	Mysql      conf.ConfigMysql
+	Postgresql conf.ConfigPostgresql
 	Log        lg.Config
 	Workflow   workflow.Config
-}
-
-type ConfigMain struct {
-	TimeZone    string
-	DriverDB    string // Драйвер DB
-	Mode        string // Режим работы приложения
-	Host        string
-	Port        int
-}
-
-type ConfigMysql struct {
-	Host     string // протокол, хост и порт подключения
-	Name     string // Имя базы данных
-	Login    string // Логин к базе данных
-	Password string // Пароль к базе данных
-	Charset  string // Кодировка данных (utf-8 - по умолчанию)
-}
-
-type ConfigPostgresql struct {
-	Host     string // Хост базы данных (localhost - по умолчанию)
-	Port     int64  // Порт подключения по протоколу tcp/ip (3306 по умолчанию)
-	Name     string // Имя базы данных
-	Login    string // Логин к базе данных
-	Password string // Пароль к базе данных
-	Charset  string // Кодировка данных (utf-8 - по умолчанию)
 }
 
 // Каналы управления запуском и остановкой приложения
@@ -126,7 +103,7 @@ func Start(fileConfigName string) (code int) {
 	}
 
 	// web server - application
-	if store, err = newWeb(configApp.Main); err != nil {
+	if store, err = newWeb(&configApp.Main); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
