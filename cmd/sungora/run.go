@@ -1,8 +1,9 @@
-package utils
+package main
 
 import (
 	"bytes"
 	"fmt"
+	"gopkg.in/sungora/app.v1/tool"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -41,7 +42,7 @@ func (self *run) Control() {
 	chanelAppControl := make(chan os.Signal, 1)
 	signal.Notify(chanelAppControl, os.Interrupt)
 
-	fs := NewControlFS()
+	fs := tool.NewControlFS()
 	fs.CheckSumMd5(self.path, ".go")
 
 	self.reBuild()

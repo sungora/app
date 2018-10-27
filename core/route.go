@@ -38,6 +38,6 @@ func GetRoute(uri string) (control ControllerFace, err error) {
 	if _, ok := routes[uri]; ok {
 		return routes[uri], nil
 	}
-	return nil, errors.New("route not found: " + uri)
+	return nil, errors.New("controller not found from uri: " + uri)
 
 }

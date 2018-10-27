@@ -9,7 +9,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"gopkg.in/sungora/app.v1/lg"
-	"gopkg.in/sungora/app.v1/utils"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 type manager struct {
@@ -116,7 +116,7 @@ func Wait() {
 	p.Wait()
 }
 
-var controlTask = utils.NewControlFS()
+var controlTask = tool.NewControlFS()
 
 // ReadToml Функция читает конфигурационный файл в формате toml. Отдельный конфиг не связанный с beego.
 func reloadTasks() (err error) {

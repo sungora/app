@@ -1,19 +1,22 @@
 package core
 
 import (
-	"gopkg.in/sungora/app.v1/conf"
 	"net/http"
+
+	"gopkg.in/sungora/app.v1/conf"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 // ContraFace is an interface to uniform all controller handler.
 type ControllerFace interface {
 	Init(w http.ResponseWriter, r *http.Request, c *conf.ConfigMain)
+	SessionStart()
 	GET() (err error)
 	POST() (err error)
 	PUT() (err error)
 	DELETE() (err error)
 	OPTIONS() (err error)
-	Render()
+	Response()
 }
 
 type Controller struct {
@@ -26,14 +29,18 @@ type Controller struct {
 func (self *Controller) Init(w http.ResponseWriter, r *http.Request, c *conf.ConfigMain) {
 	self.Config = c
 	self.RW = newRW(r, w)
-	// сессия
-	token := self.RW.GetCookie(c.Name)
+}
+
+// SessionStart Старт сессии
+func (self *Controller) SessionStart() {
+	token := self.RW.GetCookie(self.Config.Name)
 	if token == "" {
-		token = CreatePassword()
-		self.RW.SetCookie(c.Name, token)
+		token = tool.NewKey(10)
+		self.RW.SetCookie(self.Config.Name, token)
 	}
 	self.Session = GetSession(token)
 }
+
 func (self *Controller) GET() (err error) {
 	return
 }
@@ -49,7 +56,7 @@ func (self *Controller) DELETE() (err error) {
 func (self *Controller) OPTIONS() (err error) {
 	return
 }
-func (self *Controller) Render() {
+func (self *Controller) Response() {
 	if self.RW.responseStatus {
 		return
 	}

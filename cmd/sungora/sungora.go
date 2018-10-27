@@ -5,8 +5,6 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"gopkg.in/sungora/app.v1/utils"
 )
 
 func main() {
@@ -19,7 +17,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "run":
-		var run = utils.NewRun()
+		var run = NewRun()
 		run.Control()
 	}
 }

@@ -4,8 +4,10 @@ package app
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"reflect"
 	"time"
 
@@ -45,45 +47,65 @@ type httpHandler struct {
 
 // ServeHTTP Точка входа запроса (в приложение).
 func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	var (
 		control core.ControllerFace
+		fi      os.FileInfo
 		err     error
 	)
-
-	// search controller
+	// static
+	path := conf.WorkDir + string(os.PathSeparator) + "www" + r.URL.Path
+	if fi, err = os.Lstat(path); err == nil {
+		var data []byte
+		if fi.IsDir() == true {
+			if r.URL.Path != "/" {
+				path += string(os.PathSeparator)
+			}
+			path += "index.html"
+			data, err = ioutil.ReadFile(path)
+		}
+		if data, err = ioutil.ReadFile(path); err == nil {
+			control := &core.Controller{}
+			control.Init(w, r, self.config)
+			control.RW.Html(data, 200)
+			return
+		}
+	}
+	// search controller (404)
 	if control, err = core.GetRoute(r.URL.Path); err != nil {
+		control := &core.Controller{}
+		control.Init(w, r, self.config)
+		control.RW.Html([]byte("page not found (c)"), 404)
 		lg.Error(err.Error())
 		return
 	}
-
-	// init controller
-	control.Init(w, r, self.config)
-
 	// search controller method
 	objValue := reflect.ValueOf(control)
 	met := objValue.MethodByName(r.Method)
 	if met.IsValid() == false {
+		control := &core.Controller{}
+		control.Init(w, r, self.config)
+		control.RW.Html([]byte("page not found (m)"), 404)
 		lg.Error("not found method [%s] of control", r.Method)
 		return
 	}
-
+	// init controller
+	control.Init(w, r, self.config)
+	// init session
+	if 0 < self.config.SessionTimeout {
+		control.SessionStart()
+	}
 	// пример передачи параметров в метод
 	var in = make([]reflect.Value, 0)
 	var params []interface{}
 	for i := range params {
 		in = append(in, reflect.ValueOf(params[i]))
 	}
-
 	// execute method of controller
 	out := met.Call(in)
 	if nil != out[0].Interface() {
 		lg.Error(out[0].Interface().(error))
 	}
-
-	lg.Info(106, 200, r.Method, r.URL.Path)
-
 	// ответ
-	control.Render()
-
+	control.Response()
+	lg.Info(106, 200, r.Method, r.URL.Path)
 }

@@ -1,17 +1,18 @@
 package core
 
 import (
-	"gopkg.in/sungora/app.v1/conf"
 	"time"
+
+	"gopkg.in/sungora/app.v1/conf"
 )
 
-func init() {
-	// Запуск чистки старых сессий по таймауту
+// SessionGC Запуск чистки старых сессий по таймауту
+func SessionGC(c *conf.ConfigMain) {
 	go func() {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range session {
-				if 100 < time.Now().Sub(s.t) {
+				if c.SessionTimeout < time.Now().Sub(s.t) {
 					delete(session, i)
 				}
 			}

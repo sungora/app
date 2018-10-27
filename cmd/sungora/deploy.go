@@ -1,8 +1,9 @@
-package utils
+package main
 
 import (
 	"bytes"
 	"fmt"
+	"gopkg.in/sungora/app.v1/tool"
 	"os"
 	"os/exec"
 	"time"
@@ -18,7 +19,7 @@ func Save(s string) {
 func Deploy(nameApp string) {
 	path, _ := os.Executable()
 
-	fs := NewControlFS()
+	fs := tool.NewControlFS()
 	fs.CheckSumMd5(path, "")
 	for {
 		fmt.Println("iteration deploy ", path)

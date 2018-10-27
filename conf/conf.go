@@ -6,18 +6,19 @@ import (
 )
 
 func init() {
-	dir, _ := os.Getwd()
+	WorkDir, _ = os.Getwd()
 	sep := string(os.PathSeparator)
-	ConfigDir = dir + sep + "config" + sep
+	ConfigDir = WorkDir + sep + "config"
 }
 
 type ConfigMain struct {
-	Name     string
-	TimeZone string
-	DriverDB string // Драйвер DB
-	Mode     string // Режим работы приложения
-	Host     string
-	Port     int
+	Name           string
+	TimeZone       string
+	DriverDB       string // Драйвер DB
+	SessionTimeout time.Duration
+	Host           string
+	Port           int
+	Mode           string // Режим работы приложения
 }
 
 type ConfigMysql struct {
@@ -37,5 +38,6 @@ type ConfigPostgresql struct {
 	Charset  string // Кодировка данных (utf-8 - по умолчанию)
 }
 
+var WorkDir string
 var ConfigDir string
 var TimeLocation *time.Location

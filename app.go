@@ -33,7 +33,7 @@ var (
 )
 
 // Start Launch an application
-func Start(fileConfigName string) (code int) {
+func Start() (code int) {
 	defer func() { // контроль завершение работы приложения
 		chanelAppStop <- os.Interrupt
 	}()
@@ -44,7 +44,8 @@ func Start(fileConfigName string) (code int) {
 
 	// config
 	var configApp *Config
-	if _, err = toml.DecodeFile(conf.ConfigDir+fileConfigName+".toml", &configApp); err != nil {
+	path := conf.ConfigDir + string(os.PathSeparator) + "main.toml"
+	if _, err = toml.DecodeFile(path, &configApp); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
@@ -63,7 +64,7 @@ func Start(fileConfigName string) (code int) {
 	}
 	defer lg.Wait()
 
-	// base controller
+	// core
 	switch configApp.Main.DriverDB {
 	case "mysql":
 		if core.DB, err = gorm.Open("mysql", fmt.Sprintf(
@@ -92,6 +93,9 @@ func Start(fileConfigName string) (code int) {
 		}
 		defer core.DB.Close()
 	}
+
+	// session
+	core.SessionGC(&configApp.Main)
 
 	// workflow
 	if configApp.Workflow.IsWorkflow == true {
