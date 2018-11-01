@@ -6,4 +6,4 @@ GoLang application library
 
 ***last version:***
 
-    go get gopkg.in/sungora/app.v1
+    go get -u gopkg.in/sungora/app.v1
