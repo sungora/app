@@ -20,7 +20,7 @@ import (
 func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
 	Server := &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", c.Host, c.Port),
-		Handler:        &httpHandler{config: c},
+		Handler:        newHttpHandler(c),
 		ReadTimeout:    time.Second * time.Duration(300),
 		WriteTimeout:   time.Second * time.Duration(300),
 		MaxHeaderBytes: 1048576,
@@ -43,6 +43,13 @@ func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
 
 type httpHandler struct {
 	config *conf.ConfigMain
+}
+
+func newHttpHandler(c *conf.ConfigMain) *httpHandler {
+	self := new(httpHandler)
+	self.config = c
+	self.config.SessionTimeout *= time.Second
+	return self
 }
 
 // ServeHTTP Точка входа запроса (в приложение).

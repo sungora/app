@@ -35,7 +35,7 @@ func (self *Controller) Init(w http.ResponseWriter, r *http.Request, c *conf.Con
 func (self *Controller) SessionStart() {
 	token := self.RW.GetCookie(self.Config.Name)
 	if token == "" {
-		token = tool.NewKey(10)
+		token = tool.NewPass(10)
 		self.RW.SetCookie(self.Config.Name, token)
 	}
 	self.Session = GetSession(token)

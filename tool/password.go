@@ -12,28 +12,25 @@ const (
 	SYMBOL  = "~!@#$%^&*_+-="
 )
 
-// NewKey generates key of a specified length (a-z0-9)
-func NewKey(length int, char ...string) string {
-	if 0 < len(char) {
-		return randChar(length, []byte(char[0]))
-	}
-	return randChar(length, []byte(STRDOWN+NUM))
-}
-
 // NewPass generates password key of a specified length (a-z0-9.)
 func NewPass(length int, char ...string) string {
-	if 0 < len(char) {
+	switch len(char) {
+	case 1:
 		return randChar(length, []byte(char[0]))
+	case 2:
+		return randChar(length, []byte(char[0]+char[1]))
+	case 3:
+		return randChar(length, []byte(char[0]+char[1]+char[2]))
+	case 4:
+		return randChar(length, []byte(char[0]+char[1]+char[2]+char[3]))
+	default:
+		return randChar(length, []byte(STRDOWN+STRUP+NUM))
 	}
-	return randChar(length, []byte(STRDOWN+STRUP+SYMBOL+NUM))
 }
 
 // NewKeyAPI generates keys such kind: uuu-xxxx-zzzzz
 func NewKeyAPI(length int, char ...string) string {
-	if 0 < len(char) {
-		return NewKey(length, char[0]) + "-" + NewKey(length+1, char[0]) + "-" + NewKey(length+2, char[0])
-	}
-	return NewKey(length) + "-" + NewKey(length+1) + "-" + NewKey(length+2)
+	return NewPass(length, char...) + "-" + NewPass(length+1, char...) + "-" + NewPass(length+2, char...)
 }
 
 func randChar(length int, chars []byte) string {
@@ -61,19 +58,19 @@ func randChar(length int, chars []byte) string {
 }
 
 // CreatePassword make random password
-//func CreatePassword() string {
-//	c := 10
-//	b := make([]byte, c)
-//	n, err := io.ReadFull(rand.Reader, b)
-//	if n != len(b) || err != nil {
-//		fmt.Println("error:", err)
-//	}
-//	return fmt.Sprintf("%x", b)
-//}
+// func CreatePassword() string {
+// 	c := 10
+// 	b := make([]byte, c)
+// 	n, err := io.ReadFull(rand.Reader, b)
+// 	if n != len(b) || err != nil {
+// 		fmt.Println("error:", err)
+// 	}
+// 	return fmt.Sprintf("%x", b)
+// }
 
 // CreatePasswordHash make password hash
-//func CreatePasswordHash(password string) string {
-//	shaCoo := sha256.New()
-//	shaCoo.Write([]byte(password))
-//	return fmt.Sprintf("%x", shaCoo.Sum(nil))
-//}
+// func CreatePasswordHash(password string) string {
+// 	shaCoo := sha256.New()
+// 	shaCoo.Write([]byte(password))
+// 	return fmt.Sprintf("%x", shaCoo.Sum(nil))
+// }

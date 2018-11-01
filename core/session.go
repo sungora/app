@@ -12,7 +12,7 @@ func SessionGC(c *conf.ConfigMain) {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range session {
-				if c.SessionTimeout < time.Now().Sub(s.t) {
+				if c.SessionTimeout < time.Now().In(conf.TimeLocation).Sub(s.t) {
 					delete(session, i)
 				}
 			}
@@ -29,6 +29,7 @@ type Session struct {
 
 func GetSession(token string) *Session {
 	if elm, ok := session[token]; ok {
+		elm.t = time.Now().In(conf.TimeLocation)
 		return elm
 	}
 	session[token] = new(Session)
