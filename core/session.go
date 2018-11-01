@@ -48,6 +48,7 @@ func (self *Session) Get(index string) interface{} {
 func (self *Session) Set(index string, value interface{}) {
 	self.data[index] = value
 }
+
 func (self *Session) Del(index string) {
 	delete(self.data, index)
 }

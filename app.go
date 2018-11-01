@@ -20,10 +20,27 @@ import (
 
 type Config struct {
 	Main       conf.ConfigMain
-	Mysql      conf.ConfigMysql
-	Postgresql conf.ConfigPostgresql
+	Mysql      ConfigMysql
+	Postgresql ConfigPostgresql
 	Log        lg.Config
 	Workflow   workflow.Config
+}
+
+type ConfigMysql struct {
+	Host     string // протокол, хост и порт подключения
+	Name     string // Имя базы данных
+	Login    string // Логин к базе данных
+	Password string // Пароль к базе данных
+	Charset  string // Кодировка данных (utf-8 - по умолчанию)
+}
+
+type ConfigPostgresql struct {
+	Host     string // Хост базы данных (localhost - по умолчанию)
+	Port     int64  // Порт подключения по протоколу tcp/ip (3306 по умолчанию)
+	Name     string // Имя базы данных
+	Login    string // Логин к базе данных
+	Password string // Пароль к базе данных
+	Charset  string // Кодировка данных (utf-8 - по умолчанию)
 }
 
 // Каналы управления запуском и остановкой приложения
@@ -44,7 +61,7 @@ func Start() (code int) {
 
 	// config
 	var configApp *Config
-	path := conf.ConfigDir + string(os.PathSeparator) + "main.toml"
+	path := conf.DirConfig + string(os.PathSeparator) + "main.toml"
 	if _, err = toml.DecodeFile(path, &configApp); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1

@@ -33,7 +33,7 @@ func (self *rw) Json409(object interface{}) error {
 }
 
 func (self *rw) Json(object interface{}, status int) (err error) {
-	con, err := json.Marshal(object)
+	data, err := json.Marshal(object)
 	if err != nil {
 		return err
 	}
@@ -50,11 +50,11 @@ func (self *rw) Json(object interface{}, status int) (err error) {
 	self.Response.Header().Set("Last-Modified", d)
 	// размер и тип контента
 	self.Response.Header().Set("Content-Type", "application/json; charset=utf-8")
-	self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(con)))
+	self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	// Статус ответа
 	self.Response.WriteHeader(status)
 	// Тело документа
-	self.Response.Write(con)
+	self.Response.Write(data)
 	self.responseStatus = true
 	return
 }

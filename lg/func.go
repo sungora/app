@@ -52,45 +52,45 @@ func ErrorLogin(login string, key interface{}, messages ...interface{}) error {
 }
 func Warning(key interface{}, messages ...interface{}) error {
 	if config.Warning == true {
-		sendLog("warning", "system", key, messages...)
+		return errors.New(sendLog("warning", "system", key, messages...))
 	}
-	return nil
+	return errors.New("Warning")
 }
 func WarningLogin(login string, key interface{}, messages ...interface{}) error {
 	if config.Warning == true {
-		sendLog("warning", login, key, messages...)
+		return errors.New(sendLog("warning", login, key, messages...))
 	}
-	return nil
+	return errors.New("WarningLogin")
 }
 func Notice(key interface{}, messages ...interface{}) error {
 	if config.Notice == true {
-		sendLog("notice", "system", key, messages...)
+		return errors.New(sendLog("notice", "system", key, messages...))
 	}
-	return nil
+	return errors.New("Notice")
 }
 func NoticeLogin(login string, key interface{}, messages ...interface{}) error {
 	if config.Notice == true {
-		sendLog("notice", login, key, messages...)
+		return errors.New(sendLog("notice", login, key, messages...))
 	}
-	return nil
+	return errors.New("NoticeLogin")
 }
 func Info(key interface{}, messages ...interface{}) error {
 	if config.Info == true {
-		sendLog("info", "system", key, messages...)
+		return errors.New(sendLog("info", "system", key, messages...))
 	}
-	return nil
+	return errors.New("Info")
 }
 func InfoLogin(login string, key interface{}, messages ...interface{}) error {
 	if config.Info == true {
-		sendLog("info", login, key, messages...)
+		return errors.New(sendLog("info", login, key, messages...))
 	}
-	return nil
+	return errors.New("InfoLogin")
 }
 func Debug(key interface{}, messages ...interface{}) error {
 	if config.Debug == true {
-		sendLog("debug", "system", key, messages...)
+		return errors.New(sendLog("debug", "system", key, messages...))
 	}
-	return nil
+	return errors.New("Debug")
 }
 
 func sendLog(level string, login string, key interface{}, messages ...interface{}) string {

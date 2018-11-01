@@ -16,7 +16,7 @@ type ControllerFace interface {
 	PUT() (err error)
 	DELETE() (err error)
 	OPTIONS() (err error)
-	Response()
+	Response(status int)
 }
 
 type Controller struct {
@@ -56,9 +56,16 @@ func (self *Controller) DELETE() (err error) {
 func (self *Controller) OPTIONS() (err error) {
 	return
 }
-func (self *Controller) Response() {
+func (self *Controller) Response(status int) {
 	if self.RW.responseStatus {
 		return
 	}
-	self.RW.Json200(self.Data)
+	switch status {
+	case 403:
+		self.RW.Json([]byte("Access forbidden!"), 403)
+	case 404:
+		self.RW.Json([]byte("Page not found"), 404)
+	default:
+		self.RW.Json(self.Data, status)
+	}
 }

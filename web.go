@@ -8,13 +8,23 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"reflect"
 	"time"
 
 	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/core"
 	"gopkg.in/sungora/app.v1/lg"
 )
+
+type httpHandler struct {
+	config *conf.ConfigMain
+}
+
+func newHttpHandler(c *conf.ConfigMain) *httpHandler {
+	self := new(httpHandler)
+	self.config = c
+	self.config.SessionTimeout *= time.Second
+	return self
+}
 
 // newHTTP создание и запуск сервера
 func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
@@ -41,17 +51,6 @@ func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
 	return nil, err
 }
 
-type httpHandler struct {
-	config *conf.ConfigMain
-}
-
-func newHttpHandler(c *conf.ConfigMain) *httpHandler {
-	self := new(httpHandler)
-	self.config = c
-	self.config.SessionTimeout *= time.Second
-	return self
-}
-
 // ServeHTTP Точка входа запроса (в приложение).
 func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
@@ -59,8 +58,9 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fi      os.FileInfo
 		err     error
 	)
+
 	// static
-	path := conf.WorkDir + string(os.PathSeparator) + "www" + r.URL.Path
+	path := conf.DirStatic + r.URL.Path
 	if fi, err = os.Lstat(path); err == nil {
 		var data []byte
 		if fi.IsDir() == true {
@@ -68,51 +68,81 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				path += string(os.PathSeparator)
 			}
 			path += "index.html"
-			data, err = ioutil.ReadFile(path)
 		}
 		if data, err = ioutil.ReadFile(path); err == nil {
 			control := &core.Controller{}
 			control.Init(w, r, self.config)
 			control.RW.Html(data, 200)
+			lg.Info(200, r.Method, path)
 			return
 		}
 	}
+
 	// search controller (404)
 	if control, err = core.GetRoute(r.URL.Path); err != nil {
 		control := &core.Controller{}
 		control.Init(w, r, self.config)
-		control.RW.Html([]byte("page not found (c)"), 404)
-		lg.Error(err.Error())
+		control.Response(404)
+		lg.Error(404, r.Method, r.URL.Path)
 		return
 	}
-	// search controller method
-	objValue := reflect.ValueOf(control)
-	met := objValue.MethodByName(r.Method)
-	if met.IsValid() == false {
-		control := &core.Controller{}
-		control.Init(w, r, self.config)
-		control.RW.Html([]byte("page not found (m)"), 404)
-		lg.Error("not found method [%s] of control", r.Method)
-		return
-	}
+
 	// init controller
 	control.Init(w, r, self.config)
+
 	// init session
 	if 0 < self.config.SessionTimeout {
 		control.SessionStart()
 	}
-	// пример передачи параметров в метод
-	var in = make([]reflect.Value, 0)
-	var params []interface{}
-	for i := range params {
-		in = append(in, reflect.ValueOf(params[i]))
+
+	// execute controller
+	switch r.Method {
+	case "GET":
+		err = control.GET()
+	case "POST":
+		err = control.POST()
+	case "PUT":
+		err = control.PUT()
+	case "DELETE":
+		err = control.DELETE()
+	case "OPTIONS":
+		err = control.OPTIONS()
+	default:
+		control.Response(404)
+		lg.Error(404, r.Method, r.URL.Path)
+		return
 	}
-	// execute method of controller
-	out := met.Call(in)
-	if nil != out[0].Interface() {
-		lg.Error(out[0].Interface().(error))
+
+	// response controller
+	if err != nil {
+		control.Response(409)
+		lg.Error(409, r.Method, r.URL.Path, err.Error())
+	} else {
+		control.Response(200)
+		lg.Info(200, r.Method, r.URL.Path)
 	}
-	// ответ
-	control.Response()
-	lg.Info(106, 200, r.Method, r.URL.Path)
+
+	// // search controller method
+	// objValue := reflect.ValueOf(control)
+	// met := objValue.MethodByName(r.Method)
+	// if met.IsValid() == false {
+	// 	control := &core.Controller{}
+	// 	control.Init(w, r, self.config)
+	// 	control.RW.Html([]byte("page not found (m)"), 404)
+	// 	lg.Error("not found method [%s] of control", r.Method)
+	// 	return
+	// }
+	//
+	// // пример передачи параметров в метод
+	// var in = make([]reflect.Value, 0)
+	// var params []interface{}
+	// for i := range params {
+	// 	in = append(in, reflect.ValueOf(params[i]))
+	// }
+	//
+	// // execute method of controller
+	// out := met.Call(in)
+	// if nil != out[0].Interface() {
+	// 	lg.Error(out[0].Interface().(error))
+	// }
 }
