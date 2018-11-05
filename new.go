@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -20,7 +21,7 @@ func newApp(nameApp, version string) *app {
 
 	self := new(app)
 	self.nameApp = nameApp
-	self.pathOut = pathList[0] + sep + nameApp
+	self.pathOut = pathList[0] + sep + "src" + sep + nameApp
 
 	for _, p := range pathList {
 		p1 := p + sep + "src" + sep + "gopkg.in" + sep + "sungora" + sep + "app." + version + sep + "cmd" + sep + "blankapp"
@@ -77,6 +78,13 @@ func (self *app) New() (err error) {
 
 // Blank создание бланка приложения
 func (self *app) Blank() (err error) {
+	var fi os.FileInfo
+	if fi, err = os.Stat(self.pathOut); err != nil {
+		return err
+	}
+	if fi.IsDir() == false {
+		return errors.New("папка приложения неправильная")
+	}
 	if err = os.RemoveAll(self.pathIn); err != nil {
 		return err
 	}

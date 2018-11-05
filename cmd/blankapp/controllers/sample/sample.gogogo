@@ -2,8 +2,8 @@
 package sample
 
 import (
-	"PKGAPPNAME/config"
-	"PKGAPPNAME/models"
+	"zzzzzzzzz/config"
+	"zzzzzzzzz/models"
 
 	"gopkg.in/sungora/app.v1/core"
 )
