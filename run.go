@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"gopkg.in/sungora/app.v1/tool"
 	"os"
 	"os/exec"
 	"os/signal"
-	"strings"
 	"time"
+
+	"gopkg.in/sungora/app.v1/tool"
 
 	"github.com/logrusorgru/aurora"
 )
@@ -19,21 +19,11 @@ type run struct {
 	cmd     *exec.Cmd
 }
 
-func NewRun() *run {
-	self := new(run)
+func NewRun(nameApp string) *run {
 	sep := string(os.PathSeparator)
-	dir, err := os.Getwd()
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		os.Exit(1)
-	}
-	sl := strings.Split(dir, sep)
-	program := sl[len(sl)-1]
-	if sep != "/" {
-		program += ".exe"
-	}
-	self.path = dir
-	self.pathApp = dir + sep + program
+	self := new(run)
+	self.path = os.Getenv("GOPATH") + sep + "src" + sep + nameApp
+	self.pathApp = self.path + sep + nameApp
 	return self
 }
 
