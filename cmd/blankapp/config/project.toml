@@ -1,0 +1,5 @@
+# Конфигурация проекта
+[ServiceAccess]
+UrlApi = "http://domain/page/api.php"
+Login = "login"
+Password = "password"

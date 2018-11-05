@@ -1,0 +1,9 @@
+# Описание задачи
+[TaskSample]
+name = "Название задачи"
+isExecute = true
+minute = "*"
+hour = "*"
+day = "*"
+month = "*"
+week = "*"

@@ -1,5 +1,5 @@
 // Стандартный вебсервер работающий по протоколу http
-package app
+package server
 
 import (
 	"errors"
@@ -15,19 +15,8 @@ import (
 	"gopkg.in/sungora/app.v1/lg"
 )
 
-type httpHandler struct {
-	config *conf.ConfigMain
-}
-
-func newHttpHandler(c *conf.ConfigMain) *httpHandler {
-	self := new(httpHandler)
-	self.config = c
-	self.config.SessionTimeout *= time.Second
-	return self
-}
-
 // newHTTP создание и запуск сервера
-func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
+func newHttp(c *conf.ConfigMain) (store net.Listener, err error) {
 	Server := &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", c.Host, c.Port),
 		Handler:        newHttpHandler(c),
@@ -49,6 +38,17 @@ func newWeb(c *conf.ConfigMain) (store net.Listener, err error) {
 		return nil, errors.New("http server start unknown error")
 	}
 	return nil, err
+}
+
+type httpHandler struct {
+	config *conf.ConfigMain
+}
+
+func newHttpHandler(c *conf.ConfigMain) *httpHandler {
+	self := new(httpHandler)
+	self.config = c
+	self.config.SessionTimeout *= time.Second
+	return self
 }
 
 // ServeHTTP Точка входа запроса (в приложение).

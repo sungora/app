@@ -1,0 +1,45 @@
+# Основная конфигурация
+[main]
+name = "sample"
+timezone = "Europe/Moscow"
+driverdb = "mysql"
+# время жизни сессии в секундах (0 - сессия не используется)
+sessionTimeout = 14400
+host = "localhost"
+port = 8080
+mode = "dev"
+
+[mysql]
+host = "tcp(localhost:3306)"
+name = "test"
+login = "root"
+password = "root"
+charset = "utf8"
+
+[postgresql]
+host = "localhost"
+port = 5432
+name = "test"
+login = "root"
+password = "root"
+charset = "utf-8"
+
+[log]
+info = true
+notice = true
+warning = true
+error = true
+critical = true
+fatal = true
+debug = true
+traces = true
+outstd = true
+outfile = true
+outfilepath = ""
+outhttp = true
+outhttpurl = ""
+
+[workflow]
+isworkflow = true   # включен
+limitch = 200       # буфер канала задач
+limitpool = 9       # максимальное количество воркеров обслуживающих задачи
