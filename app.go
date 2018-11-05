@@ -5,6 +5,11 @@ package main
 import (
 	"fmt"
 	"os"
+
+	_ "github.com/BurntSushi/toml"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
 )
 
 const VERSION = "v1"
