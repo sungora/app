@@ -1,27 +1,25 @@
-# sungora
+# app
 
-GoLang application library
+Library to create an application on golang
 
-## install
+## install library
 
 ***last version:***
 
     go get -u gopkg.in/sungora/app.v1
 
-## use
+## use library
 
-add compile program app.v1 to PATH
+add compile program `app.v1` to PATH ( optional ) 
 
-Находясь в папке src проекта:
+#### create application:
 
     app.v1 new nameApp
 
 Новое приложение создано. Можно собирать и запускать.
 
----
+#### auto build and run
 
-Находясь в папке созданного приложения:
+    app.v1 run nameApp
 
-    app.v1 run
-    
 Запуск автоматической сборки и перезапуска приложения после изменении исходников
