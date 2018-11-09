@@ -9,13 +9,11 @@ import (
 	"time"
 
 	"gopkg.in/sungora/app.v1/tool"
-
-	"github.com/logrusorgru/aurora"
 )
 
 type run struct {
 	path    string
-	pathApp string
+	nameApp string
 	cmd     *exec.Cmd
 }
 
@@ -23,11 +21,13 @@ func NewRun(nameApp string) *run {
 	sep := string(os.PathSeparator)
 	self := new(run)
 	self.path = os.Getenv("GOPATH") + sep + "src" + sep + nameApp
-	self.pathApp = self.path + sep + nameApp
+	self.nameApp = nameApp
 	return self
 }
 
 func (self *run) Control() {
+
+	os.Chdir(self.path)
 
 	chanelAppControl := make(chan os.Signal, 1)
 	signal.Notify(chanelAppControl, os.Interrupt)
@@ -63,37 +63,37 @@ func (self *run) reBuild() (err error) {
 	self.cmd.Stderr = &buffError
 	self.cmd.Stdout = &buffOk
 	if err = self.cmd.Start(); err != nil {
-		fmt.Println(aurora.Magenta("error command build: " + err.Error()))
+		fmt.Println("error command build: " + err.Error())
 		return
 	}
 	if err = self.cmd.Wait(); err != nil {
-		fmt.Print(aurora.Red("error build: " + buffError.String()))
+		fmt.Print("error build: " + buffError.String())
 		return
 	}
 	if buffOk.String() != "" {
-		fmt.Print(aurora.Green(buffOk.String()))
+		fmt.Print(buffOk.String())
 	} else {
-		fmt.Println(aurora.Bold(aurora.Green("OK")))
+		fmt.Println("OK")
 	}
 	return
 }
 
 func (self *run) start() (buffError, buffOk bytes.Buffer, err error) {
 	fmt.Print("Start: ")
-	self.cmd = exec.Command(self.pathApp)
+	self.cmd = exec.Command(self.nameApp)
 	// var buffError bytes.Buffer
 	// var buffOk bytes.Buffer
 	self.cmd.Stderr = &buffError
 	self.cmd.Stdout = &buffOk
 	if err = self.cmd.Start(); err != nil {
-		fmt.Println(aurora.Magenta("error command start: " + err.Error()))
+		fmt.Println("error command start: " + err.Error())
 		return
 	}
 	// if err = self.cmd.Wait(); err != nil {
 	// 	fmt.Print(aurora.Red("error start: " + buffError.String()))
 	// 	return
 	// }
-	fmt.Println(aurora.Bold(aurora.Green("OK")))
+	fmt.Println("OK")
 	// if buffOk.String() != "" {
 	// 	fmt.Print(aurora.Green(buffOk.String()))
 	// } else {
@@ -106,9 +106,9 @@ func (self *run) stop() (err error) {
 	fmt.Print("Stop: ")
 	self.cmd.Process.Signal(os.Interrupt)
 	if err = self.cmd.Wait(); err != nil {
-		fmt.Println(aurora.Magenta("error command stop: " + err.Error()))
+		fmt.Println("error command stop: " + err.Error())
 		return
 	}
-	fmt.Println(aurora.Bold(aurora.Green("OK")))
+	fmt.Println("OK")
 	return
 }
