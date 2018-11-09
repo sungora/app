@@ -1,19 +1,15 @@
 package users
 
+// init Пользовательские зпапросы
 func init() {
 	sql.GetListFilter = `
 	SELECT * FROM users WHERE updated_at < NOW() - INTERVAL 1 HOUR 
 	`
 }
 
-type query struct {
+type sqlTyp struct {
 	GetListFilter string
 }
 
 // хранилище пользовательских запросов
-var sql = new(query)
-
-// Sql получение хранилища пользовательских запросов
-func Sql() *query {
-	return sql
-}
+var sql = new(sqlTyp)

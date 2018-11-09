@@ -1,0 +1,38 @@
+package users
+
+// сценарии по работе с моделью для виджетов
+func init() {
+	scenario.data = make(map[string]map[string]map[string]string)
+	scenario.data["ControlSample"] = map[string]map[string]string{
+		"Names": map[string]string{
+			"Typ":  "String",
+			"Name": "ФИО",
+			"Null": "1",
+		},
+		"Cnt": map[string]string{
+			"Typ":  "Number",
+			"Name": "Количество",
+			"Null": "1",
+		},
+		"StatusN": map[string]string{
+			"Typ":  "String",
+			"Name": "Статус",
+			"Null": "0",
+		},
+	}
+
+}
+
+type scenarioTyp struct {
+	data map[string]map[string]map[string]string
+}
+
+func (self *scenarioTyp) Get(scenario string) map[string]map[string]string {
+	if _, ok := self.data[scenario]; ok {
+		return self.data[scenario]
+	}
+	return nil
+}
+
+// хранилище пользовательских запросов
+var scenario = new(scenarioTyp)

@@ -1,0 +1,27 @@
+package users
+
+import (
+	"github.com/jinzhu/gorm"
+)
+
+// BeforeCreate функция - хук вызовется перед вставкой - созданием записи
+// Валидация входных данных
+func (self *User) BeforeCreate(scope *gorm.Scope) error {
+	return nil
+}
+
+// AfterCreate функция - хук вызовется после вставки - создания записи
+func (self *User) AfterCreate(scope *gorm.Scope) error {
+	return nil
+}
+
+// BeforeSave функция - хук вызовется перед сохранением записи
+// Валидация входных данных
+func (user *User) BeforeSave(scope *gorm.Scope) error {
+	return nil
+}
+
+// AfterSave функция - хук вызовется после сохранения записи
+func (user *User) AfterSave(scope *gorm.Scope) error {
+	return nil
+}

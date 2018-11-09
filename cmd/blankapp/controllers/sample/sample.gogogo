@@ -29,9 +29,18 @@ func (self *ControlSample) GET() (err error) {
 	u.Cnt = count
 	u.Save()
 
+	// список
+	userList := u.GetListFilter()
+
+	// сценарии для виджетов
+	sc := u.SC.Get("ControlSample")
+
+	// Выводимые данные
 	self.Data = []interface{}{
 		u,
 		config.ServiceAccess,
+		sc,
+		userList,
 	}
 	return
 }
