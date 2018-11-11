@@ -30,8 +30,8 @@ func newRW(r *http.Request, w http.ResponseWriter) *rw {
 	return self
 }
 
-// GetCookie Получение куки.
-func (self *rw) GetCookie(name string) string {
+// CookieGet Получение куки.
+func (self *rw) CookieGet(name string) string {
 	d := self.Request.Header.Get("Cookie")
 	if d != "" {
 		sl := strings.Split(d, ";")
@@ -46,8 +46,8 @@ func (self *rw) GetCookie(name string) string {
 	return ""
 }
 
-// SetCookie Установка куки. Если время не указано кука сессионная (пока открыт браузер).
-func (self *rw) SetCookie(name, value string, t ...time.Time) {
+// CookieSet Установка куки. Если время не указано кука сессионная (пока открыт браузер).
+func (self *rw) CookieSet(name, value string, t ...time.Time) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
@@ -62,8 +62,8 @@ func (self *rw) SetCookie(name, value string, t ...time.Time) {
 	http.SetCookie(self.Response, cookie)
 }
 
-// RemCookie Удаление куков.
-func (self *rw) RemCookie(name string) {
+// CookieRem Удаление куков.
+func (self *rw) CookieRem(name string) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Domain = self.Request.URL.Host

@@ -13,7 +13,7 @@ type content struct {
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func (self *rw) JsonApi(object interface{}, code int, message string, status int) error {
+func (self *rw) ResponseJsonApi(object interface{}, code int, message string, status int) error {
 	res := new(content)
 	res.Code = code
 	res.Message = message
@@ -21,18 +21,18 @@ func (self *rw) JsonApi(object interface{}, code int, message string, status int
 		res.Error = true
 	}
 	res.Data = object
-	return self.Json(res, status)
+	return self.ResponseJson(res, status)
 }
 
-func (self *rw) Json200(object interface{}) error {
-	return self.Json(object, 200)
+func (self *rw) ResponseJson200(object interface{}) error {
+	return self.ResponseJson(object, 200)
 }
 
-func (self *rw) Json409(object interface{}) error {
-	return self.Json(object, 409)
+func (self *rw) ResponseJson409(object interface{}) error {
+	return self.ResponseJson(object, 409)
 }
 
-func (self *rw) Json(object interface{}, status int) (err error) {
+func (self *rw) ResponseJson(object interface{}, status int) (err error) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (self *rw) Json(object interface{}, status int) (err error) {
 	return
 }
 
-func (self *rw) Html(con []byte, status int) (err error) {
+func (self *rw) ResponseHtml(con []byte, status int) (err error) {
 	var loc *time.Location
 	if loc, err = time.LoadLocation(`Europe/Moscow`); err != nil {
 		loc = time.UTC
@@ -82,12 +82,12 @@ func (self *rw) Html(con []byte, status int) (err error) {
 	return
 }
 
-func (self *rw) Img(filePath string) (err error) {
+func (self *rw) ResponseImg(filePath string) (err error) {
 	self.responseStatus = true
 	return
 }
 
-func (self *rw) File(filePath string) (err error) {
+func (self *rw) ResponseFile(filePath string) (err error) {
 	self.responseStatus = true
 	return
 }

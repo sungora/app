@@ -2,6 +2,8 @@
 package sample
 
 import (
+	"strconv"
+
 	"zzzzzzzzz/config"
 	"zzzzzzzzz/models"
 
@@ -49,7 +51,7 @@ func (self *ControlSample) POST() (err error) {
 // PUT работа с моделью изменение
 func (self *ControlSample) PUT() (err error) {
 	u := models.NewUser(0)
-	self.RW.BodyDecode(u)
+	self.RW.RequestBodyDecode(u)
 	u.Save()
 
 	self.Data = u
@@ -58,8 +60,9 @@ func (self *ControlSample) PUT() (err error) {
 
 // DELETE работа с моделью удаление
 func (self *ControlSample) DELETE() (err error) {
-	u := models.NewUser(0)
-	self.RW.BodyDecode(u)
+	var ID uint64
+	ID, err = strconv.ParseUint(self.RW.RequestParams["userID"][0], 10, 64)
+	u := models.NewUser(ID)
 	u.Delete()
 
 	self.Data = u

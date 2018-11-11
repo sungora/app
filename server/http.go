@@ -72,7 +72,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if data, err = ioutil.ReadFile(path); err == nil {
 			control := &core.Controller{}
 			control.Init(w, r, self.config)
-			control.RW.Html(data, 200)
+			control.RW.ResponseHtml(data, 200)
 			lg.Info(200, r.Method, path)
 			return
 		}
@@ -128,7 +128,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// if met.IsValid() == false {
 	// 	control := &core.Controller{}
 	// 	control.Init(w, r, self.config)
-	// 	control.RW.Html([]byte("page not found (m)"), 404)
+	// 	control.RW.ResponseHtml([]byte("page not found (m)"), 404)
 	// 	lg.Error("not found method [%s] of control", r.Method)
 	// 	return
 	// }

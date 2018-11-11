@@ -11,7 +11,7 @@ import (
 	"gopkg.in/sungora/app.v1/lg"
 )
 
-func (self *rw) BodyDecode(object interface{}) error {
+func (self *rw) RequestBodyDecode(object interface{}) error {
 	if body, err := ioutil.ReadAll(self.Request.Body); err == nil {
 		if err = json.Unmarshal(body, object); err != nil {
 			return lg.Error(err.Error())

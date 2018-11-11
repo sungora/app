@@ -33,10 +33,10 @@ func (self *Controller) Init(w http.ResponseWriter, r *http.Request, c *conf.Con
 
 // SessionStart Старт сессии
 func (self *Controller) SessionStart() {
-	token := self.RW.GetCookie(self.Config.Name)
+	token := self.RW.CookieGet(self.Config.Name)
 	if token == "" {
 		token = tool.NewPass(10)
-		self.RW.SetCookie(self.Config.Name, token)
+		self.RW.CookieSet(self.Config.Name, token)
 	}
 	self.Session = GetSession(token)
 }
@@ -62,10 +62,10 @@ func (self *Controller) Response(status int) {
 	}
 	switch status {
 	case 403:
-		self.RW.Json([]byte("Access forbidden!"), 403)
+		self.RW.ResponseJson([]byte("Access forbidden!"), 403)
 	case 404:
-		self.RW.Json([]byte("Page not found"), 404)
+		self.RW.ResponseJson([]byte("Page not found"), 404)
 	default:
-		self.RW.Json(self.Data, status)
+		self.RW.ResponseJson(self.Data, status)
 	}
 }
