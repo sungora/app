@@ -12,8 +12,8 @@ type ControlSample struct {
 	core.Controller
 }
 
+// GET действие по умолчанию
 func (self *ControlSample) GET() (err error) {
-
 	// сессия
 	var count int
 	if self.Session.Get("count") != nil {
@@ -22,25 +22,59 @@ func (self *ControlSample) GET() (err error) {
 	count += 1
 	self.Session.Set("count", count)
 
-	// работас моделью
+	// работа с моделью
+	u := models.NewUser(0)
+	u.InvoiceIDSet(1234)
+	u.NamSet("Вася Пупкин")
+	u.Age = count
+
+	self.Data = u
+	return
+}
+
+// POST работа с моделью создание
+func (self *ControlSample) POST() (err error) {
 	u := models.NewUser(0)
 	core.DB.AutoMigrate(u)
-	u.Names = "Вася пупкин"
-	u.Cnt = count
+	u.InvoiceIDSet(8697)
+	u.NamSet("Вася пупкин")
+	u.Age = 67
+	u.SampleJsonSet(`{"ServiceID": 24,"ClientID": 24,"InvoiceID": 24,"BillingCode": "NL","LocationCode": "NL"}`)
 	u.Save()
 
-	// список
-	userList := u.GetListFilter()
+	self.Data = u
+	return
+}
 
+// PUT работа с моделью изменение
+func (self *ControlSample) PUT() (err error) {
+	u := models.NewUser(0)
+	self.RW.BodyDecode(u)
+	u.Save()
+
+	self.Data = u
+	return
+}
+
+// DELETE работа с моделью удаление
+func (self *ControlSample) DELETE() (err error) {
+	u := models.NewUser(0)
+	self.RW.BodyDecode(u)
+	u.Delete()
+
+	self.Data = u
+	return
+}
+
+// OPTIONS получение различных опций для текущего контроллера
+func (self *ControlSample) OPTIONS() (err error) {
 	// сценарии для виджетов
-	sc := u.SC.Get("ControlSample")
+	u := models.NewUser(0)
 
 	// Выводимые данные
-	self.Data = []interface{}{
-		u,
-		config.ServiceAccess,
-		sc,
-		userList,
+	self.Data = map[string]interface{}{
+		"scenario form": u.SC.ControlSampleForm,
+		"config access": config.ServiceAccess,
 	}
 	return
 }

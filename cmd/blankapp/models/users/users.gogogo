@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fmt"
 	"time"
 
 	"gopkg.in/sungora/app.v1/core"
@@ -10,35 +9,28 @@ import (
 // Модель
 type User struct {
 	ID         uint64       ``
-	InvoiceID  uint64       `gorm:"default:null"`
-	Names      string       `gorm:"default:null"`
-	Cnt        int          ``
-	Cnt8       int8         ``
-	Cnt16      int16        ``
-	Cnt32      int32        ``
-	Cnt64      int64        ``
-	Price32    float32      ``
-	Price64    float64      ``
-	Status     string       `gorm:"default:null"`
-	StatusN    string       `gorm:"default:'Активный'"`
-	IsCheck    bool         `gorm:"default:1;not null"`
-	SampleSet  string       `gorm:"type:set('value 1','value 2','value 3');default:null"`
-	SampleEnum string       `gorm:"type:enum('value 1','value 2','value 3');default:null"`
+	InvoiceID  *uint64      ``
+	Nam        *string      ``
+	Age        int          ``
+	Credit     float64      ``
+	IsOnline   bool         `gorm:"default:1;not null"`
+	Status     *string      `gorm:"type:enum('Актив','Пассив','Универсал');default:'Актив';not null;"`
+	Hobby      *string      `gorm:"type:set('music','sport','reading', 'stamps', 'travel');"`
+	SampleJson *string      `gorm:"type:json;"`
+	Address    *string      `gorm:"type:text;"`
 	CreatedAt  time.Time    ``
 	UpdatedAt  time.Time    ``
 	DeletedAt  *time.Time   ``
-	SQ         *sqlTyp      `gorm:"-"`
-	SC         *scenarioTyp `gorm:"-"`
+	SC         *scenarioTyp `gorm:"-" json:"-"`
 }
 
 // NewUser создание модели
 func NewUser(ID uint64) *User {
 	self := new(User)
+	self.SC = scenario
 	if ID > 0 {
 		core.DB.Find(self, ID)
 	}
-	self.SQ = sql
-	self.SC = scenario
 	return self
 }
 
@@ -74,24 +66,21 @@ func (self *User) Delete() error {
 	return err
 }
 
-func sampleOther() {
-	// sample custom orm query
-	var users []*User
-	var count int
-	err := core.DB.
-		Select("id, name").
-		Table("users").
-		Joins("...", "...").
-		Where("...", "...").
-		Group("...").
-		Having("...", "...").
-		Order("id ASC").
-		Limit(5).
-		Find(&users).
-		Count(&count).Error
-	fmt.Println(users, count, err)
-	// sample slice one column
-	var names []string
-	core.DB.Model(&User{}).Pluck("names", &names)
-	//
+func (self *User) InvoiceIDSet(val uint64) {
+	self.InvoiceID = &val
+}
+func (self *User) NamSet(val string) {
+	self.Nam = &val
+}
+func (self *User) StatusSet(val string) {
+	self.Status = &val
+}
+func (self *User) HobbySet(val string) {
+	self.Hobby = &val
+}
+func (self *User) SampleJsonSet(val string) {
+	self.SampleJson = &val
+}
+func (self *User) AddressSet(val string) {
+	self.Address = &val
 }

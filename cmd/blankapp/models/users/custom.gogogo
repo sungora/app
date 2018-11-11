@@ -1,11 +1,35 @@
 package users
 
 import (
+	"fmt"
+
 	"gopkg.in/sungora/app.v1/core"
 )
 
 // GetHourlyAfter получение списка услуг для почасовой тарификации
-func (self *User) GetListFilter(params ...interface{}) (users []*User) {
-	core.DB.Raw(sql.GetListFilter, params...).Scan(&users)
+func (self *User) GetListFilter(limit int) (users []*User) {
+	core.DB.Raw(sql.GetListFilter, limit).Scan(&users)
 	return
+}
+
+func sampleOther() {
+	// sample custom orm query
+	var users []*User
+	var count int
+	err := core.DB.
+		Select("id, name").
+		Table("users").
+		Joins("...", "...").
+		Where("...", "...").
+		Group("...").
+		Having("...", "...").
+		Order("id ASC").
+		Limit(5).
+		Find(&users).
+		Count(&count).Error
+	fmt.Println(users, count, err)
+	// sample slice one column
+	var names []string
+	core.DB.Model(&User{}).Pluck("names", &names)
+	//
 }

@@ -3,7 +3,7 @@ package users
 // init Пользовательские зпапросы
 func init() {
 	sql.GetListFilter = `
-	SELECT * FROM users WHERE updated_at < NOW() - INTERVAL 1 HOUR 
+	SELECT * FROM users WHERE updated_at < NOW() - INTERVAL 1 HOUR LIMIT %d 
 	`
 }
 
