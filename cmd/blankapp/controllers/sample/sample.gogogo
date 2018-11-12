@@ -72,11 +72,11 @@ func (self *ControlSample) DELETE() (err error) {
 // OPTIONS получение различных опций для текущего контроллера
 func (self *ControlSample) OPTIONS() (err error) {
 	// сценарии для виджетов
-	u := models.NewUser(0)
+	u := models.NewUserExtended()
 
 	// Выводимые данные
 	self.Data = map[string]interface{}{
-		"scenario form": u.SC.ControlSampleForm,
+		"scenario form": u.Scenario.AdminForm,
 		"config access": config.ServiceAccess,
 	}
 	return

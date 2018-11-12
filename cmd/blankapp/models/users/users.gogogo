@@ -1,12 +1,11 @@
 package users
 
 import (
+	"github.com/jinzhu/gorm"
 	"time"
 
 	"gopkg.in/sungora/app.v1/core"
 )
-
-// Status     *string      `gorm:"type:enum('Актив','Пассив','Универсал');default:'Актив';not null;"`
 
 // Модель
 type User struct {
@@ -23,13 +22,11 @@ type User struct {
 	CreatedAt  time.Time    ``
 	UpdatedAt  time.Time    ``
 	DeletedAt  *time.Time   ``
-	SC         *scenarioTyp `gorm:"-" json:"-"`
 }
 
 // NewUser создание модели
 func NewUser(ID uint64) *User {
 	self := new(User)
-	self.SC = scenario
 	if ID > 0 {
 		core.DB.Find(self, ID)
 	}
@@ -85,4 +82,18 @@ func (self *User) Delete() error {
 		self.ID = 0
 	}
 	return err
+}
+
+// Валидация при охранении в БД
+
+// BeforeSave функция - хук вызовется перед сохранением записи
+// Также будет вызван перед хуком при создании
+func (user *User) BeforeSave(scope *gorm.Scope) error {
+	return nil
+}
+
+// AfterSave функция - хук вызовется после сохранения записи
+// Также будет вызван после хука при создании
+func (user *User) AfterSave(scope *gorm.Scope) error {
+	return nil
 }

@@ -14,7 +14,7 @@ package users
 
 // сценарии по работе с моделью для виджетов
 func init() {
-	scenario.ControlSampleGrid = map[string]map[string]string{
+	scenario.AdminGrid = map[string]map[string]string{
 		"Nam": map[string]string{
 			"Name": "ФИО",
 			"Typ":  "Text",
@@ -28,7 +28,7 @@ func init() {
 			"Typ":  "Float",
 		},
 	}
-	scenario.ControlSampleForm = map[string]map[string]string{
+	scenario.AdminForm = map[string]map[string]string{
 		"InvoiceID": map[string]string{
 			"Name": "Заявка",
 			"Typ":  "Link",
@@ -71,8 +71,8 @@ func init() {
 }
 
 type scenarioTyp struct {
-	ControlSampleGrid map[string]map[string]string
-	ControlSampleForm map[string]map[string]string
+	AdminGrid map[string]map[string]string
+	AdminForm map[string]map[string]string
 }
 
 // хранилище пользовательских запросов

@@ -7,3 +7,7 @@ import (
 func NewUser(id uint64) *users.User {
 	return users.NewUser(id)
 }
+
+func NewUserExtended() *users.UserExtended {
+	return users.NewUserExtended()
+}
