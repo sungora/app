@@ -88,12 +88,12 @@ func (self *User) Delete() error {
 
 // BeforeSave функция - хук вызовется перед сохранением записи
 // Также будет вызван перед хуком при создании
-func (user *User) BeforeSave(scope *gorm.Scope) error {
+func (self *User) BeforeSave(scope *gorm.Scope) error {
 	return nil
 }
 
 // AfterSave функция - хук вызовется после сохранения записи
 // Также будет вызван после хука при создании
-func (user *User) AfterSave(scope *gorm.Scope) error {
+func (self *User) AfterSave(scope *gorm.Scope) error {
 	return nil
 }
