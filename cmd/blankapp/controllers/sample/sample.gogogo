@@ -51,7 +51,7 @@ func (self *ControlSample) POST() (err error) {
 // PUT работа с моделью изменение
 func (self *ControlSample) PUT() (err error) {
 	u := models.NewUser(0)
-	self.RW.RequestBodyDecode(u)
+	self.RW.RequestBodyDecodeJson(u)
 	u.Save()
 
 	self.Data = u
