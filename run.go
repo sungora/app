@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -93,13 +94,24 @@ func (self *run) start() (buffError, buffOk bytes.Buffer, err error) {
 	// 	fmt.Print(aurora.Red("error start: " + buffError.String()))
 	// 	return
 	// }
-	fmt.Println("OK")
+	for {
+		time.Sleep(time.Second * 1)
+		if "" != buffOk.String() {
+			fmt.Printf("OK: %s", buffOk.String())
+			break
+		} else if "" != buffError.String() {
+			fmt.Printf("%s", buffError.String())
+			err = errors.New(buffError.String())
+			break
+		}
+	}
+	return
+
 	// if buffOk.String() != "" {
 	// 	fmt.Print(aurora.Green(buffOk.String()))
 	// } else {
 	// 	fmt.Println(aurora.Bold(aurora.Green("OK")))
 	// }
-	return
 }
 
 func (self *run) stop() (err error) {
