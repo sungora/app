@@ -80,7 +80,7 @@ func (self *run) reBuild() (err error) {
 
 func (self *run) start() (buffError, buffOk bytes.Buffer, err error) {
 	fmt.Print("Start: ")
-	self.cmd = exec.Command(self.nameApp)
+	self.cmd = exec.Command("./" + self.nameApp)
 	// var buffError bytes.Buffer
 	// var buffOk bytes.Buffer
 	self.cmd.Stderr = &buffError
