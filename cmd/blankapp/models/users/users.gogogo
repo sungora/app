@@ -14,8 +14,8 @@ type User struct {
 	Nam        *string      ``
 	Age        int          ``
 	Credit     float64      ``
-	IsOnline   bool         `gorm:"default:1;not null"`
-	Status     *string      `gorm:"type:enum('Актив','Пассив','Универсал');"`
+	IsOnline   bool         `gorm:"not null;default:1;"`
+	Status     *string      `gorm:"type:enum('Актив','Пассив','Универсал');not null;default:'Пассив';"`
 	Hobby      *string      `gorm:"type:set('music','sport','reading', 'stamps', 'travel');"`
 	SampleJson *string      `gorm:"type:json;"`
 	Address    *string      `gorm:"type:text;"`
@@ -60,9 +60,12 @@ func (self *User) TableName() string {
 // Load загрузка модели
 func (self *User) Load(isCreate bool) error {
 	if isCreate {
-		return core.DB.Where(*self).FirstOrCreate(self).Error
+		return core.DB.FirstOrCreate(self, *self).Error
 	} else {
-		return core.DB.Where(*self).FirstOrInit(self).Error
+		attr := User{}
+		attr.IsOnlineSet(true)
+		attr.StatusSet("Пассив")
+		return core.DB.Attrs(attr).FirstOrInit(self, *self).Error
 	}
 }
 
