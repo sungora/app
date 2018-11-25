@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/lg"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 type rw struct {
@@ -71,7 +71,7 @@ func (self *rw) CookieRem(name string) {
 	cookie.Name = name
 	cookie.Domain = self.Request.URL.Host
 	cookie.Path = `/`
-	cookie.Expires = time.Now().In(conf.TimeLocation)
+	cookie.Expires = time.Now().In(tool.TimeLocation)
 	http.SetCookie(self.Response, cookie)
 	lg.Info(175, name)
 }

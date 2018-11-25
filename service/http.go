@@ -1,5 +1,5 @@
 // Стандартный вебсервер работающий по протоколу http
-package server
+package service
 
 import (
 	"errors"
@@ -10,15 +10,15 @@ import (
 	"os"
 	"time"
 
-	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/core"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 // newHTTP создание и запуск сервера
-func newHttp(c *conf.ConfigMain) (store net.Listener, err error) {
+func newHttp() (store net.Listener, err error) {
 	Server := &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", c.Host, c.Port),
-		Handler:        newHttpHandler(c),
+		Addr:           fmt.Sprintf("%s:%d", core.Config.Host, core.Config.Port),
+		Handler:        new(httpHandler),
 		ReadTimeout:    time.Second * time.Duration(300),
 		WriteTimeout:   time.Second * time.Duration(300),
 		MaxHeaderBytes: 1048576,
@@ -34,20 +34,12 @@ func newHttp(c *conf.ConfigMain) (store net.Listener, err error) {
 		go Server.Serve(store)
 		return
 	} else if err == nil {
-		return nil, errors.New("http server start unknown error")
+		return nil, errors.New("service start unknown error")
 	}
 	return nil, err
 }
 
 type httpHandler struct {
-	config *conf.ConfigMain
-}
-
-func newHttpHandler(c *conf.ConfigMain) *httpHandler {
-	self := new(httpHandler)
-	self.config = c
-	self.config.SessionTimeout *= time.Second
-	return self
 }
 
 // ServeHTTP Точка входа запроса (в приложение).
@@ -59,7 +51,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// static
-	path := conf.DirStatic + r.URL.Path
+	path := tool.DirStatic + r.URL.Path
 	if fi, err = os.Lstat(path); err == nil {
 		var data []byte
 		if fi.IsDir() == true {
@@ -71,7 +63,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// TODO доработать тип отдаваемого документа
 		if data, err = ioutil.ReadFile(path); err == nil {
 			control := &core.Controller{}
-			control.Init(w, r, self.config)
+			control.Init(w, r)
 			control.RW.ResponseHtml(data, 200)
 			return
 		}
@@ -80,19 +72,14 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// search controller (404)
 	if control, err = core.GetRoute(r.URL.Path); err != nil {
 		control := &core.Controller{}
-		control.Init(w, r, self.config)
+		control.Init(w, r)
 		control.RW.Status = 404
 		control.Response()
 		return
 	}
 
 	// init controller
-	control.Init(w, r, self.config)
-
-	// init session
-	if 0 < self.config.SessionTimeout {
-		control.SessionStart()
-	}
+	control.Init(w, r)
 
 	// execute controller
 	switch r.Method {
@@ -108,7 +95,7 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		control.OPTIONS()
 	default:
 		control := &core.Controller{}
-		control.Init(w, r, self.config)
+		control.Init(w, r)
 		control.RW.Status = 404
 		control.Response()
 		return

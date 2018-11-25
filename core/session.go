@@ -3,16 +3,16 @@ package core
 import (
 	"time"
 
-	"gopkg.in/sungora/app.v1/conf"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 // SessionGC Запуск чистки старых сессий по таймауту
-func SessionGC(c *conf.ConfigMain) {
+func SessionGC() {
 	go func() {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range session {
-				if c.SessionTimeout < time.Now().In(conf.TimeLocation).Sub(s.t) {
+				if Config.SessionTimeout < time.Now().In(tool.TimeLocation).Sub(s.t) {
 					delete(session, i)
 				}
 			}
@@ -29,11 +29,11 @@ type Session struct {
 
 func GetSession(token string) *Session {
 	if elm, ok := session[token]; ok {
-		elm.t = time.Now().In(conf.TimeLocation)
+		elm.t = time.Now().In(tool.TimeLocation)
 		return elm
 	}
 	session[token] = new(Session)
-	session[token].t = time.Now().In(conf.TimeLocation)
+	session[token].t = time.Now().In(tool.TimeLocation)
 	session[token].data = make(map[string]interface{})
 	return session[token]
 }

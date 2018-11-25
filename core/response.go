@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/lg"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 type content struct {
@@ -46,7 +46,7 @@ func (self *rw) ResponseJson(object interface{}, status int) (err error) {
 		lg.Error(err.Error())
 		return nil
 	}
-	t := time.Now().In(conf.TimeLocation)
+	t := time.Now().In(tool.TimeLocation)
 	d := t.Format(time.RFC1123)
 	// запрет кеширования
 	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
@@ -70,7 +70,7 @@ func (self *rw) ResponseHtml(con []byte, status int) (err error) {
 	} else {
 		lg.Error(status, self.Request.Method, self.Request.URL.Path)
 	}
-	t := time.Now().In(conf.TimeLocation)
+	t := time.Now().In(tool.TimeLocation)
 	d := t.Format(time.RFC1123)
 	// запрет кеширования
 	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
