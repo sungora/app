@@ -8,11 +8,11 @@ import (
 	_ "zzzzzzzzz/config/route"  // route controllers
 	_ "zzzzzzzzz/config/worker" // workers task cron
 
-	"gopkg.in/sungora/app.v1/server"
+	"gopkg.in/sungora/app.v1/service"
 )
 
 func main() {
 
-	os.Exit(server.Start())
+	os.Exit(service.Start())
 
 }

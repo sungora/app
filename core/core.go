@@ -2,6 +2,8 @@ package core
 
 import (
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 type ConfigTyp struct {
@@ -15,3 +17,4 @@ type ConfigTyp struct {
 }
 
 var Config *ConfigTyp
+var DB *gorm.DB

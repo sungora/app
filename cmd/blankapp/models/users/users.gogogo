@@ -63,7 +63,7 @@ func (self *User) Load(isCreate bool) error {
 		return core.DB.FirstOrCreate(self, *self).Error
 	} else {
 		attr := User{}
-		attr.IsOnlineSet(true)
+		attr.IsOnline = true
 		attr.StatusSet("Пассив")
 		return core.DB.Attrs(attr).FirstOrInit(self, *self).Error
 	}

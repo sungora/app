@@ -11,11 +11,11 @@ import (
 )
 
 type ControlSample struct {
-	core.Controller
+	core.ControllerJson
 }
 
 // GET действие по умолчанию
-func (self *ControlSample) GET() (err error) {
+func (self *ControlSample) GET() {
 	// сессия
 	var count int
 	if self.Session.Get("count") != nil {
@@ -35,7 +35,7 @@ func (self *ControlSample) GET() (err error) {
 }
 
 // POST работа с моделью создание
-func (self *ControlSample) POST() (err error) {
+func (self *ControlSample) POST() {
 	u := models.NewUser(0)
 	core.DB.AutoMigrate(u)
 	u.InvoiceIDSet(8697)
@@ -49,7 +49,7 @@ func (self *ControlSample) POST() (err error) {
 }
 
 // PUT работа с моделью изменение
-func (self *ControlSample) PUT() (err error) {
+func (self *ControlSample) PUT() {
 	u := models.NewUser(0)
 	self.RW.RequestBodyDecodeJson(u)
 	u.Save()
@@ -59,9 +59,9 @@ func (self *ControlSample) PUT() (err error) {
 }
 
 // DELETE работа с моделью удаление
-func (self *ControlSample) DELETE() (err error) {
+func (self *ControlSample) DELETE() {
 	var ID uint64
-	ID, err = strconv.ParseUint(self.RW.RequestParams["userID"][0], 10, 64)
+	ID, _ = strconv.ParseUint(self.RW.RequestParams["userID"][0], 10, 64)
 	u := models.NewUser(ID)
 	u.Delete()
 
@@ -70,7 +70,7 @@ func (self *ControlSample) DELETE() (err error) {
 }
 
 // OPTIONS получение различных опций для текущего контроллера
-func (self *ControlSample) OPTIONS() (err error) {
+func (self *ControlSample) OPTIONS() {
 	// сценарии для виджетов
 	u := models.NewUserExtended()
 

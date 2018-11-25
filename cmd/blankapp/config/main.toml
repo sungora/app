@@ -1,5 +1,5 @@
 # Основная конфигурация
-[main]
+[core]
 name = "sample"
 timezone = "Europe/Moscow"
 driverDB = "mysql"

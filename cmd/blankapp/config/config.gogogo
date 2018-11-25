@@ -5,12 +5,13 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"gopkg.in/sungora/app.v1/conf"
+
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 func init() {
 	var c *config
-	path := conf.DirConfig + string(os.PathSeparator) + "project.toml"
+	path := tool.DirConfig + string(os.PathSeparator) + "project.toml"
 	if _, err := toml.DecodeFile(path, &c); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return
@@ -28,4 +29,4 @@ type serviceaccess struct {
 	Password string
 }
 
-var ServiceAccess = new(serviceaccess)
+var ServiceAccess *serviceaccess

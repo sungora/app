@@ -2,6 +2,7 @@ package core
 
 import (
 	"net/http"
+	"net/url"
 
 	"gopkg.in/sungora/app.v1/tool"
 )
@@ -15,8 +16,6 @@ type ControllerFace interface {
 	DELETE()
 	OPTIONS()
 	Response()
-	Response403()
-	Response404()
 }
 
 // Базовый контроллер
@@ -40,10 +39,6 @@ func (self *Controller) OPTIONS() {
 }
 func (self *Controller) Response() {
 }
-func (self *Controller) Response403() {
-}
-func (self *Controller) Response404() {
-}
 
 // Контроллер для реализации api запросов в формате json
 type ControllerJson struct {
@@ -54,6 +49,12 @@ type ControllerJson struct {
 
 func (self *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 	self.RW = newRW(r, w)
+	// get parametrs // post "application/x-www-form-urlencoded":
+	r.ParseForm()
+	self.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
+	for i, v := range r.Form {
+		self.RW.RequestParams[i] = v
+	}
 	// init session
 	if 0 < Config.SessionTimeout {
 		token := self.RW.CookieGet(Config.Name)
@@ -70,16 +71,4 @@ func (self *ControllerJson) Response() {
 		return
 	}
 	self.RW.ResponseJson(self.Data, self.RW.Status)
-}
-func (self *ControllerJson) Response403() {
-	if self.RW.isResponse {
-		return
-	}
-	self.RW.ResponseJson([]byte("Access forbidden!"), 403)
-}
-func (self *ControllerJson) Response404() {
-	if self.RW.isResponse {
-		return
-	}
-	self.RW.ResponseJson([]byte("Page not found"), 404)
 }

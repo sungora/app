@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/sungora/app.v1/conf"
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 type TaskSample struct {
@@ -13,7 +13,7 @@ type TaskSample struct {
 // Execute Задача
 func (self *TaskSample) Execute() {
 
-	timeLabel := time.Now().In(conf.TimeLocation).Format("2006-01-02 15:04:05")
+	timeLabel := time.Now().In(tool.TimeLocation).Format("2006-01-02 15:04:05")
 	fmt.Println(timeLabel + " Sample Task")
 
 }
