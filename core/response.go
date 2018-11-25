@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"gopkg.in/sungora/app.v1/conf"
+	"gopkg.in/sungora/app.v1/lg"
 )
 
 type content struct {
@@ -13,35 +16,37 @@ type content struct {
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func (self *rw) ResponseJsonApi(object interface{}, code int, message string, status int) error {
+func (self *rw) ResponseJsonApi200(object interface{}, code int, message string) error {
 	res := new(content)
 	res.Code = code
 	res.Message = message
-	if status > 399 {
-		res.Error = true
-	}
+	res.Error = false
 	res.Data = object
-	return self.ResponseJson(res, status)
+	return self.ResponseJson(res, 200)
 }
 
-func (self *rw) ResponseJson200(object interface{}) error {
-	return self.ResponseJson(object, 200)
-}
-
-func (self *rw) ResponseJson409(object interface{}) error {
-	return self.ResponseJson(object, 409)
+func (self *rw) ResponseJsonApi409(object interface{}, code int, message string) error {
+	res := new(content)
+	res.Code = code
+	res.Message = message
+	res.Error = true
+	res.Data = object
+	lg.Error(message)
+	return self.ResponseJson(res, 409)
 }
 
 func (self *rw) ResponseJson(object interface{}, status int) (err error) {
+	if status < 400 {
+		lg.Info(status, self.Request.Method, self.Request.URL.Path)
+	} else {
+		lg.Error(status, self.Request.Method, self.Request.URL.Path)
+	}
 	data, err := json.Marshal(object)
 	if err != nil {
-		return err
+		lg.Error(err.Error())
+		return nil
 	}
-	var loc *time.Location
-	if loc, err = time.LoadLocation(`Europe/Moscow`); err != nil {
-		loc = time.UTC
-	}
-	t := time.Now().In(loc)
+	t := time.Now().In(conf.TimeLocation)
 	d := t.Format(time.RFC1123)
 	// запрет кеширования
 	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
@@ -55,16 +60,17 @@ func (self *rw) ResponseJson(object interface{}, status int) (err error) {
 	self.Response.WriteHeader(status)
 	// Тело документа
 	self.Response.Write(data)
-	self.responseStatus = true
+	self.isResponse = true
 	return
 }
 
 func (self *rw) ResponseHtml(con []byte, status int) (err error) {
-	var loc *time.Location
-	if loc, err = time.LoadLocation(`Europe/Moscow`); err != nil {
-		loc = time.UTC
+	if status < 400 {
+		lg.Info(status, self.Request.Method, self.Request.URL.Path)
+	} else {
+		lg.Error(status, self.Request.Method, self.Request.URL.Path)
 	}
-	t := time.Now().In(loc)
+	t := time.Now().In(conf.TimeLocation)
 	d := t.Format(time.RFC1123)
 	// запрет кеширования
 	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
@@ -78,16 +84,16 @@ func (self *rw) ResponseHtml(con []byte, status int) (err error) {
 	self.Response.WriteHeader(status)
 	// Тело документа
 	self.Response.Write(con)
-	self.responseStatus = true
+	self.isResponse = true
 	return
 }
 
 func (self *rw) ResponseImg(filePath string) (err error) {
-	self.responseStatus = true
+	self.isResponse = true
 	return
 }
 
 func (self *rw) ResponseFile(filePath string) (err error) {
-	self.responseStatus = true
+	self.isResponse = true
 	return
 }

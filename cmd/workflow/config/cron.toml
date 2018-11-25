@@ -1,5 +1,5 @@
 # Task Description
-[SampleCron]
+[SampleTaskCron]
 name = "Task Description"
 isExecute = true
 minute = "*"

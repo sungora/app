@@ -31,12 +31,11 @@ type Config struct {
 var p *pool
 var cronTaskManager = make(map[string]*manager)
 var cronTaskRun = make(map[string]Task)
-var cronTaskPath string
 var cronControlCH chan struct{}
 
 // Start Создаем пул воркеров указанного размера на уровне пакета
 func Start(c Config) (err error) {
-
+	var cronTaskPath string
 	if cronTaskPath, err = os.Getwd(); err != nil {
 		return
 	}
@@ -45,7 +44,7 @@ func Start(c Config) (err error) {
 
 	p = NewPool(c.LimitCh, c.LimitPool)
 
-	if err = reloadTasks(); err != nil {
+	if err = reloadTasks(cronTaskPath); err != nil {
 		return
 	}
 
@@ -60,11 +59,10 @@ func Start(c Config) (err error) {
 				case <-cronControlCH:
 					return
 				case <-time.After(5 * time.Second):
-					// l := time.Now().Format("2006-01-02 15:04:05")
 				}
 			}
 			// обновляем задачи
-			reloadTasks()
+			reloadTasks(cronTaskPath)
 			//
 			minute := time.Now().Minute()
 			hour := time.Now().Hour()
@@ -119,7 +117,7 @@ func Wait() {
 var controlTask = tool.NewControlFS()
 
 // ReadToml Функция читает конфигурационный файл в формате toml. Отдельный конфиг не связанный с beego.
-func reloadTasks() (err error) {
+func reloadTasks(cronTaskPath string) (err error) {
 	var isChange bool
 	if isChange, err = controlTask.CheckSumMd5(cronTaskPath, ""); err == nil && isChange {
 		if _, err = toml.DecodeFile(cronTaskPath, &cronTaskManager); err != nil {

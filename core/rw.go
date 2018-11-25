@@ -1,25 +1,28 @@
 package core
 
 import (
-	"gopkg.in/sungora/app.v1/conf"
-	"gopkg.in/sungora/app.v1/lg"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"gopkg.in/sungora/app.v1/conf"
+	"gopkg.in/sungora/app.v1/lg"
 )
 
 type rw struct {
-	Request        *http.Request
-	RequestParams      map[string][]string
-	Response       http.ResponseWriter
-	responseStatus bool
+	Request       *http.Request
+	RequestParams map[string][]string
+	Response      http.ResponseWriter
+	isResponse    bool
+	Status        int
 }
 
 func newRW(r *http.Request, w http.ResponseWriter) *rw {
 	self := new(rw)
 	self.Request = r
 	self.Response = w
+	self.Status = 200
 	// get
 	self.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	// post "application/x-www-form-urlencoded":

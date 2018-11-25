@@ -2,53 +2,54 @@ package main
 
 import (
 	"fmt"
+	"time"
 
-	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/workflow"
 )
 
-type ExampleTask string
+// Пример задачи
+type SampleTask string
 
-func (e ExampleTask) Execute() {
-	fmt.Println("executing:", string(e))
+func (e SampleTask) Execute() {
+	fmt.Println("execute: ", string(e))
 }
 
-
-type SampleCron struct {
+// Пример задачи работающей по расписанию
+type SampleTaskCron struct {
 }
 
-func (self *SampleCron) Execute() {
-	fmt.Println("RUN SampleCron")
+func (self *SampleTaskCron) Execute() {
+	fmt.Println("execute: SampleTaskCron")
 }
-
 
 func main() {
 
 	// custom
-	fmt.Println("custom")
+	fmt.Println("Sample run task")
 	pool := workflow.NewPool(200, 9)
-	pool.TaskAdd(ExampleTask("foo"))
-	pool.TaskAdd(ExampleTask("bar"))
+	pool.TaskAdd(SampleTask("foo"))
+	pool.TaskAdd(SampleTask("bar"))
 	for i := 0; i < 20; i++ {
-		pool.TaskAdd(ExampleTask(fmt.Sprintf("additional_%d", i+1)))
+		pool.TaskAdd(SampleTask(fmt.Sprintf("additional_%d", i+1)))
 	}
 	pool.Wait()
 
-	// system
-	fmt.Println("\nsystem")
+	// cron
+	fmt.Println("\nSample run task system and cron task")
 
 	// cron task
-	workflow.TaskAddCron("SampleCron", new(SampleCron))
+	workflow.TaskAddCron("SampleTaskCron", new(SampleTaskCron))
 
-	c := conf.Workflow{
+	c := workflow.Config{
 		LimitCh:   200,
 		LimitPool: 9,
 	}
 	workflow.Start(c)
-	workflow.TaskAdd(ExampleTask("foo"))
-	workflow.TaskAdd(ExampleTask("bar"))
+	workflow.TaskAdd(SampleTask("foo"))
+	workflow.TaskAdd(SampleTask("bar"))
 	for i := 0; i < 20; i++ {
-		workflow.TaskAdd(ExampleTask(fmt.Sprintf("additional_%d", i+1)))
+		workflow.TaskAdd(SampleTask(fmt.Sprintf("additional_%d", i+1)))
 	}
+	time.Sleep(time.Minute * 3)
 	workflow.Wait()
 }

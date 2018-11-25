@@ -12,7 +12,6 @@ import (
 
 	"gopkg.in/sungora/app.v1/conf"
 	"gopkg.in/sungora/app.v1/core"
-	"gopkg.in/sungora/app.v1/lg"
 )
 
 // newHTTP создание и запуск сервера
@@ -69,11 +68,11 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			path += "index.html"
 		}
+		// TODO доработать тип отдаваемого документа
 		if data, err = ioutil.ReadFile(path); err == nil {
 			control := &core.Controller{}
 			control.Init(w, r, self.config)
 			control.RW.ResponseHtml(data, 200)
-			lg.Info(200, r.Method, path)
 			return
 		}
 	}
@@ -82,8 +81,8 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if control, err = core.GetRoute(r.URL.Path); err != nil {
 		control := &core.Controller{}
 		control.Init(w, r, self.config)
-		control.Response(404)
-		lg.Error(404, r.Method, r.URL.Path)
+		control.RW.Status = 404
+		control.Response()
 		return
 	}
 
@@ -98,29 +97,25 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// execute controller
 	switch r.Method {
 	case "GET":
-		err = control.GET()
+		control.GET()
 	case "POST":
-		err = control.POST()
+		control.POST()
 	case "PUT":
-		err = control.PUT()
+		control.PUT()
 	case "DELETE":
-		err = control.DELETE()
+		control.DELETE()
 	case "OPTIONS":
-		err = control.OPTIONS()
+		control.OPTIONS()
 	default:
-		control.Response(404)
-		lg.Error(404, r.Method, r.URL.Path)
+		control := &core.Controller{}
+		control.Init(w, r, self.config)
+		control.RW.Status = 404
+		control.Response()
 		return
 	}
 
 	// response controller
-	if err != nil {
-		control.Response(409)
-		lg.Error(409, r.Method, r.URL.Path, err.Error())
-	} else {
-		control.Response(200)
-		lg.Info(200, r.Method, r.URL.Path)
-	}
+	control.Response()
 
 	// // search controller method
 	// objValue := reflect.ValueOf(control)
