@@ -8,6 +8,8 @@ sessionTimeout = 14400
 host = "localhost"
 port = 8080
 mode = "dev"
+static = "www"
+template = "tpl"
 
 [mysql]
 host = "tcp(localhost:3306)"

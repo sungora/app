@@ -59,9 +59,9 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// static
-	if err = self.ResponseStatic(path, 200); err == nil {
-		return
-	}
+	// if err = self.ResponseStatic(path, 200); err == nil {
+	// 	return
+	// }
 
 	// search controller (404)
 	if control, err = core.GetRoute(r.URL.Path); err != nil {

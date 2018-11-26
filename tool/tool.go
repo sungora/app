@@ -15,4 +15,5 @@ func init() {
 var DirWork string
 var DirConfig string
 var DirStatic string
+var DirTemplate string
 var TimeLocation *time.Location

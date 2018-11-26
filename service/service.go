@@ -136,7 +136,7 @@ func Start() (code int) {
 		return 1
 	}
 	defer store.Close()
-	fmt.Fprintln(os.Stdout, "web app start success")
+	fmt.Fprintf(os.Stdout, "service start success: http://%s:%d\n", core.Config.Host, core.Config.Port)
 
 	// The correctness of the application is closed by a signal
 	signal.Notify(chanelAppControl, os.Interrupt)

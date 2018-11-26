@@ -1,5 +1,5 @@
 // Контроллер главной страницы
-package sample
+package api
 
 import (
 	"strconv"
@@ -26,6 +26,10 @@ func (self *ControlSample) GET() {
 
 	// работа с моделью
 	u := models.NewUser(0)
+	if "" != core.Config.DriverDB {
+		core.DB.AutoMigrate(u)
+
+	}
 	u.InvoiceIDSet(1234)
 	u.NamSet("Вася Пупкин")
 	u.Age = count
@@ -37,7 +41,6 @@ func (self *ControlSample) GET() {
 // POST работа с моделью создание
 func (self *ControlSample) POST() {
 	u := models.NewUser(0)
-	core.DB.AutoMigrate(u)
 	u.InvoiceIDSet(8697)
 	u.NamSet("Вася пупкин")
 	u.Age = 67
