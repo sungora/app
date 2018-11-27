@@ -7,13 +7,16 @@ import (
 
 func init() {
 	DirWork, _ = os.Getwd()
-	sep := string(os.PathSeparator)
-	DirConfig = DirWork + sep + "config"
-	DirStatic = DirWork + sep + "www"
+	Sep := string(os.PathSeparator)
+	DirConfig = DirWork + Sep + "config"
+	DirWww = DirWork + Sep + "www"
+	DirTpl = DirWork + Sep + "tpl"
 }
 
-var DirWork string
-var DirConfig string
-var DirStatic string
-var DirTemplate string
-var TimeLocation *time.Location
+var (
+	DirWork      string
+	DirConfig    string
+	DirWww       string
+	DirTpl       string
+	TimeLocation *time.Location
+)

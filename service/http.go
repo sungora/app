@@ -4,14 +4,8 @@ package service
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/sungora/app.v1/lg"
-	"io/ioutil"
-	"mime"
 	"net"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"gopkg.in/sungora/app.v1/core"
@@ -21,7 +15,7 @@ import (
 // newHTTP создание и запуск сервера
 func newHttp() (store net.Listener, err error) {
 	Server := &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", core.Config.Host, core.Config.Port),
+		Addr:           fmt.Sprintf("%s:%d", core.Config.Main.Host, core.Config.Main.Port),
 		Handler:        new(httpHandler),
 		ReadTimeout:    time.Second * time.Duration(300),
 		WriteTimeout:   time.Second * time.Duration(300),
@@ -55,22 +49,17 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		err     error
 		control core.ControllerFace
-		path    = tool.DirStatic + self.r.URL.Path
 	)
 
-	// static
-	// if err = self.ResponseStatic(path, 200); err == nil {
-	// 	return
-	// }
-
-	// search controller (404)
-	if control, err = core.GetRoute(r.URL.Path); err != nil {
-		path = tool.DirStatic + "/404.html"
-		self.ResponseStatic(path, 404)
+	// search controller & static
+	if control, err = core.Route.GetRoute(r.URL.Path); err != nil {
+		c := new(core.Controller)
+		c.Init(w, r)
+		c.RW.ResponseStatic(tool.DirWww + self.r.URL.Path)
 		return
 	}
 
-	// init controller
+	// initialization controller
 	control.Init(w, r)
 
 	// execute controller
@@ -86,8 +75,9 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "OPTIONS":
 		control.OPTIONS()
 	default:
-		path = tool.DirStatic + "/404.html"
-		self.ResponseStatic(path, 404)
+		c := new(core.Controller)
+		c.Init(w, r)
+		c.RW.ResponseStatic(tool.DirTpl + "/404.html")
 		return
 	}
 
@@ -95,63 +85,60 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	control.Response()
 }
 
-func (self *httpHandler) ResponseStatic(path string, status int) (err error) {
-	var fi os.FileInfo
-	if fi, err = os.Lstat(path); err == nil {
-		if fi.IsDir() == true {
-			if self.r.URL.Path != "/" {
-				path += string(os.PathSeparator)
-			}
-			path += "index.html"
-		}
-		// content
-		var data []byte
-		if data, err = ioutil.ReadFile(path); err != nil {
-			if fi.IsDir() == true {
-				return errors.New("not found: " + path)
-			}
-			self.w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			self.w.WriteHeader(500)
-			self.w.Write([]byte(err.Error()))
-			lg.Error(500, self.r.Method, self.r.URL.Path)
-			return nil
-		}
-		// type
-		typ := `application/octet-stream`
-		l := strings.Split(path, ".")
-		fileExt := `.` + l[len(l)-1]
-		if mimeType := mime.TypeByExtension(fileExt); mimeType != `` {
-			typ = mimeType
-		}
-		// headers
-		t := time.Now().In(tool.TimeLocation)
-		d := t.Format(time.RFC1123)
-		// запрет кеширования
-		self.w.Header().Set("Cache-Control", "no-cache, must-revalidate")
-		self.w.Header().Set("Pragma", "no-cache")
-		self.w.Header().Set("Date", d)
-		self.w.Header().Set("Last-Modified", d)
-		// размер и тип контента
-		self.w.Header().Set("Content-Type", typ)
-		self.w.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
-		// Аттач если документ не картинка и не текстововой
-		if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
-			self.w.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
-		}
-		// Статус ответа
-		self.w.WriteHeader(status)
-		// Тело документа
-		self.w.Write(data)
-		//
-		if status < 400 {
-			lg.Info(status, self.r.Method, self.r.URL.Path)
-		} else {
-			lg.Error(status, self.r.Method, self.r.URL.Path)
-		}
-		return nil
-	}
-	return err
-}
+// func (self *httpHandler) ResponseStatic(path string, status int) (err error) {
+// 	var fi os.FileInfo
+// 	if fi, err = os.Lstat(path); err == nil {
+// 		if fi.IsDir() == true {
+// 			if self.r.URL.Path != "/" {
+// 				path += string(os.PathSeparator)
+// 			}
+// 			path += "index.html"
+// 		}
+// 		// content
+// 		var data []byte
+// 		if data, err = ioutil.ReadFile(path); err != nil {
+// 			self.w.Header().Set("Content-Type", "text/html; charset=utf-8")
+// 			self.w.WriteHeader(500)
+// 			self.w.Write([]byte(err.Error()))
+// 			lg.Error(500, self.r.Method, self.r.URL.Path)
+// 			return nil
+// 		}
+// 		// type
+// 		typ := `application/octet-stream`
+// 		l := strings.Split(path, ".")
+// 		fileExt := `.` + l[len(l)-1]
+// 		if mimeType := mime.TypeByExtension(fileExt); mimeType != `` {
+// 			typ = mimeType
+// 		}
+// 		// headers
+// 		t := time.Now().In(tool.TimeLocation)
+// 		d := t.Format(time.RFC1123)
+// 		// запрет кеширования
+// 		self.w.Header().Set("Cache-Control", "no-cache, must-revalidate")
+// 		self.w.Header().Set("Pragma", "no-cache")
+// 		self.w.Header().Set("Date", d)
+// 		self.w.Header().Set("Last-Modified", d)
+// 		// размер и тип контента
+// 		self.w.Header().Set("Content-Type", typ)
+// 		self.w.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+// 		// Аттач если документ не картинка и не текстововой
+// 		if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
+// 			self.w.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
+// 		}
+// 		// Статус ответа
+// 		self.w.WriteHeader(status)
+// 		// Тело документа
+// 		self.w.Write(data)
+// 		//
+// 		if status < 400 {
+// 			lg.Info(status, self.r.Method, self.r.URL.Path)
+// 		} else {
+// 			lg.Error(status, self.r.Method, self.r.URL.Path)
+// 		}
+// 		return nil
+// 	}
+// 	return err
+// }
 
 // // search controller method
 // objValue := reflect.ValueOf(control)

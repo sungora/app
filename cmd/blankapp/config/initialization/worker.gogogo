@@ -1,4 +1,4 @@
-package worker
+package initialization
 
 import (
 	"zzzzzzzzz/workers/sample"
@@ -6,6 +6,6 @@ import (
 	"gopkg.in/sungora/app.v1/workflow"
 )
 
-func init() {
+func worker() {
 	workflow.TaskAddCron("TaskSample", &sample.TaskSample{})
 }

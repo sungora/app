@@ -12,7 +12,7 @@ func SessionGC() {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range session {
-				if Config.SessionTimeout < time.Now().In(tool.TimeLocation).Sub(s.t) {
+				if Config.Main.SessionTimeout < time.Now().In(tool.TimeLocation).Sub(s.t) {
 					delete(session, i)
 				}
 			}

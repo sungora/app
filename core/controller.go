@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"gopkg.in/sungora/app.v1/lg"
 	"gopkg.in/sungora/app.v1/tool"
 )
 
@@ -55,12 +56,12 @@ func (self *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 	for i, v := range r.Form {
 		self.RW.RequestParams[i] = v
 	}
-	// init session
-	if 0 < Config.SessionTimeout {
-		token := self.RW.CookieGet(Config.Name)
+	// initialization session
+	if 0 < Config.Main.SessionTimeout {
+		token := self.RW.CookieGet(Config.Main.Name)
 		if token == "" {
 			token = tool.NewPass(10)
-			self.RW.CookieSet(Config.Name, token)
+			self.RW.CookieSet(Config.Main.Name, token)
 		}
 		self.Session = GetSession(token)
 	}
@@ -76,9 +77,11 @@ func (self *ControllerJson) Response() {
 // Контроллер для реализации вывода html страниц
 type ControllerHtml struct {
 	Controller
-	Session   *Session
-	Variables map[string]interface{} // Variable (по умолчанию пустой)
-	Functions map[string]interface{} // html/template.FuncMap (по умолчанию пустой)
+	Session       *Session
+	Variables     map[string]interface{} // Variable (по умолчанию пустой)
+	Functions     map[string]interface{} // html/template.FuncMap (по умолчанию пустой)
+	TplController string
+	TplLayout     string
 }
 
 func (self *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
@@ -91,21 +94,39 @@ func (self *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
 	for i, v := range r.Form {
 		self.RW.RequestParams[i] = v
 	}
-	// init session
-	if 0 < Config.SessionTimeout {
-		token := self.RW.CookieGet(Config.Name)
+	// initialization session
+	if 0 < Config.Main.SessionTimeout {
+		token := self.RW.CookieGet(Config.Main.Name)
 		if token == "" {
 			token = tool.NewPass(10)
-			self.RW.CookieSet(Config.Name, token)
+			self.RW.CookieSet(Config.Main.Name, token)
 		}
 		self.Session = GetSession(token)
 	}
+	//
+	self.TplLayout = tool.DirTpl + "/layout/index.html"
+	self.TplController = tool.DirTpl + "/controllers"
 }
 
 func (self *ControllerHtml) Response() {
 	if self.RW.isResponse {
 		return
 	}
-	pathTpl := `C:\workgo\src\zzzzzzzzz\www\index.html`
-	self.RW.ResponseHtml(pathTpl, self.Functions, self.Variables, self.RW.Status)
+	// шаблон контроллера
+	data, err := tool.HtmlCompilation(self.TplController, self.Functions, self.Variables)
+	if err != nil {
+		lg.Error(err.Error())
+		self.RW.ResponseHtml("internal server error", 500)
+		return
+	}
+	// шаблон макета
+	Variables := make(map[string]interface{})
+	Variables["Content"] = data
+	data, err = tool.HtmlCompilation(self.TplLayout, self.Functions, Variables)
+	if err != nil {
+		lg.Error(err.Error())
+		self.RW.ResponseHtml("internal server error", 500)
+		return
+	}
+	self.RW.ResponseHtml(data, 200)
 }

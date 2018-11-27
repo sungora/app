@@ -1,11 +1,9 @@
-package lg
+package initialization
 
 import "gopkg.in/sungora/app.v1/lg/message"
 
-func init() {
-
+func lg() {
 	message.SetMessage(map[int]string{
 		1010: "smaple message log",
 	})
-
 }

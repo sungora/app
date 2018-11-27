@@ -1,4 +1,4 @@
-package route
+package initialization
 
 import (
 	"gopkg.in/sungora/app.v1/core"
@@ -6,12 +6,12 @@ import (
 	"zzzzzzzzz/controllers/page"
 )
 
-func init() {
-	core.SetRoute("/", &page.ControlSample{})
-	core.SetRoute("/api", &api.ControlSample{})
+func route() {
+	core.Route.SetRoute("/", &page.ControlSample{})
+	core.Route.SetRoute("/api", &api.ControlSample{})
 
 	// sample group route
-	core.SetRouteGroup2(map[string]map[string]core.ControllerFace{
+	core.Route.SetRouteGroup2(map[string]map[string]core.ControllerFace{
 		"/api/v1": map[string]core.ControllerFace{
 			"/page1": &api.ControlSample{},
 			"/page2": &api.ControlSample{},

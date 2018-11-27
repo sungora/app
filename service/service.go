@@ -21,31 +21,6 @@ import (
 	"gopkg.in/sungora/app.v1/workflow"
 )
 
-type config struct {
-	Core       core.ConfigTyp
-	Mysql      configMysql
-	Postgresql configPostgresql
-	Log        lg.Config
-	Workflow   workflow.Config
-}
-
-type configMysql struct {
-	Host     string // протокол, хост и порт подключения
-	Name     string // Имя базы данных
-	Login    string // Логин к базе данных
-	Password string // Пароль к базе данных
-	Charset  string // Кодировка данных (utf-8 - по умолчанию)
-}
-
-type configPostgresql struct {
-	Host     string // Хост базы данных (localhost - по умолчанию)
-	Port     int64  // Порт подключения по протоколу tcp/ip (3306 по умолчанию)
-	Name     string // Имя базы данных
-	Login    string // Логин к базе данных
-	Password string // Пароль к базе данных
-	Charset  string // Кодировка данных (utf-8 - по умолчанию)
-}
-
 // Каналы управления запуском и остановкой приложения
 var (
 	chanelAppStop    = make(chan os.Signal, 1)
@@ -63,39 +38,37 @@ func Start() (code int) {
 	)
 
 	// config
-	var configApp *config
 	path := tool.DirConfig + string(os.PathSeparator) + "main.toml"
-	if _, err = toml.DecodeFile(path, &configApp); err != nil {
+	if _, err = toml.DecodeFile(path, core.Config); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
-	core.Config = &configApp.Core
-	core.Config.SessionTimeout *= time.Second
+	core.Config.Main.SessionTimeout *= time.Second
 
 	// Инициализация временной зоны
-	if loc, err := time.LoadLocation(configApp.Core.TimeZone); err == nil {
+	if loc, err := time.LoadLocation(core.Config.Main.TimeZone); err == nil {
 		tool.TimeLocation = loc
 	} else {
 		tool.TimeLocation = time.UTC
 	}
 
 	// logs
-	if err = lg.Start(configApp.Log); err != nil {
+	if err = lg.Start(core.Config.Log); err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 	defer lg.Wait()
 
 	// core
-	switch configApp.Core.DriverDB {
+	switch core.Config.Main.DriverDB {
 	case "mysql":
 		if core.DB, err = gorm.Open("mysql", fmt.Sprintf(
 			"%s:%s@%s/%s?charset=%s&parseTime=True&loc=Local&timeout=3s",
-			configApp.Mysql.Login,
-			configApp.Mysql.Password,
-			configApp.Mysql.Host,
-			configApp.Mysql.Name,
-			configApp.Mysql.Charset,
+			core.Config.Mysql.Login,
+			core.Config.Mysql.Password,
+			core.Config.Mysql.Host,
+			core.Config.Mysql.Name,
+			core.Config.Mysql.Charset,
 		)); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return 1
@@ -104,11 +77,11 @@ func Start() (code int) {
 	case "postgresql":
 		if core.DB, err = gorm.Open("postgres", fmt.Sprintf(
 			"host=%s port=%d user=%s dbname=%s password=%s",
-			configApp.Postgresql.Host,
-			configApp.Postgresql.Port,
-			configApp.Postgresql.Login,
-			configApp.Postgresql.Name,
-			configApp.Postgresql.Password,
+			core.Config.Postgresql.Host,
+			core.Config.Postgresql.Port,
+			core.Config.Postgresql.Login,
+			core.Config.Postgresql.Name,
+			core.Config.Postgresql.Password,
 		)); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return 1
@@ -117,13 +90,13 @@ func Start() (code int) {
 	}
 
 	// session
-	if 0 < configApp.Core.SessionTimeout {
+	if 0 < core.Config.Main.SessionTimeout {
 		core.SessionGC()
 	}
 
 	// workflow
-	if configApp.Workflow.IsWorkflow == true {
-		if err = workflow.Start(configApp.Workflow); err != nil {
+	if core.Config.Workflow.IsWorkflow == true {
+		if err = workflow.Start(core.Config.Workflow); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return 1
 		}
@@ -136,7 +109,12 @@ func Start() (code int) {
 		return 1
 	}
 	defer store.Close()
-	fmt.Fprintf(os.Stdout, "service start success: http://%s:%d\n", core.Config.Host, core.Config.Port)
+	fmt.Fprintf(
+		os.Stdout,
+		"service start success: http://%s:%d\n",
+		core.Config.Main.Host,
+		core.Config.Main.Port,
+	)
 
 	// The correctness of the application is closed by a signal
 	signal.Notify(chanelAppControl, os.Interrupt)

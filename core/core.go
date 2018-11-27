@@ -4,9 +4,20 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	"gopkg.in/sungora/app.v1/lg"
+	"gopkg.in/sungora/app.v1/workflow"
 )
 
-type ConfigTyp struct {
+type config struct {
+	Main       configMain
+	Mysql      configMysql
+	Postgresql configPostgresql
+	Log        lg.Config
+	Workflow   workflow.Config
+}
+
+type configMain struct {
 	Name           string        // Техническое название приложения
 	TimeZone       string        // Временная зона
 	DriverDB       string        // Драйвер DB
@@ -18,5 +29,23 @@ type ConfigTyp struct {
 	Template       string        // Папка для шаблонов
 }
 
-var Config *ConfigTyp
+
+type configMysql struct {
+	Host     string // протокол, хост и порт подключения
+	Name     string // Имя базы данных
+	Login    string // Логин к базе данных
+	Password string // Пароль к базе данных
+	Charset  string // Кодировка данных (utf-8 - по умолчанию)
+}
+
+type configPostgresql struct {
+	Host     string // Хост базы данных (localhost - по умолчанию)
+	Port     int64  // Порт подключения по протоколу tcp/ip (3306 по умолчанию)
+	Name     string // Имя базы данных
+	Login    string // Логин к базе данных
+	Password string // Пароль к базе данных
+	Charset  string // Кодировка данных (utf-8 - по умолчанию)
+}
+
+var Config = new(config)
 var DB *gorm.DB

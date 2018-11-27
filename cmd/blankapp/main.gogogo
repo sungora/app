@@ -3,12 +3,8 @@ package main
 import (
 	"os"
 
-	_ "zzzzzzzzz/config"        // конфигурация
-	_ "zzzzzzzzz/config/lg"     // log
-	_ "zzzzzzzzz/config/route"  // route controllers
-	_ "zzzzzzzzz/config/worker" // workers task cron
-
 	"gopkg.in/sungora/app.v1/service"
+	_ "zzzzzzzzz/config/initialization"
 )
 
 func main() {

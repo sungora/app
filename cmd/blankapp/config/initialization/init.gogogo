@@ -1,0 +1,9 @@
+package initialization
+
+import _ "zzzzzzzzz/config"
+
+func init() {
+	lg()
+	route()
+	worker()
+}

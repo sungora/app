@@ -29,6 +29,7 @@ func (self *ControlSample) GET() {
 
 	self.Variables["Header"] = "Head ControlSample"
 	self.Variables["User"] = u
+	self.TplController += "/page/sample.html"
 
 	return
 }
