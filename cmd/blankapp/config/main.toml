@@ -8,8 +8,6 @@ sessionTimeout = 14400
 host = "localhost"
 port = 8080
 mode = "dev"
-static = "www"
-template = "tpl"
 
 [mysql]
 host = "tcp(localhost:3306)"
@@ -43,5 +41,5 @@ outhttpurl = ""
 
 [workflow]
 isworkflow = true   # включен
-limitch = 200       # буфер канала задач
+limitch = 1000      # буфер канала задач
 limitpool = 9       # максимальное количество воркеров обслуживающих задачи
