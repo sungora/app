@@ -178,11 +178,20 @@ func (self *rw) ResponseStatic(path string) (err error) {
 		// content
 		var data []byte
 		if data, err = ioutil.ReadFile(path); err != nil {
-			self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-			self.Response.WriteHeader(500)
-			self.Response.Write([]byte(err.Error()))
-			lg.Error(500, self.Request.Method, self.Request.URL.Path)
-			return err
+			if fi.IsDir() == true {
+				self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+				self.Response.WriteHeader(403)
+				self.Response.Write([]byte("<h1>Access forbidden</h1>"))
+				lg.Error(403, self.Request.Method, self.Request.URL.Path)
+				return err
+
+			} else {
+				self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+				self.Response.WriteHeader(500)
+				self.Response.Write([]byte("<h1>Internal server error</h1>" + err.Error()))
+				lg.Error(500, self.Request.Method, self.Request.URL.Path)
+				return err
+			}
 		}
 		// type
 		typ := `application/octet-stream`
@@ -215,7 +224,7 @@ func (self *rw) ResponseStatic(path string) (err error) {
 	}
 	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 	self.Response.WriteHeader(404)
-	self.Response.Write([]byte(err.Error()))
+	self.Response.Write([]byte("<h1>Page not found</h1>" + err.Error()))
 	lg.Error(404, self.Request.Method, self.Request.URL.Path)
 	return err
 }
