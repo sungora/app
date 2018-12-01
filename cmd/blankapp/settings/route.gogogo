@@ -1,4 +1,4 @@
-package initialization
+package settings
 
 import (
 	"gopkg.in/sungora/app.v1/core"
@@ -6,7 +6,7 @@ import (
 	"zzzzzzzzz/controllers/page"
 )
 
-func route() {
+func Route() {
 	core.Route.SetRoute("/", &page.ControlSample{})
 	core.Route.SetRoute("/api", &api.ControlSample{})
 

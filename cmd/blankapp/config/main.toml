@@ -2,7 +2,7 @@
 [main]
 name = "sample"
 timezone = "Europe/Moscow"
-driverDB = "mysql"
+driverDB = ""
 # время жизни сессии в секундах (0 - сессия не используется)
 sessionTimeout = 14400
 host = "localhost"

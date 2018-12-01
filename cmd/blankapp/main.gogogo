@@ -4,14 +4,16 @@ import (
 	"os"
 
 	_ "zzzzzzzzz/config"
+	"zzzzzzzzz/settings"
+
 	"gopkg.in/sungora/app.v1/service"
 )
 
 func main() {
 
-	lg()
-	route()
-	worker()
+	settings.Lg()
+	settings.Route()
+	settings.Worker()
 
 	os.Exit(service.Start())
 
