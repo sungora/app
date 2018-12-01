@@ -16,10 +16,10 @@ add compile program `app.v1` to PATH ( optional )
 
     app.v1 new nameApp
 
-Новое приложение создано. Можно собирать и запускать.
+New application created. You can build and run.
 
 #### auto build and run
 
     app.v1 run nameApp
 
-Запуск автоматической сборки и перезапуска приложения после изменении исходников
+Run the automatic assembly and restart the application after changing the source
