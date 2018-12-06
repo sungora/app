@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+
 	"gopkg.in/sungora/app.v1/lg"
 	"gopkg.in/sungora/app.v1/tool"
 )
@@ -35,21 +36,26 @@ var cronControlCH chan struct{}
 
 // Start Создаем пул воркеров указанного размера на уровне пакета
 func Start(c Config) (err error) {
+	var isChange bool
 	var cronTaskPath string
+	var sep = string(os.PathSeparator)
 	if cronTaskPath, err = os.Getwd(); err != nil {
 		return
 	}
-	sep := string(os.PathSeparator)
 	cronTaskPath = cronTaskPath + sep + "config" + sep + "cron.toml"
 
-	p = NewPool(c.LimitCh, c.LimitPool)
-
-	if err = reloadTasks(cronTaskPath); err != nil {
+	// читаем задачи из конфигурации
+	var controlTask = tool.NewControlFS(cronTaskPath, "")
+	if _, err = controlTask.CheckSumMd5(); err != nil {
+		return
+	}
+	if _, err = toml.DecodeFile(cronTaskPath, &cronTaskManager); err != nil {
 		return
 	}
 
-	cronControlCH = make(chan struct{})
+	p = NewPool(c.LimitCh, c.LimitPool)
 	p.wg.Add(1)
+	cronControlCH = make(chan struct{})
 	go func() {
 		defer p.wg.Done()
 		for {
@@ -61,8 +67,17 @@ func Start(c Config) (err error) {
 				case <-time.After(5 * time.Second):
 				}
 			}
-			// обновляем задачи
-			reloadTasks(cronTaskPath)
+			// обновляем задачи из конфигурации
+			if isChange, err = controlTask.CheckSumMd5(); err != nil {
+				lg.Error(err.Error())
+				continue
+			}
+			if isChange {
+				if _, err = toml.DecodeFile(cronTaskPath, &cronTaskManager); err != nil {
+					lg.Error(err.Error())
+					continue
+				}
+			}
 			//
 			minute := time.Now().Minute()
 			hour := time.Now().Hour()
@@ -112,19 +127,6 @@ func TaskAddCron(name string, task Task) {
 func Wait() {
 	cronControlCH <- struct{}{}
 	p.Wait()
-}
-
-var controlTask = tool.NewControlFS()
-
-// ReadToml Функция читает конфигурационный файл в формате toml. Отдельный конфиг не связанный с beego.
-func reloadTasks(cronTaskPath string) (err error) {
-	var isChange bool
-	if isChange, err = controlTask.CheckSumMd5(cronTaskPath, ""); err == nil && isChange {
-		if _, err = toml.DecodeFile(cronTaskPath, &cronTaskManager); err != nil {
-			return
-		}
-	}
-	return
 }
 
 func checkRuntime(val int, mask string) bool {

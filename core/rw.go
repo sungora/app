@@ -92,26 +92,25 @@ type content struct {
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func (self *rw) ResponseJsonApi200(object interface{}, code int, message string) error {
+func (self *rw) ResponseJsonApi200(object interface{}, code int, message string) {
 	res := new(content)
 	res.Code = code
 	res.Message = message
 	res.Error = false
 	res.Data = object
-	return self.ResponseJson(res, 200)
+	self.ResponseJson(res, 200)
 }
 
-func (self *rw) ResponseJsonApi409(object interface{}, code int, message string) error {
+func (self *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 	res := new(content)
 	res.Code = code
 	res.Message = message
 	res.Error = true
 	res.Data = object
-	lg.Error(message)
-	return self.ResponseJson(res, 409)
+	self.ResponseJson(res, 409)
 }
 
-func (self *rw) ResponseJson(object interface{}, status int) (err error) {
+func (self *rw) ResponseJson(object interface{}, status int) {
 	if status < 400 {
 		lg.Info(status, self.Request.Method, self.Request.URL.Path)
 	} else {
@@ -121,7 +120,7 @@ func (self *rw) ResponseJson(object interface{}, status int) (err error) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		lg.Error(err.Error())
-		return nil
+		return
 	}
 	//
 	t := time.Now().In(tool.TimeLocation)
@@ -142,7 +141,7 @@ func (self *rw) ResponseJson(object interface{}, status int) (err error) {
 	return
 }
 
-func (self *rw) ResponseHtml(con string, status int) (err error) {
+func (self *rw) ResponseHtml(con string, status int) {
 	if status < 400 {
 		lg.Info(status, self.Request.Method, self.Request.URL.Path)
 	} else {
@@ -166,7 +165,8 @@ func (self *rw) ResponseHtml(con string, status int) (err error) {
 	return
 }
 
-func (self *rw) ResponseStatic(path string) (err error) {
+func (self *rw) ResponseStatic(path string) {
+	var err error
 	var fi os.FileInfo
 	if fi, err = os.Lstat(path); err == nil {
 		if fi.IsDir() == true {
@@ -183,14 +183,14 @@ func (self *rw) ResponseStatic(path string) (err error) {
 				self.Response.WriteHeader(403)
 				self.Response.Write([]byte("<h1>Access forbidden</h1>"))
 				lg.Error(403, self.Request.Method, self.Request.URL.Path)
-				return err
+				return
 
 			} else {
 				self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 				self.Response.WriteHeader(500)
 				self.Response.Write([]byte("<h1>Internal server error</h1>" + err.Error()))
 				lg.Error(500, self.Request.Method, self.Request.URL.Path)
-				return err
+				return
 			}
 		}
 		// type
@@ -220,13 +220,13 @@ func (self *rw) ResponseStatic(path string) (err error) {
 		// Тело документа
 		self.Response.Write(data)
 		lg.Info(200, self.Request.Method, self.Request.URL.Path)
-		return nil
+		return
 	}
 	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 	self.Response.WriteHeader(404)
 	self.Response.Write([]byte("<h1>Page not found</h1>" + err.Error()))
 	lg.Error(404, self.Request.Method, self.Request.URL.Path)
-	return err
+	return
 }
 
 // func (self *rw) ResponseImg(filePath string) (err error) {

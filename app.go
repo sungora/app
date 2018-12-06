@@ -24,7 +24,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "run":
-		var run = NewRun(os.Args[2])
+		var run = newRun(os.Args[2])
 		run.Control()
 	case "new":
 		var app = newApp(os.Args[2], VERSION)

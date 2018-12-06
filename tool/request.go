@@ -32,29 +32,28 @@ func RequestGetParamsCompile(postData map[string]interface{}) string {
 	return q.Encode()
 }
 
-func NewRequestGET(url string, requestBody, responseBody interface{}) (err error) {
+func NewRequestGET(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return NewRequest(url, "GET", requestBody, responseBody)
 }
 
-func NewRequestPOST(url string, requestBody, responseBody interface{}) (err error) {
+func NewRequestPOST(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return NewRequest(url, "POST", requestBody, responseBody)
 }
 
-func NewRequestPUT(url string, requestBody, responseBody interface{}) (err error) {
+func NewRequestPUT(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return NewRequest(url, "PUT", requestBody, responseBody)
 }
 
-func NewRequestDELETE(url string, requestBody, responseBody interface{}) (err error) {
+func NewRequestDELETE(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return NewRequest(url, "DELETE", requestBody, responseBody)
 }
 
-func NewRequestOPTIONS(url string, requestBody, responseBody interface{}) (err error) {
+func NewRequestOPTIONS(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return NewRequest(url, "OPTIONS", requestBody, responseBody)
 }
 
-func NewRequest(url, method string, requestBody, responseBody interface{}) (err error) {
+func NewRequest(url, method string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	var request *http.Request
-	var response *http.Response
 	body := new(bytes.Buffer)
 	//
 	if method == "POST" || method == "PUT" {
@@ -78,5 +77,5 @@ func NewRequest(url, method string, requestBody, responseBody interface{}) (err 
 			json.Unmarshal(bodyResponse, responseBody)
 		}
 	}
-	return err
+	return
 }

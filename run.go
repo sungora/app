@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,26 +17,24 @@ type run struct {
 	cmd     *exec.Cmd
 }
 
-func NewRun(nameApp string) *run {
+func newRun(nameApp string) *run {
 	sep := string(os.PathSeparator)
 	self := new(run)
 	self.path = os.Getenv("GOPATH") + sep + "src" + sep + nameApp
 	self.nameApp = nameApp
+	os.Chdir(self.path)
 	return self
 }
 
 func (self *run) Control() {
-
-	os.Chdir(self.path)
-
 	chanelAppControl := make(chan os.Signal, 1)
 	signal.Notify(chanelAppControl, os.Interrupt)
 
-	fs := tool.NewControlFS()
-	fs.CheckSumMd5(self.path, ".go")
+	fs := tool.NewControlFS(self.path, ".go")
+	fs.CheckSumMd5()
 
 	self.reBuild()
-	self.start()
+	buffError, buffOk := self.start()
 
 	for {
 		time.Sleep(time.Second * 1)
@@ -46,28 +43,30 @@ func (self *run) Control() {
 			self.stop()
 			goto end
 		default:
-			if isChange, _ := fs.CheckSumMd5(self.path, ".go"); isChange == true {
+			if isChange, _ := fs.CheckSumMd5(); isChange == true {
 				self.stop()
 				self.reBuild()
-				self.start()
+				buffError, buffOk = self.start()
 			}
 		}
+		fmt.Printf("%s", string(buffOk.Next(buffOk.Len())))
+		fmt.Printf("%s", string(buffError.Next(buffError.Len())))
 	}
 end:
 }
 
-func (self *run) reBuild() (err error) {
+func (self *run) reBuild() {
 	fmt.Print("Build: ")
 	self.cmd = exec.Command("go", "build", "-i")
 	var buffError bytes.Buffer
 	var buffOk bytes.Buffer
 	self.cmd.Stderr = &buffError
 	self.cmd.Stdout = &buffOk
-	if err = self.cmd.Start(); err != nil {
+	if err := self.cmd.Start(); err != nil {
 		fmt.Println("error command build: " + err.Error())
 		return
 	}
-	if err = self.cmd.Wait(); err != nil {
+	if err := self.cmd.Wait(); err != nil {
 		fmt.Print("error build: " + buffError.String())
 		return
 	}
@@ -79,45 +78,26 @@ func (self *run) reBuild() (err error) {
 	return
 }
 
-func (self *run) start() (buffError, buffOk bytes.Buffer, err error) {
+func (self *run) start() (buffError, buffOk *bytes.Buffer) {
 	fmt.Print("Start: ")
 	self.cmd = exec.Command("./" + self.nameApp)
-	// var buffError bytes.Buffer
-	// var buffOk bytes.Buffer
-	self.cmd.Stderr = &buffError
-	self.cmd.Stdout = &buffOk
-	if err = self.cmd.Start(); err != nil {
+	buffError = &bytes.Buffer{}
+	buffOk = &bytes.Buffer{}
+	self.cmd.Stderr = buffError
+	self.cmd.Stdout = buffOk
+	if err := self.cmd.Start(); err != nil {
 		fmt.Println("error command start: " + err.Error())
 		return
 	}
-	// if err = self.cmd.Wait(); err != nil {
-	// 	fmt.Print(aurora.Red("error start: " + buffError.String()))
-	// 	return
-	// }
-	for {
-		time.Sleep(time.Second * 1)
-		if "" != buffOk.String() {
-			fmt.Printf("OK: %s", buffOk.String())
-			break
-		} else if "" != buffError.String() {
-			fmt.Printf("%s", buffError.String())
-			err = errors.New(buffError.String())
-			break
-		}
-	}
+	fmt.Println("OK")
 	return
-
-	// if buffOk.String() != "" {
-	// 	fmt.Print(aurora.Green(buffOk.String()))
-	// } else {
-	// 	fmt.Println(aurora.Bold(aurora.Green("OK")))
-	// }
 }
 
-func (self *run) stop() (err error) {
+func (self *run) stop() {
 	fmt.Print("Stop: ")
-	self.cmd.Process.Signal(os.Interrupt)
-	if err = self.cmd.Wait(); err != nil {
+	self.cmd.Process.Kill()
+	// self.cmd.Process.Signal(os.Kill)
+	if err := self.cmd.Wait(); err != nil {
 		fmt.Println("error command stop: " + err.Error())
 		return
 	}

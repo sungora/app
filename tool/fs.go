@@ -10,26 +10,31 @@ import (
 type controlFS struct {
 	Files       map[string]uint64
 	FilesChange map[string]uint64
+	Path        string
+	Ext         string
 }
 
-func NewControlFS() *controlFS {
+// NewControlFS Функция конструтор контроля изменений файлов по указанному пути
+// Можно укзать фильтр по файлам (расширения файлов)
+// Учитывается добавление, изменение и удаление файлов
+func NewControlFS(path string, ext string) *controlFS {
 	self := new(controlFS)
 	self.Files = make(map[string]uint64)
 	self.FilesChange = make(map[string]uint64)
+	self.Path = path
+	self.Ext = ext
 	return self
 }
 
-// CheckSumMd5 контроль изменений файлов по указанному пути
-// Учитывается добавление, изменение и удаление файлов
-// Можно укзать фильтр по файлам (расширения файлов)
-func (self *controlFS) CheckSumMd5(root string, ext string) (isChange bool, err error) {
+// CheckSumMd5 проверка добавления, изменения и удаление файлов
+func (self *controlFS) CheckSumMd5() (isChange bool, err error) {
 	self.FilesChange = make(map[string]uint64)
-	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(self.Path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		// фильтр по расширению файла
-		if ext != "" && ext != "*" && ext != filepath.Ext(path) {
+		if self.Ext != "" && self.Ext != "*" && self.Ext != filepath.Ext(path) {
 			return nil
 		}
 		if !info.Mode().IsRegular() {
