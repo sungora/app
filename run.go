@@ -30,12 +30,10 @@ func (self *run) Control() {
 	chanelAppControl := make(chan os.Signal, 1)
 	signal.Notify(chanelAppControl, os.Interrupt)
 
+	var err error
+	var buffOk = new(bytes.Buffer)
+	var buffError = new(bytes.Buffer)
 	fs := tool.NewControlFS(self.path, ".go")
-	fs.CheckSumMd5()
-
-	self.reBuild()
-	buffError, buffOk := self.start()
-
 	for {
 		time.Sleep(time.Second * 1)
 		select {
@@ -45,8 +43,9 @@ func (self *run) Control() {
 		default:
 			if isChange, _ := fs.CheckSumMd5(); isChange == true {
 				self.stop()
-				self.reBuild()
-				buffError, buffOk = self.start()
+				if err = self.reBuild(); err == nil {
+					buffError, buffOk = self.start()
+				}
 			}
 		}
 		fmt.Printf("%s", string(buffOk.Next(buffOk.Len())))
@@ -55,19 +54,19 @@ func (self *run) Control() {
 end:
 }
 
-func (self *run) reBuild() {
+func (self *run) reBuild() (err error) {
 	fmt.Print("Build: ")
 	self.cmd = exec.Command("go", "build", "-i")
 	var buffError bytes.Buffer
 	var buffOk bytes.Buffer
 	self.cmd.Stderr = &buffError
 	self.cmd.Stdout = &buffOk
-	if err := self.cmd.Start(); err != nil {
-		fmt.Println("error command build: " + err.Error())
+	if err = self.cmd.Start(); err != nil {
+		fmt.Println("ERROR: " + err.Error())
 		return
 	}
-	if err := self.cmd.Wait(); err != nil {
-		fmt.Print("error build: " + buffError.String())
+	if err = self.cmd.Wait(); err != nil {
+		fmt.Print("ERROR: " + buffError.String())
 		return
 	}
 	if buffOk.String() != "" {
@@ -86,7 +85,7 @@ func (self *run) start() (buffError, buffOk *bytes.Buffer) {
 	self.cmd.Stderr = buffError
 	self.cmd.Stdout = buffOk
 	if err := self.cmd.Start(); err != nil {
-		fmt.Println("error command start: " + err.Error())
+		fmt.Println("ERROR: " + err.Error())
 		return
 	}
 	fmt.Println("OK")
@@ -94,13 +93,15 @@ func (self *run) start() (buffError, buffOk *bytes.Buffer) {
 }
 
 func (self *run) stop() {
-	fmt.Print("Stop: ")
-	self.cmd.Process.Kill()
-	// self.cmd.Process.Signal(os.Kill)
-	if err := self.cmd.Wait(); err != nil {
-		fmt.Println("error command stop: " + err.Error())
-		return
+	if self.cmd != nil {
+		fmt.Print("Stop: ")
+		self.cmd.Process.Kill()
+		// self.cmd.Process.Signal(os.Kill)
+		if err := self.cmd.Wait(); err != nil {
+			fmt.Println("ERROR: " + err.Error())
+			return
+		}
+		fmt.Println("OK")
 	}
-	fmt.Println("OK")
 	return
 }
