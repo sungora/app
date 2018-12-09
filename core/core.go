@@ -57,8 +57,7 @@ type configPostgresql struct {
 }
 
 var (
-	chanelAppStop    = make(chan os.Signal, 1) // Канал управления и остановкой приложения
-	chanelAppControl = make(chan os.Signal, 1) // Канал управления и остановкой приложения
+	chanelAppControl = make(chan os.Signal, 1) // Канал управления остановкой приложения
 	Config           = new(config)
 	DB               *gorm.DB
 )
@@ -66,7 +65,7 @@ var (
 // Start Launch an application
 func Start() (code int) {
 	defer func() { // контроль завершение работы приложения
-		chanelAppStop <- os.Interrupt
+		chanelAppControl <- os.Interrupt
 	}()
 	var (
 		err   error
@@ -166,7 +165,7 @@ func Start() (code int) {
 // Wait an application
 func Wait() {
 	chanelAppControl <- os.Interrupt
-	<-chanelAppStop
+	<-chanelAppControl
 }
 
 // newHTTP создание и запуск сервера
