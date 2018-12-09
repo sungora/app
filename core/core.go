@@ -18,7 +18,6 @@ type config struct {
 }
 
 type configMain struct {
-	Name           string        // Техническое название приложения
 	TimeZone       string        // Временная зона
 	DriverDB       string        // Драйвер DB
 	SessionTimeout time.Duration // Время жизни сессии в секундах
@@ -28,7 +27,6 @@ type configMain struct {
 	Static         string        // Папка для статических данными (css, js, img, etc...)
 	Template       string        // Папка для шаблонов
 }
-
 
 type configMysql struct {
 	Host     string // протокол, хост и порт подключения

@@ -38,17 +38,17 @@ func GetSession(token string) *Session {
 	return session[token]
 }
 
-func (self *Session) Get(index string) interface{} {
-	if elm, ok := self.data[index]; ok {
+func (s *Session) Get(index string) interface{} {
+	if elm, ok := s.data[index]; ok {
 		return elm
 	}
 	return nil
 }
 
-func (self *Session) Set(index string, value interface{}) {
-	self.data[index] = value
+func (s *Session) Set(index string, value interface{}) {
+	s.data[index] = value
 }
 
-func (self *Session) Del(index string) {
-	delete(self.data, index)
+func (s *Session) Del(index string) {
+	delete(s.data, index)
 }

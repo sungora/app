@@ -105,7 +105,7 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 			msg.Action = fn.Name()
 		}
 	}
-	msg.Service = serviceName
+	msg.Service = tool.ServiceName
 	msg.Login = login
 	switch k := key.(type) {
 	case int:

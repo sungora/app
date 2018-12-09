@@ -85,61 +85,6 @@ func (self *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	control.Response()
 }
 
-// func (self *httpHandler) ResponseStatic(path string, status int) (err error) {
-// 	var fi os.FileInfo
-// 	if fi, err = os.Lstat(path); err == nil {
-// 		if fi.IsDir() == true {
-// 			if self.r.URL.Path != "/" {
-// 				path += string(os.PathSeparator)
-// 			}
-// 			path += "index.html"
-// 		}
-// 		// content
-// 		var data []byte
-// 		if data, err = ioutil.ReadFile(path); err != nil {
-// 			self.w.Header().Set("Content-Type", "text/html; charset=utf-8")
-// 			self.w.WriteHeader(500)
-// 			self.w.Write([]byte(err.Error()))
-// 			lg.Error(500, self.r.Method, self.r.URL.Path)
-// 			return nil
-// 		}
-// 		// type
-// 		typ := `application/octet-stream`
-// 		l := strings.Split(path, ".")
-// 		fileExt := `.` + l[len(l)-1]
-// 		if mimeType := mime.TypeByExtension(fileExt); mimeType != `` {
-// 			typ = mimeType
-// 		}
-// 		// headers
-// 		t := time.Now().In(tool.TimeLocation)
-// 		d := t.Format(time.RFC1123)
-// 		// запрет кеширования
-// 		self.w.Header().Set("Cache-Control", "no-cache, must-revalidate")
-// 		self.w.Header().Set("Pragma", "no-cache")
-// 		self.w.Header().Set("Date", d)
-// 		self.w.Header().Set("Last-Modified", d)
-// 		// размер и тип контента
-// 		self.w.Header().Set("Content-Type", typ)
-// 		self.w.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
-// 		// Аттач если документ не картинка и не текстововой
-// 		if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
-// 			self.w.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
-// 		}
-// 		// Статус ответа
-// 		self.w.WriteHeader(status)
-// 		// Тело документа
-// 		self.w.Write(data)
-// 		//
-// 		if status < 400 {
-// 			lg.Info(status, self.r.Method, self.r.URL.Path)
-// 		} else {
-// 			lg.Error(status, self.r.Method, self.r.URL.Path)
-// 		}
-// 		return nil
-// 	}
-// 	return err
-// }
-
 // // search controller method
 // objValue := reflect.ValueOf(control)
 // met := objValue.MethodByName(r.Method)

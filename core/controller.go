@@ -58,10 +58,10 @@ func (self *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 	}
 	// initialization session
 	if 0 < Config.Main.SessionTimeout {
-		token := self.RW.CookieGet(Config.Main.Name)
+		token := self.RW.CookieGet(tool.ServiceName)
 		if token == "" {
 			token = tool.NewPass(10)
-			self.RW.CookieSet(Config.Main.Name, token)
+			self.RW.CookieSet(tool.ServiceName, token)
 		}
 		self.Session = GetSession(token)
 	}
@@ -96,15 +96,15 @@ func (self *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
 	}
 	// initialization session
 	if 0 < Config.Main.SessionTimeout {
-		token := self.RW.CookieGet(Config.Main.Name)
+		token := self.RW.CookieGet(tool.ServiceName)
 		if token == "" {
 			token = tool.NewPass(10)
-			self.RW.CookieSet(Config.Main.Name, token)
+			self.RW.CookieSet(tool.ServiceName, token)
 		}
 		self.Session = GetSession(token)
 	}
 	//
-	self.TplLayout = tool.DirTpl + "/layout/index.html"
+	self.TplLayout = tool.DirTpl + "/layout/new.html"
 	self.TplController = tool.DirTpl + "/controllers"
 }
 

@@ -2,27 +2,26 @@ package lg
 
 import (
 	"os"
-	"path/filepath"
 	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"gopkg.in/sungora/app.v1/tool"
 )
 
 type Config struct {
-	Info        bool
-	Notice      bool
-	Warning     bool
-	Error       bool
-	Critical    bool
-	Fatal       bool
-	Debug       bool
-	Traces      bool
-	OutStd      bool
-	OutFile     bool
-	OutFilePath string
-	OutHttp     bool
-	OutHttpUrl  string // url куда отправляются логи
+	Info     bool
+	Notice   bool
+	Warning  bool
+	Error    bool
+	Critical bool
+	Fatal    bool
+	Debug    bool
+	Traces   bool
+	OutStd   bool
+	OutFile  bool
+	OutHttp  string // url куда отправляются логи
 }
 
 type msg struct {
@@ -39,29 +38,14 @@ type msg struct {
 var logCh = make(chan msg, 10000)
 var logChClose = make(chan bool)
 var config Config
-var serviceName string
 
 func Start(c Config) (err error) {
 	config = c
-	if ext := filepath.Ext(os.Args[0]); ext != "" {
-		sl := strings.Split(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
-		serviceName = sl[0]
-	} else {
-		serviceName = filepath.Base(os.Args[0])
-	}
 
 	// Инициализация логирования в ФС
-	if config.OutFilePath == "" {
-		sep := string(os.PathSeparator)
-		if dir, err := os.Getwd(); err == nil {
-			config.OutFilePath = dir + sep + "logs" + sep + serviceName + ".log"
-		} else {
-			return err
-		}
-	}
 	if config.OutFile {
-		os.MkdirAll(filepath.Dir(config.OutFilePath), 0777)
-		fp, err = os.OpenFile(config.OutFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		os.MkdirAll(tool.DirLog, 0777)
+		fp, err = os.OpenFile(tool.DirLog+"/"+tool.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			return err
 		}
@@ -75,7 +59,7 @@ func Start(c Config) (err error) {
 			if config.OutFile == true {
 				saveFile(msg)
 			}
-			if config.OutHttp == true {
+			if config.OutHttp != "" {
 				saveHttp(msg)
 			}
 		}
@@ -131,9 +115,10 @@ func getTrace() (traces []trace, err error) {
 		if ok, _ := regexp.Match("/[gG]o/src/", []byte(infoList[i+1])); ok == true {
 			break
 		}
-		tmp := strings.Split(infoList[i], "(")
-		funcName := tmp[0]
-		tmp = strings.Split(infoList[i+1], " ")
+		// tmp := strings.Split(infoList[i], "(")
+		// funcName := tmp[0]
+		funcName := infoList[i]
+		tmp := strings.Split(infoList[i+1], " ")
 		tmp = strings.Split(tmp[0], "go:")
 		line, _ := strconv.Atoi(tmp[1])
 		t := trace{
