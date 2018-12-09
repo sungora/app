@@ -101,6 +101,15 @@ func (self *rw) ResponseJsonApi200(object interface{}, code int, message string)
 	self.ResponseJson(res, 200)
 }
 
+func (self *rw) ResponseJsonApi403(object interface{}, code int, message string) {
+	res := new(content)
+	res.Code = code
+	res.Message = message
+	res.Error = false
+	res.Data = object
+	self.ResponseJson(res, 403)
+}
+
 func (self *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 	res := new(content)
 	res.Code = code
@@ -188,7 +197,7 @@ func (self *rw) ResponseStatic(path string) {
 			} else {
 				self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 				self.Response.WriteHeader(500)
-				self.Response.Write([]byte("<h1>Internal server error</h1>" + err.Error()))
+				self.Response.Write([]byte("<h1>Internal server error</h1>"))
 				lg.Error(500, self.Request.Method, self.Request.URL.Path)
 				return
 			}
@@ -224,7 +233,7 @@ func (self *rw) ResponseStatic(path string) {
 	}
 	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 	self.Response.WriteHeader(404)
-	self.Response.Write([]byte("<h1>Page not found</h1>" + err.Error()))
+	self.Response.Write([]byte("<h1>Page not found</h1>"))
 	lg.Error(404, self.Request.Method, self.Request.URL.Path)
 	return
 }

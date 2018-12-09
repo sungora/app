@@ -6,8 +6,8 @@ import (
 	"gopkg.in/sungora/app.v1/tool"
 )
 
-// SessionGC Запуск чистки старых сессий по таймауту
-func SessionGC() {
+// sessionGC Запуск чистки старых сессий по таймауту
+func sessionGC() {
 	go func() {
 		for {
 			time.Sleep(time.Minute * 1)
@@ -20,35 +20,35 @@ func SessionGC() {
 	}()
 }
 
-var session = make(map[string]*Session)
+var session = make(map[string]*sessionTyp)
 
-type Session struct {
+type sessionTyp struct {
 	t    time.Time
 	data map[string]interface{}
 }
 
-func GetSession(token string) *Session {
+func GetSession(token string) *sessionTyp {
 	if elm, ok := session[token]; ok {
 		elm.t = time.Now().In(tool.TimeLocation)
 		return elm
 	}
-	session[token] = new(Session)
+	session[token] = new(sessionTyp)
 	session[token].t = time.Now().In(tool.TimeLocation)
 	session[token].data = make(map[string]interface{})
 	return session[token]
 }
 
-func (s *Session) Get(index string) interface{} {
+func (s *sessionTyp) Get(index string) interface{} {
 	if elm, ok := s.data[index]; ok {
 		return elm
 	}
 	return nil
 }
 
-func (s *Session) Set(index string, value interface{}) {
+func (s *sessionTyp) Set(index string, value interface{}) {
 	s.data[index] = value
 }
 
-func (s *Session) Del(index string) {
+func (s *sessionTyp) Del(index string) {
 	delete(s.data, index)
 }

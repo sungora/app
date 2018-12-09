@@ -19,32 +19,10 @@ type ControllerFace interface {
 	Response()
 }
 
-// Базовый контроллер
-type Controller struct {
-	RW *rw
-}
-
-func (self *Controller) Init(w http.ResponseWriter, r *http.Request) {
-	self.RW = newRW(r, w)
-}
-
-func (self *Controller) GET() {
-}
-func (self *Controller) POST() {
-}
-func (self *Controller) PUT() {
-}
-func (self *Controller) DELETE() {
-}
-func (self *Controller) OPTIONS() {
-}
-func (self *Controller) Response() {
-}
-
 // Контроллер для реализации api запросов в формате json
 type ControllerJson struct {
-	Controller
-	Session *Session
+	RW      *rw
+	Session *sessionTyp
 	Data    interface{}
 }
 
@@ -67,6 +45,17 @@ func (self *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (self *ControllerJson) GET() {
+}
+func (self *ControllerJson) POST() {
+}
+func (self *ControllerJson) PUT() {
+}
+func (self *ControllerJson) DELETE() {
+}
+func (self *ControllerJson) OPTIONS() {
+}
+
 func (self *ControllerJson) Response() {
 	if self.RW.isResponse {
 		return
@@ -76,8 +65,8 @@ func (self *ControllerJson) Response() {
 
 // Контроллер для реализации вывода html страниц
 type ControllerHtml struct {
-	Controller
-	Session       *Session
+	RW            *rw
+	Session       *sessionTyp
 	Variables     map[string]interface{} // Variable (по умолчанию пустой)
 	Functions     map[string]interface{} // html/template.FuncMap (по умолчанию пустой)
 	TplController string
@@ -106,6 +95,17 @@ func (self *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
 	//
 	self.TplLayout = tool.DirTpl + "/layout/new.html"
 	self.TplController = tool.DirTpl + "/controllers"
+}
+
+func (self *ControllerHtml) GET() {
+}
+func (self *ControllerHtml) POST() {
+}
+func (self *ControllerHtml) PUT() {
+}
+func (self *ControllerHtml) DELETE() {
+}
+func (self *ControllerHtml) OPTIONS() {
 }
 
 func (self *ControllerHtml) Response() {
