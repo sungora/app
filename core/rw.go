@@ -32,8 +32,8 @@ func newRW(r *http.Request, w http.ResponseWriter) *rw {
 }
 
 // CookieGet Получение куки.
-func (self *rw) CookieGet(name string) string {
-	d := self.Request.Header.Get("Cookie")
+func (io *rw) CookieGet(name string) string {
+	d := io.Request.Header.Get("Cookie")
 	if d != "" {
 		sl := strings.Split(d, ";")
 		for _, v := range sl {
@@ -48,11 +48,11 @@ func (self *rw) CookieGet(name string) string {
 }
 
 // CookieSet Установка куки. Если время не указано кука сессионная (пока открыт браузер).
-func (self *rw) CookieSet(name, value string, t ...time.Time) {
+func (io *rw) CookieSet(name, value string, t ...time.Time) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
-	cookie.Domain = self.Request.URL.Host
+	cookie.Domain = io.Request.URL.Host
 	cookie.Path = `/`
 	if 0 < len(t) {
 		cookie.Expires = t[0]
@@ -60,22 +60,22 @@ func (self *rw) CookieSet(name, value string, t ...time.Time) {
 	} else {
 		lg.Info(100, name, value)
 	}
-	http.SetCookie(self.Response, cookie)
+	http.SetCookie(io.Response, cookie)
 }
 
 // CookieRem Удаление куков.
-func (self *rw) CookieRem(name string) {
+func (io *rw) CookieRem(name string) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
-	cookie.Domain = self.Request.URL.Host
+	cookie.Domain = io.Request.URL.Host
 	cookie.Path = `/`
 	cookie.Expires = time.Now().In(tool.TimeLocation)
-	http.SetCookie(self.Response, cookie)
+	http.SetCookie(io.Response, cookie)
 	lg.Info(175, name)
 }
 
-func (self *rw) RequestBodyDecodeJson(object interface{}) error {
-	if body, err := ioutil.ReadAll(self.Request.Body); err == nil {
+func (io *rw) RequestBodyDecodeJson(object interface{}) error {
+	if body, err := ioutil.ReadAll(io.Request.Body); err == nil {
 		if err = json.Unmarshal(body, object); err != nil {
 			return lg.Error(err.Error())
 		}
@@ -92,38 +92,38 @@ type content struct {
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func (self *rw) ResponseJsonApi200(object interface{}, code int, message string) {
+func (io *rw) ResponseJsonApi200(object interface{}, code int, message string) {
 	res := new(content)
 	res.Code = code
 	res.Message = message
 	res.Error = false
 	res.Data = object
-	self.ResponseJson(res, 200)
+	io.ResponseJson(res, 200)
 }
 
-func (self *rw) ResponseJsonApi403(object interface{}, code int, message string) {
+func (io *rw) ResponseJsonApi403(object interface{}, code int, message string) {
 	res := new(content)
 	res.Code = code
 	res.Message = message
 	res.Error = false
 	res.Data = object
-	self.ResponseJson(res, 403)
+	io.ResponseJson(res, 403)
 }
 
-func (self *rw) ResponseJsonApi409(object interface{}, code int, message string) {
+func (io *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 	res := new(content)
 	res.Code = code
 	res.Message = message
 	res.Error = true
 	res.Data = object
-	self.ResponseJson(res, 409)
+	io.ResponseJson(res, 409)
 }
 
-func (self *rw) ResponseJson(object interface{}, status int) {
+func (io *rw) ResponseJson(object interface{}, status int) {
 	if status < 400 {
-		lg.Info(status, self.Request.Method, self.Request.URL.Path)
+		lg.Info(status, io.Request.Method, io.Request.URL.Path)
 	} else {
-		lg.Error(status, self.Request.Method, self.Request.URL.Path)
+		lg.Error(status, io.Request.Method, io.Request.URL.Path)
 	}
 	//
 	data, err := json.Marshal(object)
@@ -135,51 +135,61 @@ func (self *rw) ResponseJson(object interface{}, status int) {
 	t := time.Now().In(tool.TimeLocation)
 	d := t.Format(time.RFC1123)
 	// запрет кеширования
-	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	self.Response.Header().Set("Pragma", "no-cache")
-	self.Response.Header().Set("Date", d)
-	self.Response.Header().Set("Last-Modified", d)
+	io.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	io.Response.Header().Set("Pragma", "no-cache")
+	io.Response.Header().Set("Date", d)
+	io.Response.Header().Set("Last-Modified", d)
 	// размер и тип контента
-	self.Response.Header().Set("Content-Type", "application/json; charset=utf-8")
-	self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	io.Response.Header().Set("Content-Type", "application/json; charset=utf-8")
+	io.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	// Статус ответа
-	self.Response.WriteHeader(status)
+	io.Response.WriteHeader(status)
 	// Тело документа
-	self.Response.Write(data)
-	self.isResponse = true
+	io.Response.Write(data)
+	io.isResponse = true
 	return
 }
 
-func (self *rw) ResponseHtml(con string, status int) {
+func (io *rw) ResponseHtml(con string, status int) {
 	if status < 400 {
-		lg.Info(status, self.Request.Method, self.Request.URL.Path)
+		lg.Info(status, io.Request.Method, io.Request.URL.Path)
 	} else {
-		lg.Error(status, self.Request.Method, self.Request.URL.Path)
+		lg.Error(status, io.Request.Method, io.Request.URL.Path)
+	}
+	var err error
+	var data []byte
+	if con == "" {
+		path := fmt.Sprintf("%s/layout/%d.html", tool.DirTpl, status)
+		if data, err = ioutil.ReadFile(path); err != nil {
+			data = []byte("<h1>Internal server error</h1>")
+		}
+	} else {
+		data = []byte(con)
 	}
 	t := time.Now().In(tool.TimeLocation)
 	d := t.Format(time.RFC1123)
 	// запрет кеширования
-	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	self.Response.Header().Set("Pragma", "no-cache")
-	self.Response.Header().Set("Date", d)
-	self.Response.Header().Set("Last-Modified", d)
+	io.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	io.Response.Header().Set("Pragma", "no-cache")
+	io.Response.Header().Set("Date", d)
+	io.Response.Header().Set("Last-Modified", d)
 	// размер и тип контента
-	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-	self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(con)))
+	io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+	io.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	// Статус ответа
-	self.Response.WriteHeader(status)
+	io.Response.WriteHeader(status)
 	// Тело документа
-	self.Response.Write([]byte(con))
-	self.isResponse = true
+	io.Response.Write(data)
+	io.isResponse = true
 	return
 }
 
-func (self *rw) ResponseStatic(path string) {
+func (io *rw) ResponseStatic(path string) {
 	var err error
 	var fi os.FileInfo
 	if fi, err = os.Lstat(path); err == nil {
 		if fi.IsDir() == true {
-			if self.Request.URL.Path != "/" {
+			if io.Request.URL.Path != "/" {
 				path += string(os.PathSeparator)
 			}
 			path += "index.html"
@@ -188,17 +198,17 @@ func (self *rw) ResponseStatic(path string) {
 		var data []byte
 		if data, err = ioutil.ReadFile(path); err != nil {
 			if fi.IsDir() == true {
-				self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-				self.Response.WriteHeader(403)
-				self.Response.Write([]byte("<h1>Access forbidden</h1>"))
-				lg.Error(403, self.Request.Method, self.Request.URL.Path)
+				io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+				io.Response.WriteHeader(403)
+				io.Response.Write([]byte("<h1>Access forbidden</h1>"))
+				lg.Error(403, io.Request.Method, io.Request.URL.Path)
 				return
 
 			} else {
-				self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-				self.Response.WriteHeader(500)
-				self.Response.Write([]byte("<h1>Internal server error</h1>"))
-				lg.Error(500, self.Request.Method, self.Request.URL.Path)
+				io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+				io.Response.WriteHeader(500)
+				io.Response.Write([]byte("<h1>Internal server error</h1>"))
+				lg.Error(500, io.Request.Method, io.Request.URL.Path)
 				return
 			}
 		}
@@ -213,28 +223,28 @@ func (self *rw) ResponseStatic(path string) {
 		t := time.Now().In(tool.TimeLocation)
 		d := t.Format(time.RFC1123)
 		// запрет кеширования
-		self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-		self.Response.Header().Set("Pragma", "no-cache")
-		self.Response.Header().Set("Date", d)
-		self.Response.Header().Set("Last-Modified", d)
+		io.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+		io.Response.Header().Set("Pragma", "no-cache")
+		io.Response.Header().Set("Date", d)
+		io.Response.Header().Set("Last-Modified", d)
 		// размер и тип контента
-		self.Response.Header().Set("Content-Type", typ)
-		self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+		io.Response.Header().Set("Content-Type", typ)
+		io.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 		// Аттач если документ не картинка и не текстововой
 		if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
-			self.Response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
+			io.Response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
 		}
 		// Статус ответа
-		self.Response.WriteHeader(200)
+		io.Response.WriteHeader(200)
 		// Тело документа
-		self.Response.Write(data)
-		lg.Info(200, self.Request.Method, self.Request.URL.Path)
+		io.Response.Write(data)
+		lg.Info(200, io.Request.Method, io.Request.URL.Path)
 		return
 	}
-	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-	self.Response.WriteHeader(404)
-	self.Response.Write([]byte("<h1>Page not found</h1>"))
-	lg.Error(404, self.Request.Method, self.Request.URL.Path)
+	io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+	io.Response.WriteHeader(404)
+	io.Response.Write([]byte("<h1>Page not found</h1>"))
+	lg.Error(404, io.Request.Method, io.Request.URL.Path)
 	return
 }
 

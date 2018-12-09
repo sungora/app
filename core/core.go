@@ -16,6 +16,7 @@ import (
 
 	"gopkg.in/sungora/app.v1/lg"
 	"gopkg.in/sungora/app.v1/tool"
+	"gopkg.in/sungora/app.v1/uploader"
 	"gopkg.in/sungora/app.v1/workflow"
 )
 
@@ -85,6 +86,12 @@ func Start() (code int) {
 		tool.TimeLocation = loc
 	} else {
 		tool.TimeLocation = time.UTC
+	}
+
+	// Модуль загрузки файлов и получение их по идентификатору
+	if err = uploader.Init(tool.DirWww, 30); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return 1
 	}
 
 	// logs
@@ -199,7 +206,7 @@ func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// search controller & static
 	if control, err = Route.GetRoute(r.URL.Path); err != nil {
-		rwH := new(rw)
+		rwH := newRW(r, w)
 		rwH.ResponseStatic(tool.DirWww + r.URL.Path)
 		return
 	}
@@ -219,10 +226,6 @@ func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		control.DELETE()
 	case "OPTIONS":
 		control.OPTIONS()
-	default:
-		rwH := new(rw)
-		rwH.ResponseStatic(tool.DirTpl + "/404.html")
-		return
 	}
 
 	// response controller

@@ -28,7 +28,7 @@ type ControllerJson struct {
 
 func (self *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 	self.RW = newRW(r, w)
-	// get parametrs // post "application/x-www-form-urlencoded":
+	// request parameter "application/x-www-form-urlencoded"
 	r.ParseForm()
 	self.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	for i, v := range r.Form {
@@ -77,7 +77,7 @@ func (self *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
 	self.RW = newRW(r, w)
 	self.Functions = make(map[string]interface{})
 	self.Variables = make(map[string]interface{})
-	// get parametrs // post "application/x-www-form-urlencoded":
+	// request parameter "application/x-www-form-urlencoded"
 	r.ParseForm()
 	self.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	for i, v := range r.Form {
@@ -116,16 +116,19 @@ func (self *ControllerHtml) Response() {
 	data, err := tool.HtmlCompilation(self.TplController, self.Functions, self.Variables)
 	if err != nil {
 		lg.Error(err.Error())
-		self.RW.ResponseHtml("internal server error", 500)
+		self.RW.ResponseHtml("", 500)
 		return
 	}
 	// шаблон макета
+	if self.TplLayout == "" {
+		self.TplLayout = tool.DirTpl + "/layout/index.html"
+	}
 	Variables := make(map[string]interface{})
 	Variables["Content"] = data
 	data, err = tool.HtmlCompilation(self.TplLayout, self.Functions, Variables)
 	if err != nil {
 		lg.Error(err.Error())
-		self.RW.ResponseHtml("internal server error", 500)
+		self.RW.ResponseHtml("", 500)
 		return
 	}
 	self.RW.ResponseHtml(data, 200)
