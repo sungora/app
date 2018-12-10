@@ -108,17 +108,13 @@ func Start() (code int) {
 	}
 
 	// service - application
-	http.HandleFunc("/", homeRouterHandler) // установим роутер
+	http.HandleFunc("/", httpHandler) // установим роутер
 	store, err = net.Listen("tcp", fmt.Sprintf("%s:%d", Config.Main.Host, Config.Main.Port))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
 	go http.Serve(store, nil)
-	// if store, err = newHttp(); err != nil {
-	// 	fmt.Fprintln(os.Stderr, err.Error())
-	// 	return 1
-	// }
 	defer store.Close()
 	fmt.Fprintf(
 		os.Stdout,
@@ -138,52 +134,19 @@ func Wait() {
 	<-chanelAppControl
 }
 
-// newHTTP создание и запуск сервера
-// func newHttp() (store net.Listener, err error) {
-// 	Server := &http.Server{
-// 		Addr:           fmt.Sprintf("%s:%d", Config.Main.Host, Config.Main.Port),
-// 		Handler:        new(httpHandler),
-// 		ReadTimeout:    time.Second * time.Duration(300),
-// 		WriteTimeout:   time.Second * time.Duration(300),
-// 		MaxHeaderBytes: 1048576,
-// 	}
-// 	for i := 5; i > 0; i-- {
-// 		store, err = net.Listen("tcp", Server.Addr)
-// 		time.Sleep(time.Millisecond * 100)
-// 		if err == nil {
-// 			break
-// 		}
-// 	}
-// 	if err == nil && store != nil {
-// 		go Server.Serve(store)
-// 		return
-// 	} else if err == nil {
-// 		return nil, errors.New("service start unknown error")
-// 	}
-// 	return nil, err
-// }
-
-// type httpHandler struct {
-// }
-
 // ServeHTTP Точка входа запроса (в приложение).
 // func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-func homeRouterHandler(w http.ResponseWriter, r *http.Request) {
-	var (
-		err     error
-		control ControllerFace
-	)
-
-	// search controller & static
-	if control, err = Route.GetRoute(r.URL.Path); err != nil {
+func httpHandler(w http.ResponseWriter, r *http.Request) {
+	// search controller
+	var control, err = Route.Get(r.URL.Path)
+	// response static
+	if err != nil {
 		rwH := newRW(r, w)
 		rwH.ResponseStatic(tool.DirWww + r.URL.Path)
 		return
 	}
-
 	// initialization controller
 	control.Init(w, r)
-
 	// execute controller
 	switch r.Method {
 	case "GET":
@@ -197,54 +160,6 @@ func homeRouterHandler(w http.ResponseWriter, r *http.Request) {
 	case "OPTIONS":
 		control.OPTIONS()
 	}
-
-	// response controller
-	// control.Response()
+	// default response controller
+	control.Response()
 }
-
-// // search controller method
-// objValue := reflect.ValueOf(control)
-// met := objValue.MethodByName(r.Method)
-// if met.IsValid() == false {
-// 	control := &core.Controller{}
-// 	control.Init(w, r, self.config)
-// 	control.RW.ResponseHtml([]byte("page not found (m)"), 404)
-// 	lg.Error("not found method [%s] of control", r.Method)
-// 	return
-// }
-//
-// // пример передачи параметров в метод
-// var in = make([]reflect.Value, 0)
-// var params []interface{}
-// for i := range params {
-// 	in = append(in, reflect.ValueOf(params[i]))
-// }
-//
-// // execute method of controller
-// out := met.Call(in)
-// if nil != out[0].Interface() {
-// 	lg.Error(out[0].Interface().(error))
-// }
-
-// GetCmdArgs Инициализация параметров командной строки
-// func GetCmdArgs() (mode string, err error) {
-// 	if len(os.Args) > 1 {
-// 		mode = os.Args[1]
-// 	}
-// 	// - проверки
-// 	if mode == `-h` || mode == `-help` || mode == `--help` {
-// 		var str string
-// 		str += "Usage of %s: %s [mode]\n"
-// 		str += "\t mode: Режим запуска приложения\n"
-// 		str += "\t\t install - Установка как сервиса в ОС\n"
-// 		str += "\t\t uninstall - Удаление сервиса из ОС\n"
-// 		str += "\t\t restart - Перезапуск ранее установленного сервиса\n"
-// 		str += "\t\t start - Запуск ранее установленного сервиса\n"
-// 		str += "\t\t stop - Остановка ранее установленного сервиса\n"
-// 		str += "\t\t run - Прямой запуск (выход по 'Ctrl+C')\n"
-// 		str += "\t\t если параметр опущен работает в режиме run\n"
-// 		fmt.Fprintf(os.Stderr, str, filepath.Base(os.Args[0]), filepath.Base(os.Args[0]))
-// 		return "", errors.New("Help startup request")
-// 	}
-// 	return
-// }

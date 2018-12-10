@@ -4,42 +4,33 @@ import (
 	"errors"
 )
 
-type routesTyp map[string]ControllerFace
+type routesTyp map[string]func() ControllerFace
 
 var Route = make(routesTyp)
 
-func (r routesTyp) SetRoute(uri string, control ControllerFace) {
-	r[uri] = control
+func (r routesTyp) Set(path string, f func() ControllerFace) {
+	r[path] = f
 }
 
-func (r routesTyp) SetRouteGroup1(route map[string]ControllerFace) {
-	for u, c := range route {
-		r[u] = c
+func (r routesTyp) Get(path string) (control ControllerFace, err error) {
+	if _, ok := r[path]; ok {
+		return r[path](), nil
 	}
+	return nil, errors.New("controller not found from uri: " + path)
+
 }
 
-func (r routesTyp) SetRouteGroup2(route map[string]map[string]ControllerFace) {
-	for u1, map1 := range route {
-		for u2, c := range map1 {
-			r[u1+u2] = c
-		}
-	}
+type routePath string
+
+func (r routesTyp) Path(pathSegment string) routePath {
+	return routePath(pathSegment)
 }
 
-func (r routesTyp) SetRouteGroup3(route map[string]map[string]map[string]ControllerFace) {
-	for u1, map1 := range route {
-		for u2, map2 := range map1 {
-			for u3, c := range map2 {
-				r[u1+u2+u3] = c
-			}
-		}
-	}
+func (r routePath) Path(pathSegment string) routePath {
+	return r + routePath(pathSegment)
 }
 
-func (r routesTyp) GetRoute(uri string) (control ControllerFace, err error) {
-	if _, ok := r[uri]; ok {
-		return r[uri], nil
-	}
-	return nil, errors.New("controller not found from uri: " + uri)
-
+func (r routePath) Set(pathSegment string, f func() ControllerFace) routePath {
+	Route[string(r)+pathSegment] = f
+	return r
 }

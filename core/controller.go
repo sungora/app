@@ -26,44 +26,44 @@ type ControllerJson struct {
 	Data    interface{}
 }
 
-func (self *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
-	self.RW = newRW(r, w)
+func (c *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
+	c.RW = newRW(r, w)
 	// request parameter "application/x-www-form-urlencoded"
 	r.ParseForm()
-	self.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
+	c.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	for i, v := range r.Form {
-		self.RW.RequestParams[i] = v
+		c.RW.RequestParams[i] = v
 	}
 	// initialization session
 	if 0 < Config.Main.SessionTimeout {
-		token := self.RW.CookieGet(tool.ServiceName)
+		token := c.RW.CookieGet(tool.ServiceName)
 		if token == "" {
 			token = tool.NewPass(10)
-			self.RW.CookieSet(tool.ServiceName, token)
+			c.RW.CookieSet(tool.ServiceName, token)
 		}
-		self.Session = GetSession(token)
+		c.Session = GetSession(token)
 	}
 }
 
-func (self *ControllerJson) GET() {
+func (c *ControllerJson) GET() {
 }
-func (self *ControllerJson) POST() {
+func (c *ControllerJson) POST() {
 }
-func (self *ControllerJson) PUT() {
+func (c *ControllerJson) PUT() {
 }
-func (self *ControllerJson) DELETE() {
+func (c *ControllerJson) DELETE() {
 }
-func (self *ControllerJson) OPTIONS() {
+func (c *ControllerJson) OPTIONS() {
 }
 
-func (self *ControllerJson) Response() {
-	if self.RW.isResponse {
+func (c *ControllerJson) Response() {
+	if c.RW.isResponse {
 		return
 	}
-	self.RW.ResponseJson(self.Data, self.RW.Status)
+	c.RW.ResponseJson(c.Data, c.RW.Status)
 }
 
-// Контроллер для реализации вывода html страниц
+// Контроллер для реализации html страниц
 type ControllerHtml struct {
 	RW            *rw
 	Session       *sessionTyp
@@ -73,63 +73,62 @@ type ControllerHtml struct {
 	TplLayout     string
 }
 
-func (self *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
-	self.RW = newRW(r, w)
-	self.Functions = make(map[string]interface{})
-	self.Variables = make(map[string]interface{})
+func (c *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
+	c.RW = newRW(r, w)
 	// request parameter "application/x-www-form-urlencoded"
 	r.ParseForm()
-	self.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
+	c.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	for i, v := range r.Form {
-		self.RW.RequestParams[i] = v
+		c.RW.RequestParams[i] = v
 	}
 	// initialization session
 	if 0 < Config.Main.SessionTimeout {
-		token := self.RW.CookieGet(tool.ServiceName)
+		token := c.RW.CookieGet(tool.ServiceName)
 		if token == "" {
 			token = tool.NewPass(10)
-			self.RW.CookieSet(tool.ServiceName, token)
+			c.RW.CookieSet(tool.ServiceName, token)
 		}
-		self.Session = GetSession(token)
+		c.Session = GetSession(token)
 	}
 	//
-	self.TplLayout = tool.DirTpl + "/layout/new.html"
-	self.TplController = tool.DirTpl + "/controllers"
+	c.Functions = make(map[string]interface{})
+	c.Variables = make(map[string]interface{})
+	c.TplController = tool.DirTpl + "/controllers"
 }
 
-func (self *ControllerHtml) GET() {
+func (c *ControllerHtml) GET() {
 }
-func (self *ControllerHtml) POST() {
+func (c *ControllerHtml) POST() {
 }
-func (self *ControllerHtml) PUT() {
+func (c *ControllerHtml) PUT() {
 }
-func (self *ControllerHtml) DELETE() {
+func (c *ControllerHtml) DELETE() {
 }
-func (self *ControllerHtml) OPTIONS() {
+func (c *ControllerHtml) OPTIONS() {
 }
 
-func (self *ControllerHtml) Response() {
-	if self.RW.isResponse {
+func (c *ControllerHtml) Response() {
+	if c.RW.isResponse {
 		return
 	}
 	// шаблон контроллера
-	data, err := tool.HtmlCompilation(self.TplController, self.Functions, self.Variables)
+	data, err := tool.HtmlCompilation(c.TplController, c.Functions, c.Variables)
 	if err != nil {
 		lg.Error(err.Error())
-		self.RW.ResponseHtml("", 500)
+		c.RW.ResponseHtml("", 500)
 		return
 	}
 	// шаблон макета
-	if self.TplLayout == "" {
-		self.TplLayout = tool.DirTpl + "/layout/index.html"
+	if c.TplLayout == "" {
+		c.TplLayout = tool.DirTpl + "/layout/index.html"
 	}
 	Variables := make(map[string]interface{})
 	Variables["Content"] = data
-	data, err = tool.HtmlCompilation(self.TplLayout, self.Functions, Variables)
+	data, err = tool.HtmlCompilation(c.TplLayout, c.Functions, Variables)
 	if err != nil {
 		lg.Error(err.Error())
-		self.RW.ResponseHtml("", 500)
+		c.RW.ResponseHtml("", 500)
 		return
 	}
-	self.RW.ResponseHtml(data, 200)
+	c.RW.ResponseHtml(data, 200)
 }

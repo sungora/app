@@ -10,12 +10,16 @@ import (
 	"gopkg.in/sungora/app.v1/core"
 )
 
-type ControlSample struct {
+type ControlModel struct {
 	core.ControllerJson
 }
 
+func NewControlModel() core.ControllerFace {
+	return new(ControlModel)
+}
+
 // GET действие по умолчанию
-func (self *ControlSample) GET() {
+func (self *ControlModel) GET() {
 	// сессия
 	var count int
 	if self.Session.Get("count") != nil {
@@ -39,7 +43,7 @@ func (self *ControlSample) GET() {
 }
 
 // POST работа с моделью создание
-func (self *ControlSample) POST() {
+func (self *ControlModel) POST() {
 	u := models.NewUser(0)
 	u.InvoiceIDSet(8697)
 	u.NamSet("Вася пупкин")
@@ -52,7 +56,7 @@ func (self *ControlSample) POST() {
 }
 
 // PUT работа с моделью изменение
-func (self *ControlSample) PUT() {
+func (self *ControlModel) PUT() {
 	u := models.NewUser(0)
 	self.RW.RequestBodyDecodeJson(u)
 	u.Save()
@@ -62,7 +66,7 @@ func (self *ControlSample) PUT() {
 }
 
 // DELETE работа с моделью удаление
-func (self *ControlSample) DELETE() {
+func (self *ControlModel) DELETE() {
 	var ID uint64
 	ID, _ = strconv.ParseUint(self.RW.RequestParams["userID"][0], 10, 64)
 	u := models.NewUser(ID)
@@ -73,9 +77,9 @@ func (self *ControlSample) DELETE() {
 }
 
 // OPTIONS получение различных опций для текущего контроллера
-func (self *ControlSample) OPTIONS() {
+func (self *ControlModel) OPTIONS() {
 	// сценарии для виджетов
-	u := models.NewUserExtended()
+	u := models.NewUserCustom()
 
 	// Выводимые данные
 	self.Data = map[string]interface{}{

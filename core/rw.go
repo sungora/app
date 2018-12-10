@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"gopkg.in/sungora/app.v1/lg"
@@ -22,15 +21,14 @@ type rw struct {
 	Response      http.ResponseWriter
 	isResponse    bool
 	Status        int
-	mu            sync.Mutex
 }
 
 func newRW(r *http.Request, w http.ResponseWriter) *rw {
-	self := new(rw)
-	self.Request = r
-	self.Response = w
-	self.Status = 200
-	return self
+	io := new(rw)
+	io.Request = r
+	io.Response = w
+	io.Status = 200
+	return io
 }
 
 // CookieGet Получение куки.
@@ -122,8 +120,6 @@ func (io *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 }
 
 func (io *rw) ResponseJson(object interface{}, status int) {
-	io.mu.Lock()
-	defer io.mu.Unlock()
 	if status < 400 {
 		lg.Info(status, io.Request.Method, io.Request.URL.Path)
 	} else {
@@ -155,8 +151,6 @@ func (io *rw) ResponseJson(object interface{}, status int) {
 }
 
 func (io *rw) ResponseHtml(con string, status int) {
-	io.mu.Lock()
-	defer io.mu.Unlock()
 	if status < 400 {
 		lg.Info(status, io.Request.Method, io.Request.URL.Path)
 	} else {
@@ -191,8 +185,6 @@ func (io *rw) ResponseHtml(con string, status int) {
 }
 
 func (io *rw) ResponseStatic(path string) {
-	io.mu.Lock()
-	defer io.mu.Unlock()
 	var err error
 	var fi os.FileInfo
 	if fi, err = os.Lstat(path); err == nil {
@@ -255,46 +247,6 @@ func (io *rw) ResponseStatic(path string) {
 	lg.Error(404, io.Request.Method, io.Request.URL.Path)
 	return
 }
-
-// func (self *rw) ResponseImg(filePath string) (err error) {
-// 	lg.Info(200, self.Request.Method, self.Request.URL.Path)
-// 	t := time.Now().In(tool.TimeLocation)
-// 	d := t.Format(time.RFC1123)
-// 	// запрет кеширования
-// 	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-// 	self.Response.Header().Set("Pragma", "no-cache")
-// 	self.Response.Header().Set("Date", d)
-// 	self.Response.Header().Set("Last-Modified", d)
-// 	// размер и тип контента
-// 	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-// 	self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(con)))
-// 	// Статус ответа
-// 	self.Response.WriteHeader(status)
-// 	// Тело документа
-// 	self.Response.Write(con)
-// 	self.isResponse = true
-// 	return
-// }
-
-// func (self *rw) ResponseFile(filePath string) (err error) {
-// 	lg.Info(200, self.Request.Method, self.Request.URL.Path)
-// 	t := time.Now().In(tool.TimeLocation)
-// 	d := t.Format(time.RFC1123)
-// 	// запрет кеширования
-// 	self.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-// 	self.Response.Header().Set("Pragma", "no-cache")
-// 	self.Response.Header().Set("Date", d)
-// 	self.Response.Header().Set("Last-Modified", d)
-// 	// размер и тип контента
-// 	self.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-// 	self.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(con)))
-// 	// Статус ответа
-// 	self.Response.WriteHeader(status)
-// 	// Тело документа
-// 	self.Response.Write(con)
-// 	self.isResponse = true
-// 	return
-// }
 
 // ////
 // l := strings.Split(r.Header.Get("Content-Type"), ";")

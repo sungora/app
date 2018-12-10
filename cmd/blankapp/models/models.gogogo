@@ -8,6 +8,6 @@ func NewUser(id uint64) *users.User {
 	return users.NewUser(id)
 }
 
-func NewUserExtended() *users.UserExtended {
-	return users.NewUserExtended()
+func NewUserCustom() *users.UserCustom {
+	return users.NewUserCustom()
 }

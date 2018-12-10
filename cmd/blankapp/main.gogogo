@@ -6,15 +6,12 @@ import (
 	_ "zzzzzzzzz/config"
 	"zzzzzzzzz/settings"
 
-	"gopkg.in/sungora/app.v1/service"
+	"gopkg.in/sungora/app.v1/core"
 )
 
 func main() {
-
 	settings.Lg()
 	settings.Route()
 	settings.Worker()
-
-	os.Exit(service.Start())
-
+	os.Exit(core.Start())
 }

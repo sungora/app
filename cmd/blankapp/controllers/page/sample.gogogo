@@ -11,6 +11,10 @@ type ControlSample struct {
 	core.ControllerHtml
 }
 
+func NewControlSample() core.ControllerFace {
+	return new(ControlSample)
+}
+
 // GET действие по умолчанию
 func (self *ControlSample) GET() {
 	// сессия
