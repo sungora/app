@@ -1,7 +1,6 @@
 package core
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -19,42 +18,6 @@ import (
 	"gopkg.in/sungora/app.v1/uploader"
 	"gopkg.in/sungora/app.v1/workflow"
 )
-
-type config struct {
-	Main       configMain
-	Mysql      configMysql
-	Postgresql configPostgresql
-	Log        lg.Config
-	Workflow   workflow.Config
-}
-
-type configMain struct {
-	TimeZone       string        // Временная зона
-	DriverDB       string        // Драйвер DB
-	SessionTimeout time.Duration // Время жизни сессии в секундах
-	Host           string        // Хост веб сервера
-	Port           int           // Порт веб сервера
-	Mode           string        // Режим работы приложения
-	Static         string        // Папка для статических данными (css, js, img, etc...)
-	Template       string        // Папка для шаблонов
-}
-
-type configMysql struct {
-	Host     string // протокол, хост и порт подключения
-	Name     string // Имя базы данных
-	Login    string // Логин к базе данных
-	Password string // Пароль к базе данных
-	Charset  string // Кодировка данных (utf-8 - по умолчанию)
-}
-
-type configPostgresql struct {
-	Host     string // Хост базы данных (localhost - по умолчанию)
-	Port     int64  // Порт подключения по протоколу tcp/ip (3306 по умолчанию)
-	Name     string // Имя базы данных
-	Login    string // Логин к базе данных
-	Password string // Пароль к базе данных
-	Charset  string // Кодировка данных (utf-8 - по умолчанию)
-}
 
 var (
 	chanelAppControl = make(chan os.Signal, 1) // Канал управления остановкой приложения
@@ -145,14 +108,21 @@ func Start() (code int) {
 	}
 
 	// service - application
-	if store, err = newHttp(); err != nil {
+	http.HandleFunc("/", homeRouterHandler) // установим роутер
+	store, err = net.Listen("tcp", fmt.Sprintf("%s:%d", Config.Main.Host, Config.Main.Port))
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		return 1
 	}
+	go http.Serve(store, nil)
+	// if store, err = newHttp(); err != nil {
+	// 	fmt.Fprintln(os.Stderr, err.Error())
+	// 	return 1
+	// }
 	defer store.Close()
 	fmt.Fprintf(
 		os.Stdout,
-		"service start success: http://%s:%d\n",
+		"service start success: %s:%d\n",
 		Config.Main.Host,
 		Config.Main.Port,
 	)
@@ -169,35 +139,36 @@ func Wait() {
 }
 
 // newHTTP создание и запуск сервера
-func newHttp() (store net.Listener, err error) {
-	Server := &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", Config.Main.Host, Config.Main.Port),
-		Handler:        new(httpHandler),
-		ReadTimeout:    time.Second * time.Duration(300),
-		WriteTimeout:   time.Second * time.Duration(300),
-		MaxHeaderBytes: 1048576,
-	}
-	for i := 5; i > 0; i-- {
-		store, err = net.Listen("tcp", Server.Addr)
-		time.Sleep(time.Millisecond * 100)
-		if err == nil {
-			break
-		}
-	}
-	if err == nil && store != nil {
-		go Server.Serve(store)
-		return
-	} else if err == nil {
-		return nil, errors.New("service start unknown error")
-	}
-	return nil, err
-}
+// func newHttp() (store net.Listener, err error) {
+// 	Server := &http.Server{
+// 		Addr:           fmt.Sprintf("%s:%d", Config.Main.Host, Config.Main.Port),
+// 		Handler:        new(httpHandler),
+// 		ReadTimeout:    time.Second * time.Duration(300),
+// 		WriteTimeout:   time.Second * time.Duration(300),
+// 		MaxHeaderBytes: 1048576,
+// 	}
+// 	for i := 5; i > 0; i-- {
+// 		store, err = net.Listen("tcp", Server.Addr)
+// 		time.Sleep(time.Millisecond * 100)
+// 		if err == nil {
+// 			break
+// 		}
+// 	}
+// 	if err == nil && store != nil {
+// 		go Server.Serve(store)
+// 		return
+// 	} else if err == nil {
+// 		return nil, errors.New("service start unknown error")
+// 	}
+// 	return nil, err
+// }
 
-type httpHandler struct {
-}
+// type httpHandler struct {
+// }
 
 // ServeHTTP Точка входа запроса (в приложение).
-func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func homeRouterHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		err     error
 		control ControllerFace
@@ -228,7 +199,7 @@ func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// response controller
-	control.Response()
+	// control.Response()
 }
 
 // // search controller method

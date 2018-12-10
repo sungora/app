@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"gopkg.in/sungora/app.v1/lg"
@@ -21,6 +22,7 @@ type rw struct {
 	Response      http.ResponseWriter
 	isResponse    bool
 	Status        int
+	mu            sync.Mutex
 }
 
 func newRW(r *http.Request, w http.ResponseWriter) *rw {
@@ -120,6 +122,8 @@ func (io *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 }
 
 func (io *rw) ResponseJson(object interface{}, status int) {
+	io.mu.Lock()
+	defer io.mu.Unlock()
 	if status < 400 {
 		lg.Info(status, io.Request.Method, io.Request.URL.Path)
 	} else {
@@ -151,6 +155,8 @@ func (io *rw) ResponseJson(object interface{}, status int) {
 }
 
 func (io *rw) ResponseHtml(con string, status int) {
+	io.mu.Lock()
+	defer io.mu.Unlock()
 	if status < 400 {
 		lg.Info(status, io.Request.Method, io.Request.URL.Path)
 	} else {
@@ -185,6 +191,8 @@ func (io *rw) ResponseHtml(con string, status int) {
 }
 
 func (io *rw) ResponseStatic(path string) {
+	io.mu.Lock()
+	defer io.mu.Unlock()
 	var err error
 	var fi os.FileInfo
 	if fi, err = os.Lstat(path); err == nil {
