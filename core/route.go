@@ -20,11 +20,11 @@ func (r routesTyp) Get(path string) (control ControllerFace, err error) {
 
 }
 
-type routePath string
-
 func (r routesTyp) Path(pathSegment string) routePath {
 	return routePath(pathSegment)
 }
+
+type routePath string
 
 func (r routePath) Path(pathSegment string) routePath {
 	return r + routePath(pathSegment)
