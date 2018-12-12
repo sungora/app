@@ -12,25 +12,9 @@ const (
 	SYMBOL  = "~!@#$%^&*_+-="
 )
 
-// NewPass generates password key of a specified length (a-z0-9.)
-func NewPass(length int, char ...string) string {
-	switch len(char) {
-	case 1:
-		return randChar(length, []byte(char[0]))
-	case 2:
-		return randChar(length, []byte(char[0]+char[1]))
-	case 3:
-		return randChar(length, []byte(char[0]+char[1]+char[2]))
-	case 4:
-		return randChar(length, []byte(char[0]+char[1]+char[2]+char[3]))
-	default:
-		return randChar(length, []byte(STRDOWN+STRUP+NUM))
-	}
-}
-
-// NewKeyAPI generates keys such kind: uuu-xxxx-zzzzz
-func NewKeyAPI(length int, char ...string) string {
-	return NewPass(length, char...) + "-" + NewPass(length+1, char...) + "-" + NewPass(length+2, char...)
+// NewRandomString generates password key of a specified length (a-z0-9.)
+func NewRandomString(length int) string {
+	return randChar(length, []byte(STRDOWN+STRUP+NUM))
 }
 
 func randChar(length int, chars []byte) string {

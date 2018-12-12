@@ -38,7 +38,7 @@ func (c *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 	if 0 < Config.Main.SessionTimeout {
 		token := c.RW.CookieGet(tool.ServiceName)
 		if token == "" {
-			token = tool.NewPass(10)
+			token = tool.NewRandomString(10)
 			c.RW.CookieSet(tool.ServiceName, token)
 		}
 		c.Session = GetSession(token)
@@ -85,7 +85,7 @@ func (c *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
 	if 0 < Config.Main.SessionTimeout {
 		token := c.RW.CookieGet(tool.ServiceName)
 		if token == "" {
-			token = tool.NewPass(10)
+			token = tool.NewRandomString(10)
 			c.RW.CookieSet(tool.ServiceName, token)
 		}
 		c.Session = GetSession(token)
