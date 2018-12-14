@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"mime"
@@ -76,11 +77,14 @@ func (io *rw) CookieRem(name string) {
 
 func (io *rw) RequestBodyDecodeJson(object interface{}) error {
 	if body, err := ioutil.ReadAll(io.Request.Body); err == nil {
+		if 0 == len(body) {
+			return errors.New("Запрос пустой, данные отсутствуют")
+		}
 		if err = json.Unmarshal(body, object); err != nil {
-			return lg.Error(err.Error())
+			return err
 		}
 	} else {
-		return lg.Error(err.Error())
+		return err
 	}
 	return nil
 }
@@ -120,12 +124,6 @@ func (io *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 }
 
 func (io *rw) ResponseJson(object interface{}, status int) {
-	if status < 400 {
-		lg.Info(status, io.Request.Method, io.Request.URL.Path)
-	} else {
-		lg.Error(status, io.Request.Method, io.Request.URL.Path)
-	}
-	//
 	data, err := json.Marshal(object)
 	if err != nil {
 		lg.Error(err.Error())

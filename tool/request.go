@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
-	"errors"
 )
 
 func RequestGetParamsCompile(postData map[string]interface{}) string {
@@ -35,65 +35,12 @@ func RequestGetParamsCompile(postData map[string]interface{}) string {
 	return q.Encode()
 }
 
-func NewRequestGET(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return newRequest(url, "GET", requestBody, responseBody)
-}
-
-func NewRequestPOST(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return newRequest(url, "POST", requestBody, responseBody)
-}
-
-func NewRequestPUT(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return newRequest(url, "PUT", requestBody, responseBody)
-}
-
-func NewRequestDELETE(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return newRequest(url, "DELETE", requestBody, responseBody)
-}
-
-func NewRequestOPTIONS(url string, requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return newRequest(url, "OPTIONS", requestBody, responseBody)
-}
-
-func newRequest(url, method string, requestBody, responseBody interface{}) (response *http.Response, err error) {
-	var request *http.Request
-	body := new(bytes.Buffer)
-	//
-	if method == "POST" || method == "PUT" {
-		var data []byte
-		if data, err = json.Marshal(requestBody); err != nil {
-			return
-		}
-		if _, err = body.Write(data); err != nil {
-			return
-		}
-	} else if p, ok := requestBody.(map[string]interface{}); ok {
-		url += "?" + RequestGetParamsCompile(p)
-	}
-	//
-	if request, err = http.NewRequest(method, url, body); err == nil {
-		request.Header.Set("Content-Type", "application/json")
-		en := base64.StdEncoding.EncodeToString([]byte("Inventory:ByFIPhwipuZ7fthaAq3DnjBEJQiS6sG"))
-		request.Header.Set("Authorization", "Basic "+en)
-		// request.Header.Set("Authorization", "Basic Inventory:ByFIPhwipuZ7fthaAq3DnjBEJQiS6sG")
-		c := http.Client{}
-		if response, err = c.Do(request); err == nil {
-			defer response.Body.Close()
-			bodyResponse, _ := ioutil.ReadAll(response.Body)
-			json.Unmarshal(bodyResponse, responseBody)
-		}
-	}
-	return
-}
-
-// /////
-
 type requestHeader struct {
 	contentType        string
 	authorizationBasic string
 }
 
-func (rh *requestHeader) ContentType(contentType string) {
+func (rh *requestHeader) SetContentType(contentType string) {
 	rh.contentType = contentType
 }
 func (rh *requestHeader) AuthorizationBasic(login, passw string) {
@@ -105,34 +52,35 @@ type request struct {
 	Header *requestHeader
 }
 
-func NewRequest(url string) *request {
+func NewRequestJson(url string) *request {
 	var r = new(request)
 	r.url = url
 	r.Header = &requestHeader{}
+	r.Header.contentType = "application/json"
 	return r
 }
 
 func (r *request) GET(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.qwerty("GET", requestBody, responseBody)
+	return r.request("GET", requestBody, responseBody)
 }
 
 func (r *request) POST(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.qwerty("POST", requestBody, responseBody)
+	return r.request("POST", requestBody, responseBody)
 }
 
 func (r *request) PUT(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.qwerty("PUT", requestBody, responseBody)
+	return r.request("PUT", requestBody, responseBody)
 }
 
 func (r *request) DELETE(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.qwerty("DELETE", requestBody, responseBody)
+	return r.request("DELETE", requestBody, responseBody)
 }
 
 func (r *request) OPTIONS(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.qwerty("OPTIONS", requestBody, responseBody)
+	return r.request("OPTIONS", requestBody, responseBody)
 }
 
-func (r *request) qwerty(method string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *request) request(method string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	var request *http.Request
 	body := new(bytes.Buffer)
 	// Данные исходящего запроса
@@ -157,12 +105,13 @@ func (r *request) qwerty(method string, requestBody, responseBody interface{}) (
 		c := http.Client{}
 		if response, err = c.Do(request); err == nil {
 			defer response.Body.Close()
-			//
+			bodyResponse, err := ioutil.ReadAll(response.Body)
+			if err != nil {
+				return nil, err
+			}
 			if r.Header.contentType == "application/json" {
-				bodyResponse, _ := ioutil.ReadAll(response.Body)
 				err = json.Unmarshal(bodyResponse, responseBody)
 			}
-			//
 			if response.StatusCode != 200 {
 				err = errors.New(fmt.Sprintf("%d:[%s]:%s", method, response.StatusCode, r.url))
 			}
