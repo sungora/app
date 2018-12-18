@@ -105,7 +105,8 @@ func (r *request) request(method string, requestBody, responseBody interface{}) 
 		c := http.Client{}
 		if response, err = c.Do(request); err == nil {
 			defer response.Body.Close()
-			bodyResponse, err := ioutil.ReadAll(response.Body)
+			var bodyResponse []byte
+			bodyResponse, err = ioutil.ReadAll(response.Body)
 			if err != nil {
 				return nil, err
 			}
