@@ -28,7 +28,7 @@ func newRW(r *http.Request, w http.ResponseWriter) *rw {
 	io := new(rw)
 	io.Request = r
 	io.Response = w
-	io.Status = 200
+	io.Status = http.StatusOK
 	return io
 }
 
@@ -102,7 +102,7 @@ func (io *rw) ResponseJsonApi200(object interface{}, code int, message string) {
 	res.Message = message
 	res.Error = false
 	res.Data = object
-	io.ResponseJson(res, 200)
+	io.ResponseJson(res, http.StatusOK)
 }
 
 func (io *rw) ResponseJsonApi403(object interface{}, code int, message string) {
@@ -111,7 +111,7 @@ func (io *rw) ResponseJsonApi403(object interface{}, code int, message string) {
 	res.Message = message
 	res.Error = false
 	res.Data = object
-	io.ResponseJson(res, 403)
+	io.ResponseJson(res, http.StatusForbidden)
 }
 
 func (io *rw) ResponseJsonApi409(object interface{}, code int, message string) {
@@ -120,7 +120,7 @@ func (io *rw) ResponseJsonApi409(object interface{}, code int, message string) {
 	res.Message = message
 	res.Error = true
 	res.Data = object
-	io.ResponseJson(res, 409)
+	io.ResponseJson(res, http.StatusConflict)
 }
 
 func (io *rw) ResponseJson(object interface{}, status int) {
@@ -197,14 +197,14 @@ func (io *rw) ResponseStatic(path string) {
 		if data, err = ioutil.ReadFile(path); err != nil {
 			if fi.IsDir() == true {
 				io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-				io.Response.WriteHeader(403)
+				io.Response.WriteHeader(http.StatusForbidden)
 				io.Response.Write([]byte("<h1>Access forbidden</h1>"))
 				lg.Error(403, io.Request.Method, io.Request.URL.Path)
 				return
 
 			} else {
 				io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-				io.Response.WriteHeader(500)
+				io.Response.WriteHeader(http.StatusInternalServerError)
 				io.Response.Write([]byte("<h1>Internal server error</h1>"))
 				lg.Error(500, io.Request.Method, io.Request.URL.Path)
 				return
@@ -233,16 +233,16 @@ func (io *rw) ResponseStatic(path string) {
 			io.Response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
 		}
 		// Статус ответа
-		io.Response.WriteHeader(200)
+		io.Response.WriteHeader(http.StatusOK)
 		// Тело документа
 		io.Response.Write(data)
-		lg.Info(200, io.Request.Method, io.Request.URL.Path)
+		lg.Info(http.StatusOK, io.Request.Method, io.Request.URL.Path)
 		return
 	}
 	io.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-	io.Response.WriteHeader(404)
+	io.Response.WriteHeader(http.StatusNotFound)
 	io.Response.Write([]byte("<h1>Page not found</h1>"))
-	lg.Error(404, io.Request.Method, io.Request.URL.Path)
+	lg.Error(http.StatusNotFound, io.Request.Method, io.Request.URL.Path)
 	return
 }
 

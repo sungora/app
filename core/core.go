@@ -137,6 +137,7 @@ func Wait() {
 // ServeHTTP Точка входа запроса (в приложение).
 // func (handler *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func httpHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	// search controller
 	var control, err = Route.Get(r.URL.Path)
 	// response static
@@ -149,15 +150,15 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 	control.Init(w, r)
 	// execute controller
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		control.GET()
-	case "POST":
+	case http.MethodPost:
 		control.POST()
-	case "PUT":
+	case http.MethodPut:
 		control.PUT()
-	case "DELETE":
+	case http.MethodDelete:
 		control.DELETE()
-	case "OPTIONS":
+	case http.MethodOptions:
 		control.OPTIONS()
 	}
 	// default response controller
