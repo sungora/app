@@ -114,7 +114,7 @@ func (r *request) request(method string, requestBody, responseBody interface{}) 
 				err = json.Unmarshal(bodyResponse, responseBody)
 			}
 			if response.StatusCode != 200 {
-				err = errors.New(fmt.Sprintf("%d:[%s]:%s", method, response.StatusCode, r.url))
+				err = errors.New(fmt.Sprintf("%s:[%d]:%s", method, response.StatusCode, r.url))
 			}
 		}
 	}

@@ -34,18 +34,28 @@ func newRW(r *http.Request, w http.ResponseWriter) *rw {
 
 // CookieGet Получение куки.
 func (io *rw) CookieGet(name string) string {
-	d := io.Request.Header.Get("Cookie")
-	if d != "" {
-		sl := strings.Split(d, ";")
-		for _, v := range sl {
-			sl := strings.Split(v, "=")
-			sl[0] = strings.TrimSpace(sl[0])
-			if sl[0] == name {
-				return sl[1]
-			}
-		}
+
+	sessionID, err := io.Request.Cookie(name)
+	if err == http.ErrNoCookie {
+		return ""
+	} else if err != nil {
+		lg.Error(err.Error())
+		return ""
 	}
-	return ""
+	return sessionID.Value
+
+	// d := io.Request.Header.Get("Cookie")
+	// if d != "" {
+	// 	sl := strings.Split(d, ";")
+	// 	for _, v := range sl {
+	// 		sl := strings.Split(v, "=")
+	// 		sl[0] = strings.TrimSpace(sl[0])
+	// 		if sl[0] == name {
+	// 			return sl[1]
+	// 		}
+	// 	}
+	// }
+	// return ""
 }
 
 // CookieSet Установка куки. Если время не указано кука сессионная (пока открыт браузер).

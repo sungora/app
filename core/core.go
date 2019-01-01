@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"gopkg.in/sungora/app.v1/lg"
 	"net"
 	"net/http"
 	"os"
@@ -14,7 +15,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"gopkg.in/sungora/app.v1/ensuring"
-	"gopkg.in/sungora/app.v1/lg"
 	"gopkg.in/sungora/app.v1/tool"
 	"gopkg.in/sungora/app.v1/uploader"
 	"gopkg.in/sungora/app.v1/workflow"
@@ -51,12 +51,7 @@ func Start() (code int) {
 		tool.TimeLocation = time.UTC
 	}
 
-	// Create a PID file and lock on record, control run one copy of the application
-	if err = ensuring.PidFileCreate(tool.DirLog+"/pid"); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		return
-	}
-	defer ensuring.PidFileUnlock()
+
 
 	// logs
 	if err = lg.Start(Config.Log); err != nil {
@@ -64,6 +59,15 @@ func Start() (code int) {
 		return 1
 	}
 	defer lg.Wait()
+
+
+	// Create a PID file and lock on record, control run one copy of the application
+	if err = ensuring.PidFileCreate(tool.DirLog+"/pid"); err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		return
+	}
+	defer ensuring.PidFileUnlock()
+
 
 	// Модуль загрузки файлов и получение их по идентификатору
 	if err = uploader.Init(tool.DirWww, 30); err != nil {
