@@ -4,7 +4,7 @@ Library to create an application on golang
 
 ## install library 
 
-use mode modules (semver)
+use as modules (semver)
 
 ***last version:***
 

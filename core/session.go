@@ -3,7 +3,7 @@ package core
 import (
 	"time"
 
-	"gopkg.in/sungora/app.v1/tool"
+	"github.com/sungora/app/v2/tool"
 )
 
 // sessionGC Запуск чистки старых сессий по таймауту

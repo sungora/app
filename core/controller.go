@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"gopkg.in/sungora/app.v1/lg"
-	"gopkg.in/sungora/app.v1/tool"
+	"github.com/sungora/app/v2/lg"
+	"github.com/sungora/app/v2/tool"
 )
 
 // ContraFace is an interface to uniform all controller handler.
