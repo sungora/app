@@ -2,11 +2,13 @@
 
 Library to create an application on golang
 
-## install library
+## install library 
+
+use mode modules (semver)
 
 ***last version:***
 
-    go get -u gopkg.in/sungora/app.v1
+    go get -u github.com/sungora/app/v2
 
 ## use library
 
