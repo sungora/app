@@ -6,25 +6,23 @@ Library to create an application on golang
 
 use as modules (semver)
 
-***last version:***
+    go get -u github.com/sungora/app
 
-    go get -u github.com/sungora/app/v2
-
+***last version: 1.0.0-rc1***
+	
 ## use library
 
-add compile program `app.v1` to PATH ( optional ) 
+add compile program `app` to PATH ( optional ) 
 
 #### create application:
 
-    app.v1 new nameApp
+    app new nameApp
 
 New application created. You can build and run.
 
 #### auto build and run
 
-    app.v1 run nameApp
+    app run nameApp
 
 
 Run the automatic assembly and restart the application after changing the source
-
-version 0.9.0
