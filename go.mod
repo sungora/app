@@ -1,1 +1,1 @@
-module github.com/sungora/app
+module github.com/sungora/app/v1
