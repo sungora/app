@@ -26,3 +26,5 @@ New application created. You can build and run.
 
 
 Run the automatic assembly and restart the application after changing the source
+
+version 0.9.0
