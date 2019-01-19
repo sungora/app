@@ -8,7 +8,7 @@ use as modules (semver)
 
     go get -u github.com/sungora/app
 
-***last version: 1.0.0-rc1***
+***last version: v1.0.0-rc1***
 	
 ## use library
 
