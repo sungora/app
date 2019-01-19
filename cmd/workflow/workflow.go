@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gopkg.in/sungora/app.v1/workflow"
+	"github.com/sungora/app/v2/workflow"
 )
 
 // Пример задачи
