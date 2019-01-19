@@ -24,4 +24,5 @@ New application created. You can build and run.
 
     app.v1 run nameApp
 
+
 Run the automatic assembly and restart the application after changing the source
