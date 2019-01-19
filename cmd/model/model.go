@@ -7,8 +7,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/sungora/app/v2/core"
-	"github.com/sungora/app/v2/lg"
+	"github.com/sungora/app/core"
+	"github.com/sungora/app/lg"
 )
 
 func main() {

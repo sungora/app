@@ -2,7 +2,7 @@ package core
 
 import (
 	"fmt"
-	"github.com/sungora/app/v2/lg"
+	"github.com/sungora/app/lg"
 	"net"
 	"net/http"
 	"os"
@@ -14,9 +14,9 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	"github.com/sungora/app/v2/tool"
-	"github.com/sungora/app/v2/uploader"
-	"github.com/sungora/app/v2/workflow"
+	"github.com/sungora/app/tool"
+	"github.com/sungora/app/uploader"
+	"github.com/sungora/app/workflow"
 )
 
 var (

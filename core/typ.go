@@ -3,8 +3,8 @@ package core
 import (
 	"time"
 
-	"github.com/sungora/app/v2/lg"
-	"github.com/sungora/app/v2/workflow"
+	"github.com/sungora/app/lg"
+	"github.com/sungora/app/workflow"
 )
 
 type config struct {

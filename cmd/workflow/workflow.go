@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sungora/app/v2/workflow"
+	"github.com/sungora/app/workflow"
 )
 
 // Пример задачи

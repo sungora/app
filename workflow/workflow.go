@@ -9,8 +9,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/sungora/app/v2/lg"
-	"github.com/sungora/app/v2/tool"
+	"github.com/sungora/app/lg"
+	"github.com/sungora/app/tool"
 )
 
 type manager struct {

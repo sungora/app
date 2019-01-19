@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/sungora/app/v2/lg/message"
-	"github.com/sungora/app/v2/tool"
+	"github.com/sungora/app/lg/message"
+	"github.com/sungora/app/tool"
 )
 
 func Fatal(key interface{}, parametrs ...interface{}) error {

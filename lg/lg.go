@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sungora/app/v2/tool"
+	"github.com/sungora/app/tool"
 )
 
 type Config struct {

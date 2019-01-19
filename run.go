@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/sungora/app/v2/tool"
+	"github.com/sungora/app/tool"
 )
 
 type run struct {
