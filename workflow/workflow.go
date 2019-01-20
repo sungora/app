@@ -23,8 +23,8 @@ type manager struct {
 }
 
 type Config struct {
-	LimitCh    int // Лимит канала задач
-	LimitPool  int // Лимит пула (количество воркеров)
+	LimitCh    int  // Лимит канала задач
+	LimitPool  int  // Лимит пула (количество воркеров)
 }
 
 var p *pool
@@ -33,7 +33,7 @@ var cronTaskRun = make(map[string]Task)
 var cronControlCH chan struct{}
 
 // Start Создаем пул воркеров указанного размера на уровне пакета
-func Start(c Config) (err error) {
+func Init(c Config) (err error) {
 	var isChange bool
 
 	// читаем задачи из конфигурации
@@ -107,6 +107,12 @@ func Start(c Config) (err error) {
 	return
 }
 
+// Wait Завершаем работу пула
+func Wait() {
+	cronControlCH <- struct{}{}
+	p.Wait()
+}
+
 // TaskAdd Добавляем задачу в пул
 func TaskAdd(task Task) {
 	p.tasks <- task
@@ -114,12 +120,6 @@ func TaskAdd(task Task) {
 
 func TaskAddCron(name string, task Task) {
 	cronTaskRun[name] = task
-}
-
-// Wait Завершаем работу пула
-func Wait() {
-	cronControlCH <- struct{}{}
-	p.Wait()
 }
 
 func checkRuntime(val int, mask string) bool {
