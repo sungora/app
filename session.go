@@ -1,4 +1,4 @@
-package core
+package app
 
 import (
 	"time"
@@ -12,7 +12,7 @@ func sessionGC() {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range session {
-				if Config.Main.SessionTimeout < time.Now().In(tool.TimeLocation).Sub(s.t) {
+				if config.SessionTimeout < time.Now().In(tool.TimeLocation).Sub(s.t) {
 					delete(session, i)
 				}
 			}

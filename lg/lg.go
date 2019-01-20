@@ -39,21 +39,22 @@ var logCh = make(chan msg, 10000)
 var logChClose = make(chan bool)
 var config Config
 
-func Start(c Config) (err error) {
+func Init(c Config) (err error) {
 	config = c
 
 	// Инициализация логирования в ФС
-	os.MkdirAll(tool.DirLog, 0777)
-	if config.OutFile {
+	if tool.DirLog != "" {
+		os.MkdirAll(tool.DirLog, 0777)
 		fp, err = os.OpenFile(tool.DirLog+"/"+tool.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
-			return err
+			return
 		}
 	}
 
 	// Create a PID file and lock on record, control run one copy of the application
-	if err = pidFileCreate(tool.DirLog + "/pid"); err != nil {
-		return err
+	os.MkdirAll(tool.DirPid, 0777)
+	if err = pidFileCreate(tool.DirPid + "/pid"); err != nil {
+		return
 	}
 
 	//
@@ -74,7 +75,7 @@ func Start(c Config) (err error) {
 		}
 		logChClose <- true
 	}()
-	return nil
+	return
 }
 
 func Wait() {

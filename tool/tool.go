@@ -6,33 +6,16 @@ import (
 	"go/ast"
 	"go/token"
 	"io"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 )
 
-func init() {
-	sep := string(os.PathSeparator)
-	DirWork, _ = os.Getwd()
-	DirLog = DirWork + sep + "log"
-	DirWww = DirWork + sep + "www"
-	DirTpl = DirWork + sep + "tpl"
-	DirConfig = DirWork + sep + "config"
-	if ext := filepath.Ext(os.Args[0]); ext != "" {
-		sl := strings.Split(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
-		ServiceName = sl[0]
-	} else {
-		ServiceName = filepath.Base(os.Args[0])
-	}
-}
-
 var (
-	DirWork      string         //
 	DirConfig    string         //
+	DirWork      string         //
 	DirLog       string         //
 	DirWww       string         //
 	DirTpl       string         //
+	DirPid       string         //
 	ServiceName  string         // Техническое название приложения
 	TimeLocation *time.Location // Временная зона
 )

@@ -25,18 +25,18 @@ type pool struct {
 
 // NewPool Создаем пул воркеров указанного размера
 func NewPool(LimitCh, LimitPool int) *pool {
-	self := &pool{
+	p := &pool{
 		limitPool: LimitPool,
 		// Канал задач - буферизированный, чтобы основная программа не блокировалась при постановке задач
 		tasks: make(chan Task, LimitCh),
 		// Канал kill для убийства "лишних воркеров"
 		kill: make(chan struct{}),
 	}
-	self.size++
-	self.wg.Add(2)
-	go self.worker()
-	go self.resize()
-	return self
+	p.size++
+	p.wg.Add(2)
+	go p.worker()
+	go p.resize()
+	return p
 }
 
 // Жизненный цикл воркера

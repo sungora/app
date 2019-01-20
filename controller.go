@@ -1,4 +1,4 @@
-package core
+package app
 
 import (
 	"net/http"
@@ -35,7 +35,7 @@ func (c *ControllerJson) Init(w http.ResponseWriter, r *http.Request) {
 		c.RW.RequestParams[i] = v
 	}
 	// initialization session
-	if 0 < Config.Main.SessionTimeout {
+	if 0 < config.SessionTimeout {
 		token := c.RW.CookieGet(tool.ServiceName)
 		if token == "" {
 			token = tool.NewRandomString(10)
@@ -82,7 +82,7 @@ func (c *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) {
 		c.RW.RequestParams[i] = v
 	}
 	// initialization session
-	if 0 < Config.Main.SessionTimeout {
+	if 0 < config.SessionTimeout {
 		token := c.RW.CookieGet(tool.ServiceName)
 		if token == "" {
 			token = tool.NewRandomString(10)

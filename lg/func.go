@@ -95,7 +95,7 @@ func Debug(key interface{}, parametrs ...interface{}) error {
 
 func sendLog(level string, login string, key interface{}, parametrs ...interface{}) string {
 	msg := msg{}
-	msg.Datetime = time.Now().In(tool.TimeLocation).Format("2006-01-02 15:04:05")
+	msg.Datetime = time.Now().Format("2006-01-02 15:04:05")
 	msg.Level = level
 	pc, _, line, ok := runtime.Caller(2)
 	if ok == true {

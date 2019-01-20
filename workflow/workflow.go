@@ -2,7 +2,6 @@
 package workflow
 
 import (
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +23,6 @@ type manager struct {
 }
 
 type Config struct {
-	IsWorkflow bool
 	LimitCh    int // Лимит канала задач
 	LimitPool  int // Лимит пула (количество воркеров)
 }
@@ -37,14 +35,9 @@ var cronControlCH chan struct{}
 // Start Создаем пул воркеров указанного размера на уровне пакета
 func Start(c Config) (err error) {
 	var isChange bool
-	var cronTaskPath string
-	var sep = string(os.PathSeparator)
-	if cronTaskPath, err = os.Getwd(); err != nil {
-		return
-	}
-	cronTaskPath = cronTaskPath + sep + "config" + sep + "cron.toml"
 
 	// читаем задачи из конфигурации
+	var cronTaskPath = tool.DirConfig + "/" + tool.ServiceName + "_cron.toml"
 	var controlTask = tool.NewControlFS(cronTaskPath, "")
 	if _, err = controlTask.CheckSumMd5(); err != nil {
 		return
