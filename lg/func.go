@@ -81,7 +81,7 @@ func Debug(key interface{}, parametrs ...interface{}) {
 
 func sendLog(level string, login string, key interface{}, parametrs ...interface{}) {
 	msg := msg{}
-	msg.Datetime = time.Now().Format(time.RFC850)
+	msg.Datetime = time.Now().Format(time.RFC3339)
 	msg.Level = level
 	pc, _, line, ok := runtime.Caller(2)
 	if ok == true {
