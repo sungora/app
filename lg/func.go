@@ -2,7 +2,6 @@ package lg
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -14,88 +13,75 @@ import (
 	"github.com/sungora/app/tool"
 )
 
-func Fatal(key interface{}, parametrs ...interface{}) error {
+func Fatal(key interface{}, parametrs ...interface{}) {
 	if config.Fatal == true {
-		return errors.New(sendLog("fatal", "system", key, parametrs...))
+		sendLog("fatal", "system", key, parametrs...)
 	}
-	return errors.New("Fatal")
 }
-func FatalLogin(login string, key interface{}, parametrs ...interface{}) error {
+func FatalLogin(login string, key interface{}, parametrs ...interface{}) {
 	if config.Fatal == true {
-		return errors.New(sendLog("fatal", login, key, parametrs...))
+		sendLog("fatal", login, key, parametrs...)
 	}
-	return errors.New("FatalLogin")
 }
-func Critical(key interface{}, parametrs ...interface{}) error {
+func Critical(key interface{}, parametrs ...interface{}) {
 	if config.Critical == true {
-		return errors.New(sendLog("critical", "system", key, parametrs...))
+		sendLog("critical", "system", key, parametrs...)
 	}
-	return errors.New("Critical")
 }
-func CriticalLogin(login string, key interface{}, parametrs ...interface{}) error {
+func CriticalLogin(login string, key interface{}, parametrs ...interface{}) {
 	if config.Critical == true {
-		return errors.New(sendLog("critical", login, key, parametrs...))
+		sendLog("critical", login, key, parametrs...)
 	}
-	return errors.New("CriticalLogin")
 }
-func Error(key interface{}, parametrs ...interface{}) error {
+func Error(key interface{}, parametrs ...interface{}) {
 	if config.Error == true {
-		return errors.New(sendLog("error", "system", key, parametrs...))
+		sendLog("error", "system", key, parametrs...)
 	}
-	return errors.New("Error")
 }
-func ErrorLogin(login string, key interface{}, parametrs ...interface{}) error {
+func ErrorLogin(login string, key interface{}, parametrs ...interface{}) {
 	if config.Error == true {
-		return errors.New(sendLog("error", login, key, parametrs...))
+		sendLog("error", login, key, parametrs...)
 	}
-	return errors.New("ErrorLogin")
 }
-func Warning(key interface{}, parametrs ...interface{}) error {
+func Warning(key interface{}, parametrs ...interface{}) {
 	if config.Warning == true {
-		return errors.New(sendLog("warning", "system", key, parametrs...))
+		sendLog("warning", "system", key, parametrs...)
 	}
-	return errors.New("Warning")
 }
-func WarningLogin(login string, key interface{}, parametrs ...interface{}) error {
+func WarningLogin(login string, key interface{}, parametrs ...interface{}) {
 	if config.Warning == true {
-		return errors.New(sendLog("warning", login, key, parametrs...))
+		sendLog("warning", login, key, parametrs...)
 	}
-	return errors.New("WarningLogin")
 }
-func Notice(key interface{}, parametrs ...interface{}) error {
+func Notice(key interface{}, parametrs ...interface{}) {
 	if config.Notice == true {
-		return errors.New(sendLog("notice", "system", key, parametrs...))
+		sendLog("notice", "system", key, parametrs...)
 	}
-	return errors.New("Notice")
 }
-func NoticeLogin(login string, key interface{}, parametrs ...interface{}) error {
+func NoticeLogin(login string, key interface{}, parametrs ...interface{}) {
 	if config.Notice == true {
-		return errors.New(sendLog("notice", login, key, parametrs...))
+		sendLog("notice", login, key, parametrs...)
 	}
-	return errors.New("NoticeLogin")
 }
-func Info(key interface{}, parametrs ...interface{}) error {
+func Info(key interface{}, parametrs ...interface{}) {
 	if config.Info == true {
-		return errors.New(sendLog("info", "system", key, parametrs...))
+		sendLog("info", "system", key, parametrs...)
 	}
-	return errors.New("Info")
 }
-func InfoLogin(login string, key interface{}, parametrs ...interface{}) error {
+func InfoLogin(login string, key interface{}, parametrs ...interface{}) {
 	if config.Info == true {
-		return errors.New(sendLog("info", login, key, parametrs...))
+		sendLog("info", login, key, parametrs...)
 	}
-	return errors.New("InfoLogin")
 }
-func Debug(key interface{}, parametrs ...interface{}) error {
+func Debug(key interface{}, parametrs ...interface{}) {
 	if config.Debug == true {
-		return errors.New(sendLog("debug", "system", key, parametrs...))
+		sendLog("debug", "system", key, parametrs...)
 	}
-	return errors.New("Debug")
 }
 
-func sendLog(level string, login string, key interface{}, parametrs ...interface{}) string {
+func sendLog(level string, login string, key interface{}, parametrs ...interface{}) {
 	msg := msg{}
-	msg.Datetime = time.Now().Format("2006-01-02 15:04:05")
+	msg.Datetime = time.Now().Format(time.RFC850)
 	msg.Level = level
 	pc, _, line, ok := runtime.Caller(2)
 	if ok == true {
@@ -108,6 +94,8 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 	msg.Service = tool.ServiceName
 	msg.Login = login
 	switch k := key.(type) {
+	case error:
+		msg.Message = k.Error()
 	case int:
 		msg.Message = message.GetMessage(k, parametrs...)
 	case string:
@@ -117,7 +105,7 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 		msg.Traces, _ = getTrace()
 	}
 	logCh <- msg
-	return msg.Message
+	// return msg.Message
 }
 
 // Dump all variables to STDOUT
