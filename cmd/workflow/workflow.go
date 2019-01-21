@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/sungora/app/workflow"
 )
@@ -24,6 +23,8 @@ func (self *SampleTaskCron) Execute() {
 
 func main() {
 
+	var err error
+
 	// custom
 	fmt.Println("Sample run task")
 	pool := workflow.NewPool(200, 9)
@@ -34,22 +35,24 @@ func main() {
 	}
 	pool.Wait()
 
-	// cron
-	fmt.Println("\nSample run task system and cron task")
-
 	// cron task
+	fmt.Println("\nSample run crontab task")
+
 	workflow.TaskAddCron("SampleTaskCron", new(SampleTaskCron))
 
 	c := workflow.Config{
 		LimitCh:   200,
 		LimitPool: 9,
 	}
-	workflow.Start(c)
+	if err = workflow.Init(c); err != nil {
+		fmt.Println("Error: " + err.Error())
+		return
+	}
 	workflow.TaskAdd(SampleTask("foo"))
 	workflow.TaskAdd(SampleTask("bar"))
 	for i := 0; i < 20; i++ {
 		workflow.TaskAdd(SampleTask(fmt.Sprintf("additional_%d", i+1)))
 	}
-	time.Sleep(time.Minute * 3)
+	// time.Sleep(time.Minute * 3)
 	workflow.Wait()
 }

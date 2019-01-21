@@ -36,15 +36,21 @@ func RequestGetParamsCompile(postData map[string]interface{}) string {
 }
 
 type requestHeader struct {
-	contentType        string
-	authorizationBasic string
+	AuthorizationBasic string
+	ContentType        string
+	Accept             string
+}
+
+func (rh *requestHeader) SetAuthorizationBasic(login, passw string) {
+	rh.AuthorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
 }
 
 func (rh *requestHeader) SetContentType(contentType string) {
-	rh.contentType = contentType
+	rh.ContentType = contentType
 }
-func (rh *requestHeader) AuthorizationBasic(login, passw string) {
-	rh.authorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
+
+func (rh *requestHeader) SetAccept(accept string) {
+	rh.Accept = accept
 }
 
 type request struct {
@@ -56,7 +62,8 @@ func NewRequestJson(url string) *request {
 	var r = new(request)
 	r.url = url
 	r.Header = &requestHeader{}
-	r.Header.contentType = "application/json"
+	r.Header.ContentType = "application/json"
+	r.Header.Accept = "application/json"
 	return r
 }
 
@@ -98,10 +105,10 @@ func (r *request) request(method string, requestBody, responseBody interface{}) 
 	// Запрос
 	if request, err = http.NewRequest(method, r.url, body); err == nil {
 		// Заголовки
-		if r.Header.authorizationBasic != "" {
-			request.Header.Set("Authorization", r.Header.authorizationBasic)
+		if r.Header.AuthorizationBasic != "" {
+			request.Header.Set("Authorization", r.Header.AuthorizationBasic)
 		}
-		request.Header.Set("Content-Type", r.Header.contentType)
+		request.Header.Set("Content-Type", r.Header.ContentType)
 		c := http.Client{}
 		if response, err = c.Do(request); err == nil {
 			defer response.Body.Close()
@@ -110,7 +117,7 @@ func (r *request) request(method string, requestBody, responseBody interface{}) 
 			if err != nil {
 				return nil, err
 			}
-			if r.Header.contentType == "application/json" {
+			if r.Header.ContentType == "application/json" {
 				err = json.Unmarshal(bodyResponse, responseBody)
 			}
 			if response.StatusCode != 200 {
