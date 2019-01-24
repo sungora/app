@@ -67,31 +67,32 @@ func NewRequestJson(url string) *request {
 	return r
 }
 
-func (r *request) GET(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.request("GET", requestBody, responseBody)
+func (r *request) GET(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+	return r.request(http.MethodGet, uri, requestBody, responseBody)
 }
 
-func (r *request) POST(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.request("POST", requestBody, responseBody)
+func (r *request) POST(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+	return r.request(http.MethodPost, uri, requestBody, responseBody)
 }
 
-func (r *request) PUT(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.request("PUT", requestBody, responseBody)
+func (r *request) PUT(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+	return r.request(http.MethodPut, uri, requestBody, responseBody)
 }
 
-func (r *request) DELETE(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.request("DELETE", requestBody, responseBody)
+func (r *request) DELETE(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+	return r.request(http.MethodDelete, uri, requestBody, responseBody)
 }
 
-func (r *request) OPTIONS(requestBody, responseBody interface{}) (response *http.Response, err error) {
-	return r.request("OPTIONS", requestBody, responseBody)
+func (r *request) OPTIONS(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+	return r.request(http.MethodOptions, uri, requestBody, responseBody)
 }
 
-func (r *request) request(method string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *request) request(method, uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+	var url = r.url + uri
 	var request *http.Request
 	body := new(bytes.Buffer)
 	// Данные исходящего запроса
-	if method == "POST" || method == "PUT" {
+	if method == http.MethodPost || method == http.MethodPut {
 		var data []byte
 		if data, err = json.Marshal(requestBody); err != nil {
 			return
@@ -100,10 +101,10 @@ func (r *request) request(method string, requestBody, responseBody interface{}) 
 			return
 		}
 	} else if p, ok := requestBody.(map[string]interface{}); ok {
-		r.url += "?" + RequestGetParamsCompile(p)
+		url += "?" + RequestGetParamsCompile(p)
 	}
 	// Запрос
-	if request, err = http.NewRequest(method, r.url, body); err == nil {
+	if request, err = http.NewRequest(method, url, body); err == nil {
 		// Заголовки
 		if r.Header.AuthorizationBasic != "" {
 			request.Header.Set("Authorization", r.Header.AuthorizationBasic)
@@ -121,7 +122,7 @@ func (r *request) request(method string, requestBody, responseBody interface{}) 
 				err = json.Unmarshal(bodyResponse, responseBody)
 			}
 			if response.StatusCode != 200 {
-				err = errors.New(fmt.Sprintf("%s:[%d]:%s", method, response.StatusCode, r.url))
+				err = errors.New(fmt.Sprintf("%s:[%d]:%s", method, response.StatusCode, url))
 			}
 		}
 	}
