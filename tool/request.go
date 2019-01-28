@@ -2,6 +2,7 @@ package tool
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -103,6 +104,9 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 	} else if p, ok := requestBody.(map[string]interface{}); ok {
 		url += "?" + RequestGetParamsCompile(p)
 	}
+	transCfg := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
+	}
 	// Запрос
 	if request, err = http.NewRequest(method, url, body); err == nil {
 		// Заголовки
@@ -110,7 +114,7 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 			request.Header.Set("Authorization", r.Header.AuthorizationBasic)
 		}
 		request.Header.Set("Content-Type", r.Header.ContentType)
-		c := http.Client{}
+		c := http.Client{Transport: transCfg}
 		if response, err = c.Do(request); err == nil {
 			defer response.Body.Close()
 			var bodyResponse []byte
