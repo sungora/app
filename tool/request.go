@@ -91,10 +91,10 @@ func (r *request) OPTIONS(uri string, requestBody, responseBody interface{}) (re
 func (r *request) request(method, uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	var url = r.url + uri
 	var request *http.Request
+	var data []byte
 	body := new(bytes.Buffer)
 	// Данные исходящего запроса
 	if method == http.MethodPost || method == http.MethodPut {
-		var data []byte
 		if data, err = json.Marshal(requestBody); err != nil {
 			return
 		}
@@ -107,6 +107,17 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 	transCfg := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
 	}
+
+	defer func() {
+		if err != nil {
+			fmt.Println("[ERROR] " + url)
+			if method == http.MethodPost || method == http.MethodPut {
+			fmt.Println(string(data))
+			}
+		}
+
+	}()
+
 	// Запрос
 	if request, err = http.NewRequest(method, url, body); err == nil {
 		// Заголовки
