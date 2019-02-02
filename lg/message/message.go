@@ -16,10 +16,8 @@ func GetMessage(code int, params ...interface{}) (message string) {
 	return
 }
 
-func SetMessage(msg map[int]string) {
-	for k, v := range msg {
-		messages[k] = v
-	}
+func SetMessage(code int, msg string) {
+	messages[code] = msg
 }
 
 var messages = map[int]string{

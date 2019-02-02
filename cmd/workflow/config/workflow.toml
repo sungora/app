@@ -1,0 +1,35 @@
+# Основная конфигурация
+TimeZone = "Europe/Moscow"
+
+[lg]
+Info = true
+Notice = true
+Warning = true
+Error = true
+Critical = true
+Fatal = true
+Traces = true
+OutStd = true
+OutFile = true
+OutHttp = ""
+
+[Workflow]
+Limitch = 1000      # буфер канала задач
+Limitpool = 9       # максимальное количество воркеров обслуживающих задачи
+
+[app]
+mode = "dev"
+driverDB = "mysql"
+sessionTimeout = 14400
+host = "localhost"
+port = 8080
+proto = "http"
+
+[mysql]
+host = "tcp(localhost:3306)"
+name = "accounter"
+login = "root"
+password = "LeRo5Sir"
+charset = "utf8"
+
+

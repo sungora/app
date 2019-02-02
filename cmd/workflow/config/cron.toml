@@ -1,9 +1,0 @@
-# Task Description
-[SampleTaskCron]
-name = "Task Description"
-isExecute = true
-minute = "*"
-hour = "*"
-day = "*"
-month = "*"
-week = "*"

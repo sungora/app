@@ -1,9 +1,0 @@
-package settings
-
-import "gopkg.in/sungora/app.v1/lg/message"
-
-func Lg() {
-	message.SetMessage(map[int]string{
-		1010: "sample message log",
-	})
-}

@@ -40,50 +40,50 @@ func NewPool(LimitCh, LimitPool int) *pool {
 }
 
 // Жизненный цикл воркера
-func (self *pool) worker() {
+func (p *pool) worker() {
 	defer func() {
-		self.size--
-		self.wg.Done()
+		p.size--
+		p.wg.Done()
 	}()
 	for {
 		select {
 		// Если есть задача, то ее нужно обработать
 		// Блокируется пока канал не будет закрыт, либо не поступит новая задача
-		case task, ok := <-self.tasks:
+		case task, ok := <-p.tasks:
 			if ok {
 				task.Execute()
 			} else {
 				return
 			}
 			// Если пришел сигнал умирать, выходим
-		case <-self.kill:
+		case <-p.kill:
 			return
 		}
 	}
 }
 
-func (self *pool) resize() {
-	defer self.wg.Done()
-	for 0 < self.size {
-		step := cap(self.tasks) / 20
-		if step*self.size < len(self.tasks) && self.size < self.limitPool {
-			self.size++
-			self.wg.Add(1)
-			go self.worker()
-		} else if 1 < self.size && len(self.tasks) <= step*(self.size-1) {
-			self.kill <- struct{}{}
+func (p *pool) resize() {
+	defer p.wg.Done()
+	for 0 < p.size {
+		step := cap(p.tasks) / 20
+		if step*p.size < len(p.tasks) && p.size < p.limitPool {
+			p.size++
+			p.wg.Add(1)
+			go p.worker()
+		} else if 1 < p.size && len(p.tasks) <= step*(p.size-1) {
+			p.kill <- struct{}{}
 		}
 		time.Sleep(time.Second * 1)
 	}
 }
 
 // TaskAdd Добавляем задачу в пул
-func (self *pool) TaskAdd(task Task) {
-	self.tasks <- task
+func (p *pool) TaskAdd(task Task) {
+	p.tasks <- task
 }
 
 // Wait Завершаем работу пула
-func (self *pool) Wait() {
-	close(self.tasks)
-	self.wg.Wait()
+func (p *pool) Wait() {
+	close(p.tasks)
+	p.wg.Wait()
 }

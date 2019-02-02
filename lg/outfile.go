@@ -1,11 +1,6 @@
 package lg
 
-import (
-	"encoding/json"
-	"os"
-)
-
-var fp *os.File
+import "encoding/json"
 
 func saveFile(m msg) {
 	var logLine string
@@ -14,7 +9,7 @@ func saveFile(m msg) {
 	} else {
 		return
 	}
-	if fp != nil {
-		fp.WriteString(logLine + "\n")
+	if component.fp != nil {
+		component.fp.WriteString(logLine + "\n")
 	}
 }
