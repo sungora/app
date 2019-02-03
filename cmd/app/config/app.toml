@@ -1,9 +1,10 @@
 # Основная конфигурация
 SessionTimeout = 14400
 TimeZone = "Europe/Moscow"
+UseDB = true
 Mode = "dev"
 
-[lg]
+[Lg]
 Info = true
 Notice = true
 Warning = true
@@ -15,11 +16,11 @@ OutStd = true
 OutFile = true
 OutHttp = ""
 
-[workflow]
+[Workflow]
 Limitch = 1000      # буфер канала задач
 Limitpool = 9       # максимальное количество воркеров обслуживающих задачи
 
-[server]
+[Server]
 Proto = "http"
 Host = "localhost"
 Port = 8080
@@ -27,7 +28,7 @@ WriteTimeout = 300 # Время ожидания окончания переда
 ReadTimeout = 300 # Время ожидания web запроса в секундах, по истечении которого соединение сбрасывается
 MaxHeaderBytes = 1048576 # Максимальный размер заголовка получаемого от браузера клиента в байтах
 
-[mysql]
+[Mysql]
 Host = "tcp(localhost:3306)"
 Name = "test"
 Login = "root"

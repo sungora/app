@@ -4,12 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 
+	"github.com/sungora/app/core"
 	"github.com/sungora/app/lg/message"
 	"github.com/sungora/app/startup"
 )
@@ -37,35 +36,25 @@ func (comp *componentTyp) Init() (err error) {
 	sep := string(os.PathSeparator)
 	config = new(configMain)
 
-	// техническое имя приложения
-	if ext := filepath.Ext(os.Args[0]); ext != "" {
-		sl := strings.Split(filepath.Base(os.Args[0]), ext)
-		config.ServiceName = sl[0]
-	} else {
-		config.ServiceName = filepath.Base(os.Args[0])
-	}
-
 	// диреткория логов приложения
-	dirWork, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	config.dirLog = dirWork + sep + "log"
 	var fi os.FileInfo
-	if fi, err = os.Stat(config.dirLog); err != nil {
-		if err = os.MkdirAll(config.dirLog, 0700); err != nil {
+	if fi, err = os.Stat(core.DirLog); err != nil {
+		if err = os.MkdirAll(core.DirLog, 0700); err != nil {
 			return
 		}
 	} else if fi.IsDir() == false {
-		return errors.New("не правильная директория логов\n" + config.dirLog)
+		return errors.New("не правильная директория логов\n" + core.DirLog)
 	}
 
 	// читаем конфигурацию
-	path := dirWork + sep + "config" + sep + config.ServiceName + ".toml"
+	path := core.DirConfig + sep + core.ServiceName + ".toml"
 	if _, err = toml.DecodeFile(path, &config); err != nil {
 		return
 	}
 
 	// читаем шаблоны сообщений логов
 	msgTmp := make(map[string]string)
-	path = dirWork + sep + "config" + sep + config.ServiceName + "_lg.toml"
+	path = core.DirConfig + sep + core.ServiceName + "_lg.toml"
 	if _, err := toml.DecodeFile(path, &msgTmp); err != nil {
 		fmt.Fprintln(os.Stdout, err.Error())
 	} else {
@@ -85,7 +74,7 @@ func (comp *componentTyp) Init() (err error) {
 // Start запуск компонента в работу
 func (comp *componentTyp) Start() (err error) {
 	if config.Lg.OutFile {
-		if comp.fp, err = os.OpenFile(config.dirLog+"/"+config.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
+		if comp.fp, err = os.OpenFile(core.DirLog+"/"+core.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
 			return
 		}
 	}

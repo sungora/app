@@ -1,7 +1,9 @@
 # Основная конфигурация
+SessionTimeout = 14400
 TimeZone = "Europe/Moscow"
+Mode = "dev"
 
-[lg]
+[Lg]
 Info = true
 Notice = true
 Warning = true

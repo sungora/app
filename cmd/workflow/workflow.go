@@ -12,10 +12,10 @@ import (
 func main() {
 	// custom
 	pool := workflow.NewPool(200, 9)
-	pool.TaskAdd(SampleTask("foo"))
-	pool.TaskAdd(SampleTask("bar"))
+	pool.TaskAdd(&SampleTask{Sample: "foo"})
+	pool.TaskAdd(&SampleTask{Sample: "bar"})
 	for i := 0; i < 20; i++ {
-		pool.TaskAdd(SampleTask(fmt.Sprintf("additional_%d", i+1)))
+		pool.TaskAdd(&SampleTask{Sample: fmt.Sprintf("additional_%d", i+1)})
 	}
 	pool.Wait()
 	// inside program
@@ -25,8 +25,10 @@ func main() {
 }
 
 // Пример задачи
-type SampleTask string
+type SampleTask struct {
+	Sample string
+}
 
-func (e SampleTask) Execute() {
-	fmt.Println("execute: ", string(e))
+func (e *SampleTask) Execute() {
+	fmt.Println("execute: ", e.Sample)
 }

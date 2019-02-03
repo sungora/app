@@ -2,9 +2,7 @@ package workflow
 
 // главная конфигурация
 type configMain struct {
-	ServiceName string
-	TimeZone    string
-	Workflow    configFile
+	Workflow configFile
 }
 
 // конфигурация поджгружаемая из файла конфигурации

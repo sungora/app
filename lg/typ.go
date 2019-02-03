@@ -2,10 +2,7 @@ package lg
 
 // главная конфигурация
 type configMain struct {
-	ServiceName string
-	TimeZone    string
-	Lg          configFile
-	dirLog      string
+	Lg configFile
 }
 
 // конфигурация поджгружаемая из файла конфигурации

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
 
+	"github.com/sungora/app/core"
 	"github.com/sungora/app/lg"
 	"github.com/sungora/app/startup"
 )
@@ -37,30 +37,20 @@ func (comp *componentTyp) Init() (err error) {
 	sep := string(os.PathSeparator)
 	config = new(configMain)
 
-	// техническое имя приложения
-	if ext := filepath.Ext(os.Args[0]); ext != "" {
-		sl := strings.Split(filepath.Base(os.Args[0]), ext)
-		config.ServiceName = sl[0]
-	} else {
-		config.ServiceName = filepath.Base(os.Args[0])
-	}
-
 	// читаем конфигурацию
 	dirWork, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	path := dirWork + sep + "config" + sep + config.ServiceName + ".toml"
+	path := dirWork + sep + "config" + sep + core.ServiceName + ".toml"
 	if _, err = toml.DecodeFile(path, &config); err != nil {
 		return
 	}
 
 	// читаем задачи из конфигурации
-	path = dirWork + sep + "config" + sep + config.ServiceName + "_workflow.toml"
+	path = dirWork + sep + "config" + sep + core.ServiceName + "_workflow.toml"
 	if _, err := toml.DecodeFile(path, &comp.cronTaskManager); err != nil {
 		fmt.Fprintln(os.Stdout, err.Error())
 	}
 
 	comp.cronTaskRun = make(map[string]Task)
-	comp.cronControlCH = make(chan struct{})
-	comp.p = NewPool(config.Workflow.LimitCh, config.Workflow.LimitPool)
 
 	return
 }
@@ -74,6 +64,8 @@ func (comp *componentTyp) Start() (err error) {
 		task        Task
 		ok          bool
 	)
+	comp.cronControlCH = make(chan struct{})
+	comp.p = NewPool(config.Workflow.LimitCh, config.Workflow.LimitPool)
 	comp.p.wg.Add(1)
 	go func() {
 		defer comp.p.wg.Done()

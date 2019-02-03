@@ -2,9 +2,7 @@ package server
 
 // главная конфигурация
 type configMain struct {
-	ServiceName string
-	TimeZone    string
-	Server      configFile
+	Server configFile
 }
 
 // конфигурация подгружаемая из файла конфигурации

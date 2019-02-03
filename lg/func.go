@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sungora/app/core"
 	"github.com/sungora/app/lg/message"
 )
 
@@ -89,7 +90,7 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 			msg.Action = fn.Name()
 		}
 	}
-	msg.Service = config.ServiceName
+	msg.Service = core.ServiceName
 	msg.Login = login
 	switch k := key.(type) {
 	case error:
