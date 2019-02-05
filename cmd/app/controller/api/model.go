@@ -8,9 +8,10 @@ import (
 	"github.com/sungora/app/cmd/app/model"
 	"github.com/sungora/app/cmd/app/model/mdlusers"
 	"github.com/sungora/app/core"
+	"github.com/sungora/app/lg"
 )
 
-func NewControlModel() core.ControllerFace {
+func NewControlModel() core.Controller {
 	return new(ControlModel)
 }
 
@@ -35,7 +36,7 @@ func (control *ControlModel) GET() (err error) {
 	model.DB.AutoMigrate(u)
 
 	if err = u.Load(); err != nil {
-		return
+		lg.Error(err)
 	}
 
 	invoiceID := uint64(1234)

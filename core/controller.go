@@ -7,7 +7,7 @@ import (
 )
 
 // ContraFace is an interface to uniform all controller handler.
-type ControllerFace interface {
+type Controller interface {
 	Init(w http.ResponseWriter, r *http.Request) (err error)
 	GET() (err error)
 	POST() (err error)
@@ -37,12 +37,12 @@ func (c *ControllerApi) Init(w http.ResponseWriter, r *http.Request) (err error)
 	// initialization session
 	var token string
 	if 0 < Config.SessionTimeout {
-		if token, err = c.RW.CookieGet(ServiceName); err != nil {
+		if token, err = c.RW.CookieGet(Config.ServiceName); err != nil {
 			return
 		}
 		if token == "" {
 			token = NewRandomString(10)
-			c.RW.CookieSet(ServiceName, token)
+			c.RW.CookieSet(Config.ServiceName, token)
 		}
 		c.Session = GetSession(token)
 	}
@@ -95,20 +95,20 @@ func (c *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) (err error
 	// initialization session
 	var token string
 	if 0 < Config.SessionTimeout {
-		if token, err = c.RW.CookieGet(ServiceName); err != nil {
+		if token, err = c.RW.CookieGet(Config.ServiceName); err != nil {
 			return
 		}
 		if token == "" {
 			token = NewRandomString(10)
-			c.RW.CookieSet(ServiceName, token)
+			c.RW.CookieSet(Config.ServiceName, token)
 		}
 		c.Session = GetSession(token)
 	}
 	//
 	c.Functions = make(map[string]interface{})
 	c.Variables = make(map[string]interface{})
-	c.TplLayout = DirWww + "/layout/index.html"
-	c.TplController = DirWww + "/controllers"
+	c.TplLayout = Config.DirWww + "/layout/index.html"
+	c.TplController = Config.DirWww + "/controllers"
 	return
 }
 

@@ -1,18 +1,13 @@
 package lg
 
 import (
-	"bytes"
 	"fmt"
-	"go/ast"
-	"go/token"
-	"io"
 	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/sungora/app/core"
 	"github.com/sungora/app/lg/message"
 )
 
@@ -90,7 +85,7 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 			msg.Action = fn.Name()
 		}
 	}
-	msg.Service = core.ServiceName
+	msg.Service = config.ServiceName
 	msg.Login = login
 	switch k := key.(type) {
 	case error:
@@ -135,24 +130,4 @@ func getTrace() (traces []trace, err error) {
 		traces = append(traces, t)
 	}
 	return
-}
-
-// Dump all variables to STDOUT
-func Dumper(idl ...interface{}) string {
-	ret := dump(idl...)
-	fmt.Print(ret.String())
-	return ret.String()
-}
-
-// Dump all variables to bytes.Buffer
-func dump(idl ...interface{}) bytes.Buffer {
-	var buf bytes.Buffer
-	var wr io.Writer
-
-	wr = io.MultiWriter(&buf)
-	for _, field := range idl {
-		fset := token.NewFileSet()
-		ast.Fprint(wr, fset, field, ast.NotNilFilter)
-	}
-	return buf
 }

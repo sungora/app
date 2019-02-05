@@ -6,7 +6,7 @@ import (
 	"github.com/sungora/app/core"
 )
 
-func NewControlSample() core.ControllerFace {
+func NewControlSample() core.Controller {
 	return new(ControlSample)
 }
 

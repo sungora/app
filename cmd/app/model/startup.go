@@ -2,18 +2,20 @@ package model
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/BurntSushi/toml"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	"github.com/sungora/app/startup"
+	"github.com/sungora/app/core"
 )
 
 // init регистрация компонента в приложении
 func init() {
 	component = new(componentTyp)
-	startup.SetComponent(component)
+	core.ComponentReg(component)
 }
 
 // компонент
@@ -26,7 +28,17 @@ var (
 )
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init() (err error) {
+func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
+
+	sep := string(os.PathSeparator)
+	config = new(configMain)
+
+	// читаем конфигурацию
+	path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
+	if _, err = toml.DecodeFile(path, config); err != nil {
+		return
+	}
+
 	if DB, err = gorm.Open("mysql", fmt.Sprintf(
 		"%s:%s@%s/%s?charset=%s&parseTime=True&loc=Local&timeout=3s",
 		config.Mysql.Login,

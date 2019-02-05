@@ -59,7 +59,7 @@ func (rw *requestResponse) CookieRem(name string) {
 	cookie.Name = name
 	cookie.Domain = rw.Request.URL.Host
 	cookie.Path = `/`
-	cookie.Expires = time.Now().In(TimeLocation)
+	cookie.Expires = time.Now().In(Config.TimeLocation)
 	http.SetCookie(rw.Response, cookie)
 }
 
@@ -108,7 +108,7 @@ func (rw *requestResponse) ResponseJson(object interface{}, status int) error {
 		return err
 	}
 	//
-	t := time.Now().In(TimeLocation)
+	t := time.Now().In(Config.TimeLocation)
 	rw.isResponse = true
 	// запрет кеширования
 	rw.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
@@ -128,7 +128,7 @@ func (rw *requestResponse) ResponseJson(object interface{}, status int) error {
 func (rw *requestResponse) ResponseHtml(con string, status int) {
 	data := []byte(con)
 	//
-	t := time.Now().In(TimeLocation)
+	t := time.Now().In(Config.TimeLocation)
 	rw.isResponse = true
 	// запрет кеширования
 	rw.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
@@ -176,7 +176,7 @@ func (rw *requestResponse) ResponseStatic(path string) (err error) {
 		typ = mimeType
 	}
 	// headers
-	t := time.Now().In(TimeLocation)
+	t := time.Now().In(Config.TimeLocation)
 	// запрет кеширования
 	rw.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
 	rw.Response.Header().Set("Pragma", "no-cache")

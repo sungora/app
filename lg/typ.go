@@ -2,7 +2,8 @@ package lg
 
 // главная конфигурация
 type configMain struct {
-	Lg configFile
+	ServiceName string
+	Lg          configFile
 }
 
 // конфигурация поджгружаемая из файла конфигурации

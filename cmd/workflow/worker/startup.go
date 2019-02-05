@@ -1,18 +1,17 @@
 package worker
 
 import (
-	"github.com/sungora/app/startup"
-
 	"github.com/sungora/app/cmd/workflow/worker/workfour"
 	"github.com/sungora/app/cmd/workflow/worker/workone"
 	"github.com/sungora/app/cmd/workflow/worker/worktwo"
+	"github.com/sungora/app/core"
 	"github.com/sungora/app/workflow"
 )
 
 // init регистрация компонента в приложении
 func init() {
 	component = new(componentTyp)
-	startup.SetComponent(component)
+	core.ComponentReg(component)
 }
 
 // компонент
@@ -24,7 +23,7 @@ var (
 )
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init() (err error) {
+func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 
 	workflow.TaskAddCron("SampleTaskOne", &workone.SampleTaskOne{})
 	workflow.TaskAddCron("SampleTaskTwo", &worktwo.SampleTaskTwo{})

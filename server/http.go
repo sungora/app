@@ -18,7 +18,7 @@ func (server *serverHttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// response static
 	if err != nil {
 		var rw = core.NewRW(r, w)
-		if err = rw.ResponseStatic(core.DirWww + r.URL.Path); err != nil {
+		if err = rw.ResponseStatic(core.Config.DirWww + r.URL.Path); err != nil {
 			lg.Error(err)
 		}
 		return

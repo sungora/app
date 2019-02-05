@@ -5,13 +5,12 @@ import (
 	"github.com/sungora/app/cmd/app/controller/page"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/startup"
 )
 
 // init регистрация компонента в приложении
 func init() {
 	component = new(componentTyp)
-	startup.SetComponent(component)
+	core.ComponentReg(component)
 }
 
 // компонент
@@ -23,7 +22,7 @@ var (
 )
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init() (err error) {
+func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 
 	core.Route.Set("/", page.NewControlSample)
 	core.Route.Set("/api/model", api.NewControlModel)

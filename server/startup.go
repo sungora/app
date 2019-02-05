@@ -6,19 +6,17 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/BurntSushi/toml"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/startup"
 )
 
 // init регистрация компонента в приложении
 func init() {
 	component = new(componentTyp)
-	startup.SetComponent(component)
+	core.ComponentReg(component)
 }
 
 // компонент
@@ -32,14 +30,13 @@ var (
 )
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init() (err error) {
+func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	sep := string(os.PathSeparator)
 	config = new(configMain)
 
 	// читаем конфигурацию
-	dirWork, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	path := dirWork + sep + "config" + sep + core.ServiceName + ".toml"
-	if _, err = toml.DecodeFile(path, &config); err != nil {
+	path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
+	if _, err = toml.DecodeFile(path, config); err != nil {
 		return
 	}
 
@@ -61,6 +58,7 @@ func (comp *componentTyp) Start() (err error) {
 			return
 		}
 		go Server.Serve(comp.store)
+		fmt.Fprintf(os.Stdout, "%s://%s:%d\n", config.Server.Proto, config.Server.Host, config.Server.Port)
 	default:
 		return errors.New("protocol not defined")
 	}

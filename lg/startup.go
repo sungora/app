@@ -10,13 +10,12 @@ import (
 
 	"github.com/sungora/app/core"
 	"github.com/sungora/app/lg/message"
-	"github.com/sungora/app/startup"
 )
 
 // init регистрация компонента в приложении
 func init() {
 	component = new(componentTyp)
-	startup.SetComponent(component)
+	core.ComponentReg(component)
 }
 
 // компонент
@@ -32,29 +31,30 @@ var (
 )
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init() (err error) {
+func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	sep := string(os.PathSeparator)
 	config = new(configMain)
+	config.ServiceName = cfg.ServiceName
 
 	// диреткория логов приложения
 	var fi os.FileInfo
-	if fi, err = os.Stat(core.DirLog); err != nil {
-		if err = os.MkdirAll(core.DirLog, 0700); err != nil {
+	if fi, err = os.Stat(cfg.DirLog); err != nil {
+		if err = os.MkdirAll(cfg.DirLog, 0700); err != nil {
 			return
 		}
 	} else if fi.IsDir() == false {
-		return errors.New("не правильная директория логов\n" + core.DirLog)
+		return errors.New("не правильная директория логов\n" + cfg.DirLog)
 	}
 
 	// читаем конфигурацию
-	path := core.DirConfig + sep + core.ServiceName + ".toml"
-	if _, err = toml.DecodeFile(path, &config); err != nil {
+	path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
+	if _, err = toml.DecodeFile(path, config); err != nil {
 		return
 	}
 
 	// читаем шаблоны сообщений логов
 	msgTmp := make(map[string]string)
-	path = core.DirConfig + sep + core.ServiceName + "_lg.toml"
+	path = cfg.DirConfig + sep + cfg.ServiceName + "_lg.toml"
 	if _, err := toml.DecodeFile(path, &msgTmp); err != nil {
 		fmt.Fprintln(os.Stdout, err.Error())
 	} else {
@@ -74,7 +74,7 @@ func (comp *componentTyp) Init() (err error) {
 // Start запуск компонента в работу
 func (comp *componentTyp) Start() (err error) {
 	if config.Lg.OutFile {
-		if comp.fp, err = os.OpenFile(core.DirLog+"/"+core.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
+		if comp.fp, err = os.OpenFile(core.Config.DirLog+"/"+core.Config.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
 			return
 		}
 	}
