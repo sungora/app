@@ -36,30 +36,30 @@ func RequestGetParamsCompile(postData map[string]interface{}) string {
 }
 
 type requestHeader struct {
-	AuthorizationBasic string
-	ContentType        string
-	Accept             string
+	authorizationBasic string
+	contentType        string
+	accept             string
 }
 
 func (rh *requestHeader) SetAuthorizationBasic(login, passw string) {
-	rh.AuthorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
+	rh.authorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
 }
 
 func (rh *requestHeader) SetContentType(contentType string) {
-	rh.ContentType = contentType
+	rh.contentType = contentType
 }
 
-func (rh *requestHeader) SetContentTypeJson() {
-	rh.SetContentType("application/json")
-}
+// func (rh *requestHeader) SetContentTypeJson() {
+// 	rh.SetContentType("application/json")
+// }
 
 func (rh *requestHeader) SetAccept(accept string) {
-	rh.Accept = accept
+	rh.accept = accept
 }
 
-func (rh *requestHeader) SetAcceptJson() {
-	rh.SetAccept("application/json")
-}
+// func (rh *requestHeader) SetAcceptJson() {
+// 	rh.SetAccept("application/json")
+// }
 
 type request struct {
 	url    string
@@ -112,14 +112,14 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 	// Запрос
 	if request, err = http.NewRequest(method, url, body); err == nil {
 		// Заголовки
-		if r.Header.AuthorizationBasic != "" {
-			request.Header.Set("Authorization", r.Header.AuthorizationBasic)
+		if r.Header.authorizationBasic != "" {
+			request.Header.Set("Authorization", r.Header.authorizationBasic)
 		}
-		if r.Header.ContentType != "" {
-			request.Header.Set("Content-Type", r.Header.ContentType)
+		if r.Header.contentType != "" {
+			request.Header.Set("Content-Type", r.Header.contentType)
 		}
-		if r.Header.Accept != "" {
-			request.Header.Set("Accept", r.Header.Accept)
+		if r.Header.accept != "" {
+			request.Header.Set("Accept", r.Header.accept)
 		}
 		//
 		transCfg := &http.Transport{
@@ -135,7 +135,7 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 			if err != nil {
 				return
 			}
-			if r.Header.ContentType == "application/json" {
+			if r.Header.contentType == "application/json" {
 				err = json.Unmarshal(bodyResponse, responseBody)
 			}
 			if response.StatusCode != 200 {
