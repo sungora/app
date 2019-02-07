@@ -9,12 +9,12 @@ import (
 // ContraFace is an interface to uniform all controller handler.
 type Controller interface {
 	Init(w http.ResponseWriter, r *http.Request) (err error)
-	GET() (err error)
-	POST() (err error)
-	PUT() (err error)
-	DELETE() (err error)
-	OPTIONS() (err error)
-	Response() (err error)
+	GET()
+	POST()
+	PUT()
+	DELETE()
+	OPTIONS()
+	Response()
 }
 
 // Контроллер для реализации api запросов в формате json
@@ -49,27 +49,27 @@ func (c *ControllerApi) Init(w http.ResponseWriter, r *http.Request) (err error)
 	return
 }
 
-func (c *ControllerApi) GET() (err error) {
+func (c *ControllerApi) GET() {
 	return
 }
-func (c *ControllerApi) POST() (err error) {
+func (c *ControllerApi) POST() {
 	return
 }
-func (c *ControllerApi) PUT() (err error) {
+func (c *ControllerApi) PUT() {
 	return
 }
-func (c *ControllerApi) DELETE() (err error) {
+func (c *ControllerApi) DELETE() {
 	return
 }
-func (c *ControllerApi) OPTIONS() (err error) {
+func (c *ControllerApi) OPTIONS() {
 	return
 }
 
-func (c *ControllerApi) Response() (err error) {
+func (c *ControllerApi) Response() {
 	if c.RW.isResponse {
 		return
 	}
-	return c.RW.ResponseJson(c.Data, c.RW.Status)
+	c.RW.ResponseJson(c.Data, c.RW.Status)
 }
 
 // Контроллер для реализации html страниц
@@ -112,26 +112,27 @@ func (c *ControllerHtml) Init(w http.ResponseWriter, r *http.Request) (err error
 	return
 }
 
-func (c *ControllerHtml) GET() (err error) {
+func (c *ControllerHtml) GET() {
 	return
 }
-func (c *ControllerHtml) POST() (err error) {
+func (c *ControllerHtml) POST() {
 	return
 }
-func (c *ControllerHtml) PUT() (err error) {
+func (c *ControllerHtml) PUT() {
 	return
 }
-func (c *ControllerHtml) DELETE() (err error) {
+func (c *ControllerHtml) DELETE() {
 	return
 }
-func (c *ControllerHtml) OPTIONS() (err error) {
+func (c *ControllerHtml) OPTIONS() {
 	return
 }
 
-func (c *ControllerHtml) Response() (err error) {
+func (c *ControllerHtml) Response() {
 	if c.RW.isResponse {
 		return
 	}
+	var err error
 	// шаблон контроллера
 	var buf bytes.Buffer
 	if buf, err = TplCompilation(c.TplController, c.Functions, c.Variables); err != nil {

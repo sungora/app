@@ -74,38 +74,35 @@ func (rw *requestResponse) RequestBodyDecodeJson(object interface{}) (err error)
 	return json.Unmarshal(body, object)
 }
 
-type content struct {
+type DataApi struct {
 	Code    int
 	Message string
 	Error   bool
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func (rw *requestResponse) ResponseJsonOk(object interface{}, code int, message string) error {
-	res := new(content)
+func (rw *requestResponse) ResponseJsonApi200(object interface{}, code int, message string) {
+	res := new(DataApi)
 	res.Code = code
 	res.Message = message
 	res.Error = false
 	res.Data = object
-	return rw.ResponseJson(res, http.StatusOK)
+	rw.ResponseJson(res, http.StatusOK)
 }
 
-func (rw *requestResponse) ResponseJsonErr(object interface{}, code int, message string, status ...int) error {
-	res := new(content)
+func (rw *requestResponse) ResponseJsonApi409(object interface{}, code int, message string) {
+	res := new(DataApi)
 	res.Code = code
 	res.Message = message
 	res.Error = true
 	res.Data = object
-	if 0 < len(status) {
-		return rw.ResponseJson(res, status[0])
-	}
-	return rw.ResponseJson(res, http.StatusConflict)
+	rw.ResponseJson(res, http.StatusConflict)
 }
 
-func (rw *requestResponse) ResponseJson(object interface{}, status int) error {
+func (rw *requestResponse) ResponseJson(object interface{}, status int) {
 	data, err := json.Marshal(object)
 	if err != nil {
-		return err
+		fmt.Fprintln(os.Stderr, err.Error())
 	}
 	//
 	t := time.Now().In(Config.TimeLocation)
@@ -122,7 +119,9 @@ func (rw *requestResponse) ResponseJson(object interface{}, status int) error {
 	rw.Response.WriteHeader(status)
 	// Тело документа
 	_, err = rw.Response.Write(data)
-	return err
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
 }
 
 func (rw *requestResponse) ResponseHtml(con string, status int) {
