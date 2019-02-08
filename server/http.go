@@ -32,24 +32,16 @@ func (server *serverHttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// execute controller
 	switch r.Method {
 	case http.MethodGet:
-		err = control.GET()
+		control.GET()
 	case http.MethodPost:
-		err = control.POST()
+		control.POST()
 	case http.MethodPut:
-		err = control.PUT()
+		control.PUT()
 	case http.MethodDelete:
-		err = control.DELETE()
+		control.DELETE()
 	case http.MethodOptions:
-		err = control.OPTIONS()
+		control.OPTIONS()
 	}
-	if err != nil {
-		lg.Error(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
 	// default response controller
-	if err = control.Response(); err != nil {
-		lg.Error(err)
-	}
+	control.Response()
 }
