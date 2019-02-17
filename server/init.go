@@ -47,17 +47,18 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 func (comp *componentTyp) Start() (err error) {
 	switch config.Server.Proto {
 	case "http":
-		Server := &http.Server{
+		s := &http.Server{
 			Addr:           fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port),
 			Handler:        new(serverHttp),
 			ReadTimeout:    time.Second * time.Duration(config.Server.ReadTimeout),
 			WriteTimeout:   time.Second * time.Duration(config.Server.WriteTimeout),
+			IdleTimeout:    time.Second * time.Duration(config.Server.IdleTimeout),
 			MaxHeaderBytes: config.Server.MaxHeaderBytes,
 		}
-		if comp.store, err = net.Listen("tcp", Server.Addr); err != nil {
+		if comp.store, err = net.Listen("tcp", s.Addr); err != nil {
 			return
 		}
-		go Server.Serve(comp.store)
+		go s.Serve(comp.store)
 		fmt.Fprintf(os.Stdout, "%s://%s:%d\n", config.Server.Proto, config.Server.Host, config.Server.Port)
 	default:
 		return errors.New("protocol not defined")
