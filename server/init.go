@@ -19,15 +19,15 @@ func init() {
 	core.ComponentReg(component)
 }
 
-// компонент
-type componentTyp struct {
-	store net.Listener
-}
-
 var (
 	config    *configMain   // конфигурация
 	component *componentTyp // компонент
 )
+
+// компонент
+type componentTyp struct {
+	store net.Listener
+}
 
 // Init инициализация компонента в приложении
 func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {

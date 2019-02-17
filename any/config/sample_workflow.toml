@@ -1,0 +1,26 @@
+[SampleTaskOne]
+Name = "Task Description SampleTaskOne"
+IsExecute = true
+Minute = "*"
+Hour = "*"
+Day = "*"
+Month = "*"
+Week = "*"
+
+[SampleTaskTwo]
+Name = "Task Description SampleTaskTwo"
+IsExecute = true
+Minute = "*/2"
+Hour = "*"
+Day = "*"
+Month = "*"
+Week = "*"
+
+[SampleTaskFour]
+Name = "Task Description SampleTaskFour"
+IsExecute = true
+Minute = "*/4"
+Hour = "*"
+Day = "*"
+Month = "*"
+Week = "*"

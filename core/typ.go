@@ -6,7 +6,6 @@ import "time"
 type ConfigRoot struct {
 	SessionTimeout time.Duration  //
 	TimeZone       string         //
-	UseDB          bool           //
 	Mode           string         //
 	DirWork        string         //
 	DirConfig      string         //

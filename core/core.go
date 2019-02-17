@@ -4,83 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"reflect"
-	"strings"
-	"time"
-
-	"github.com/BurntSushi/toml"
 )
-
-// init создание компонента ядра
-func init() {
-	component = new(componentTyp)
-}
-
-// компонент
-type componentTyp struct {
-}
-
-var (
-	Config    *ConfigRoot   // Корневая конфигурация главного конфигурационного файла
-	component *componentTyp // Компонент
-)
-
-// Init инициализация компонента в приложении
-func (comp *componentTyp) Init(cfg *ConfigRoot) (err error) {
-
-	if cfg == nil {
-		Config = new(ConfigRoot)
-	} else {
-		Config = cfg
-	}
-	sep := string(os.PathSeparator)
-
-	// техническое имя приложения
-	if ext := filepath.Ext(os.Args[0]); ext != "" {
-		sl := strings.Split(filepath.Base(os.Args[0]), ext)
-		Config.ServiceName = sl[0]
-	} else {
-		Config.ServiceName = filepath.Base(os.Args[0])
-	}
-
-	// читаем конфигурацию
-	Config.DirWork, _ = filepath.Abs(filepath.Dir(filepath.Dir(os.Args[0])))
-	Config.DirConfig = Config.DirWork + sep + "config"
-	Config.DirLog = Config.DirWork + sep + "log"
-	Config.DirWww = Config.DirWork + sep + "www"
-	path := Config.DirConfig + sep + Config.ServiceName + ".toml"
-	if _, err = toml.DecodeFile(path, Config); err != nil {
-		return
-	}
-
-	// Инициализация временной зоны
-	if loc, err := time.LoadLocation(Config.TimeZone); err == nil {
-		Config.TimeLocation = loc
-	} else {
-		Config.TimeLocation = time.UTC
-	}
-
-	Config.SessionTimeout *= time.Second
-
-	return
-}
-
-// Start запуск компонента в работу
-func (comp *componentTyp) Start() (err error) {
-	// session
-	if 0 < Config.SessionTimeout {
-		sessionGC()
-	}
-	return
-}
-
-// Stop завершение работы компонента
-func (comp *componentTyp) Stop() (err error) {
-	return
-}
-
-// ///////////////
 
 // Интерфейс компонентов приложения
 type Componenter interface {
@@ -92,17 +17,14 @@ type Componenter interface {
 	Stop() (err error)
 }
 
-// Срез зарегитрированных компонентов приложения
-var componentList []Componenter
-
 // ComponentReg Регистрация компонента приложения
 func ComponentReg(com Componenter) {
 	componentList = append(componentList, com)
 }
 
 var (
-	// Канал управления запуском и остановкой приложения
-	chanelAppControl = make(chan os.Signal, 1)
+	componentList    []Componenter             // Срез зарегитрированных компонентов приложения
+	chanelAppControl = make(chan os.Signal, 1) // Канал управления запуском и остановкой приложения
 )
 
 // Start Launch an application

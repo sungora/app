@@ -18,17 +18,17 @@ func init() {
 	core.ComponentReg(component)
 }
 
+var (
+	config    *configMain   // конфигурация
+	component *componentTyp // компонент
+)
+
 // компонент
 type componentTyp struct {
 	fp         *os.File  // запись логов в файл
 	logCh      chan msg  // канал чтения и обработки логов
 	logChClose chan bool // канал управления закрытием работы
 }
-
-var (
-	config    *configMain   // конфигурация
-	component *componentTyp // компонент
-)
 
 // Init инициализация компонента в приложении
 func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {

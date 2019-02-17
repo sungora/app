@@ -17,6 +17,11 @@ func init() {
 	core.ComponentReg(component)
 }
 
+var (
+	config    *configMain   // конфигурация
+	component *componentTyp // компонент
+)
+
 // компонент
 type componentTyp struct {
 	p               *pool
@@ -24,11 +29,6 @@ type componentTyp struct {
 	cronTaskRun     map[string]Task
 	cronControlCH   chan struct{}
 }
-
-var (
-	config    *configMain   // конфигурация
-	component *componentTyp // компонент
-)
 
 // Init инициализация компонента в приложении
 func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
@@ -109,7 +109,7 @@ func (comp *componentTyp) Start() (err error) {
 // Stop завершение работы компонента
 func (comp *componentTyp) Stop() (err error) {
 	comp.cronControlCH <- struct{}{}
-	time.Sleep(time.Second)
+	time.Sleep(time.Millisecond)
 	comp.p.Wait()
 	return
 }
