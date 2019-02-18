@@ -6,6 +6,4 @@ Library to create an application on golang
 
 see repo
 
-[sampleapp](https://github.com/sungora/sampleapp "пример веб-апи приложения")
-
-[sampleworkflow](https://github.com/sungora/sampleworkflow "пример веб-апи приложения")
+[sample](https://github.com/sungora/sample "пример приложения")

@@ -1,4 +1,4 @@
-package server
+package servhttp
 
 // главная конфигурация
 type configMain struct {

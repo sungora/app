@@ -1,9 +1,9 @@
-package server
+package servhttp
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"time"
@@ -20,13 +20,20 @@ func init() {
 }
 
 var (
-	config    *configMain   // конфигурация
-	component *componentTyp // компонент
+	config          *configMain   // конфигурация
+	component       *componentTyp // компонент
+	ErrorNotDefinde = errors.New("protocol not defined")
+)
+
+const (
+	proto_http  = "http"
+	proto_https = "https"
 )
 
 // компонент
 type componentTyp struct {
-	store net.Listener
+	ser       *http.Server
+	chControl chan struct{} // канал управление ожиданием завершения
 }
 
 // Init инициализация компонента в приложении
@@ -40,14 +47,10 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 		return
 	}
 
-	return
-}
-
-// Start запуск компонента в работу
-func (comp *componentTyp) Start() (err error) {
+	// Инициализируем сервер
 	switch config.Server.Proto {
-	case "http":
-		s := &http.Server{
+	case proto_http:
+		comp.ser = &http.Server{
 			Addr:           fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port),
 			Handler:        new(serverHttp),
 			ReadTimeout:    time.Second * time.Duration(config.Server.ReadTimeout),
@@ -55,13 +58,27 @@ func (comp *componentTyp) Start() (err error) {
 			IdleTimeout:    time.Second * time.Duration(config.Server.IdleTimeout),
 			MaxHeaderBytes: config.Server.MaxHeaderBytes,
 		}
-		if comp.store, err = net.Listen("tcp", s.Addr); err != nil {
-			return
-		}
-		go s.Serve(comp.store)
-		fmt.Fprintf(os.Stdout, "%s://%s:%d\n", config.Server.Proto, config.Server.Host, config.Server.Port)
 	default:
-		return errors.New("protocol not defined")
+		return ErrorNotDefinde
+	}
+
+	// управление ожиданием завершения
+	comp.chControl = make(chan struct{})
+	return
+}
+
+// Start запуск компонента в работу
+func (comp *componentTyp) Start() (err error) {
+	switch config.Server.Proto {
+	case proto_http:
+		go func() {
+			if err = comp.ser.ListenAndServe(); err != http.ErrServerClosed {
+				return
+			}
+			close(comp.chControl)
+		}()
+	default:
+		return ErrorNotDefinde
 	}
 	return
 }
@@ -69,12 +86,15 @@ func (comp *componentTyp) Start() (err error) {
 // Stop завершение работы компонента
 func (comp *componentTyp) Stop() (err error) {
 	switch config.Server.Proto {
-	case "http":
-		if comp.store != nil {
-			err = comp.store.Close()
+	case proto_http:
+		if comp.ser != nil {
+			if err = comp.ser.Shutdown(context.Background()); err != nil {
+				return
+			}
+			<-comp.chControl
 		}
 	default:
-		return errors.New("protocol not defined")
+		return ErrorNotDefinde
 	}
 	return
 }

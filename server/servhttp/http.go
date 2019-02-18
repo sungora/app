@@ -1,4 +1,4 @@
-package server
+package servhttp
 
 import (
 	"net/http"
