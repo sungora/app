@@ -1,6 +1,8 @@
 package core
 
-import "time"
+import (
+	"time"
+)
 
 // главная конфигурация
 type ConfigRoot struct {
