@@ -158,7 +158,7 @@ func (hp *HandlerHttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err         error
 		handler     = hp.getHandler(r.URL.Path, r.Method)
 		handlerList = hp.getHandlerMW(r.URL.Path)
-		rw          = core.NewRW(r, w),
+		rw          = core.NewRW(w, r)
 	)
 	defer r.Body.Close()
 

@@ -18,16 +18,25 @@ type RW struct {
 	Request       *http.Request
 	RequestParams map[string][]string
 	Response      http.ResponseWriter
+	Functions     map[string]interface{} // html/template.FuncMap (по умолчанию пустой)
+	Variables     map[string]interface{} // Variable (по умолчанию пустой)
+	TplLayout     string
+	TplController string
 	isResponse    bool
 	Status        int
 }
 
 // NewRW Функционал по непосредственной работе с запросом и ответом
 func NewRW(w http.ResponseWriter, r *http.Request) *RW {
-	rw := new(RW)
-	rw.Request = r
-	rw.Response = w
-	rw.Status = http.StatusOK
+	var rw = &RW{
+		Request:       r,
+		Response:      w,
+		Functions:     make(map[string]interface{}),
+		Variables:     make(map[string]interface{}),
+		TplLayout:     Config.DirWww + "/layout",
+		TplController: Config.DirWww + "/controllers",
+		Status:        http.StatusOK,
+	}
 	// request parameter "application/x-www-form-urlencoded"
 	rw.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	if err := r.ParseForm(); err != nil {
