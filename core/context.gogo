@@ -6,7 +6,8 @@ import (
 )
 
 type Context struct {
-	Data string
+	RW      *RW
+	Session *sessionTyp
 	context.Context
 }
 

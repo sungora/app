@@ -11,15 +11,15 @@ import (
 )
 
 const (
-	NUM     = "0123456789"
-	STRDOWN = "abcdefghijklmnopqrstuvwxyz"
-	STRUP   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	SYMBOL  = "~!@#$%^&*_+-="
+	num     = "0123456789"
+	strdown = "abcdefghijklmnopqrstuvwxyz"
+	strup   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	symbol  = "~!@#$%^&*_+-="
 )
 
 // NewRandomString generates password key of a specified length (a-z0-9.)
 func NewRandomString(length int) string {
-	return randChar(length, []byte(STRDOWN+STRUP+NUM))
+	return randChar(length, []byte(strdown+strup+num))
 }
 
 func randChar(length int, chars []byte) string {

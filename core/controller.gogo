@@ -19,13 +19,13 @@ type Controller interface {
 
 // Контроллер для реализации api запросов в формате json
 type ControllerApi struct {
-	RW      *requestResponse
+	RW      *RW
 	Session *sessionTyp
 	Data    interface{}
 }
 
 func (c *ControllerApi) Init(w http.ResponseWriter, r *http.Request) (err error) {
-	c.RW = NewRW(r, w)
+	c.RW = NewRW(w, r)
 	// request parameter "application/x-www-form-urlencoded"
 	c.RW.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
 	if err = r.ParseForm(); err != nil {
@@ -74,7 +74,7 @@ func (c *ControllerApi) Response() {
 
 // Контроллер для реализации html страниц
 type ControllerHtml struct {
-	RW            *requestResponse
+	RW            *RW
 	Session       *sessionTyp
 	Variables     map[string]interface{} // Variable (по умолчанию пустой)
 	Functions     map[string]interface{} // html/template.FuncMap (по умолчанию пустой)

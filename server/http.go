@@ -2,18 +2,15 @@ package server
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"github.com/sungora/app/core"
+	"github.com/sungora/app/lg"
 	"net/http"
 	"time"
 )
 
-var (
-	errNotFoundHandler = errors.New("handler not found from uri")
-)
-
 // HandlerFuncHttp Функция обработчик http запросов
-type HandlerFuncHttp func(context.Context)
+type HandlerFuncHttp func(context.Context, *core.RW) (context.Context, *core.RW)
 
 // Служебная структура для построения маршрута и их обработчиков запроса
 type routePath struct {
@@ -70,6 +67,7 @@ func (rp *routePath) OPTIONS(hf HandlerFuncHttp) *routePath {
 type HandlerHttp struct {
 	routeMW   map[string][]HandlerFuncHttp          // общие для всех методов и middleware обработчики
 	route     map[string]map[string]HandlerFuncHttp // обработчики для конкретного запроса и метода
+	cfg       ConfigTyp                             // конфигурация сервера
 	server    *http.Server                          // сервер HTTP
 	chControl chan struct{}                         // управление ожиданием завершения работы сервера
 }
@@ -79,15 +77,8 @@ func NewHandlerHttp(config ConfigTyp) *HandlerHttp {
 	hp := &HandlerHttp{
 		routeMW:   make(map[string][]HandlerFuncHttp),
 		route:     make(map[string]map[string]HandlerFuncHttp),
+		cfg:       config,
 		chControl: make(chan struct{}),
-	}
-	hp.server = &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", config.Host, config.Port),
-		Handler:        hp,
-		ReadTimeout:    time.Second * time.Duration(config.ReadTimeout),
-		WriteTimeout:   time.Second * time.Duration(config.WriteTimeout),
-		IdleTimeout:    time.Second * time.Duration(config.IdleTimeout),
-		MaxHeaderBytes: config.MaxHeaderBytes,
 	}
 	return hp
 }
@@ -102,15 +93,17 @@ func (hp *HandlerHttp) Path(path string) *routePath {
 	return rp
 }
 
-// ServeHTTP Точка входа запроса (в приложение).
-func (hp *HandlerHttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(r.URL.Path))
-}
-
 // Start Старт сервера HTTP(S)
 func (hp *HandlerHttp) Start() (err error) {
 	go func() {
+		hp.server = &http.Server{
+			Addr:           fmt.Sprintf("%s:%d", hp.cfg.Host, hp.cfg.Port),
+			Handler:        hp,
+			ReadTimeout:    time.Second * time.Duration(hp.cfg.ReadTimeout),
+			WriteTimeout:   time.Second * time.Duration(hp.cfg.WriteTimeout),
+			IdleTimeout:    time.Second * time.Duration(hp.cfg.IdleTimeout),
+			MaxHeaderBytes: hp.cfg.MaxHeaderBytes,
+		}
 		if err = hp.server.ListenAndServe(); err != http.ErrServerClosed {
 			return
 		}
@@ -131,22 +124,6 @@ func (hp *HandlerHttp) Stop() (err error) {
 	return
 }
 
-// getHandler Поиск и получение обработчика конкретного запроса и метода
-func (hp *HandlerHttp) getHandler(path string, met string) (hf HandlerFuncHttp, err error) {
-	if _, ok := hp.route[path][met]; ok {
-		return hp.route[path][met], nil
-	}
-	return nil, errNotFoundHandler
-}
-
-// getHandlerMW Поиск и получение общего обработчика конкретного запроса и middleware
-func (hp *HandlerHttp) getHandlerMW(path string) (hf []HandlerFuncHttp, err error) {
-	if _, ok := hp.routeMW[path]; ok {
-		return hp.routeMW[path], nil
-	}
-	return nil, errNotFoundHandler
-}
-
 func (hp HandlerHttp) String() {
 	fmt.Println("middleware")
 	for i, v := range hp.routeMW {
@@ -155,5 +132,53 @@ func (hp HandlerHttp) String() {
 	fmt.Println("handler")
 	for i, v := range hp.route {
 		fmt.Printf("%s, %#v\n", i, v)
+	}
+}
+
+// getHandler Поиск и получение обработчика конкретного запроса и метода
+func (hp *HandlerHttp) getHandler(path string, met string) (hf HandlerFuncHttp) {
+	if _, ok := hp.route[path][met]; ok {
+		return hp.route[path][met]
+	}
+	return nil
+}
+
+// getHandlerMW Поиск и получение общего обработчика конкретного запроса и middleware
+func (hp *HandlerHttp) getHandlerMW(path string) (hf []HandlerFuncHttp) {
+	if _, ok := hp.routeMW[path]; ok {
+		return hp.routeMW[path]
+	}
+	return nil
+}
+
+// ServeHTTP Точка входа запроса (в приложение).
+func (hp *HandlerHttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	var (
+		err         error
+		handler     = hp.getHandler(r.URL.Path, r.Method)
+		handlerList = hp.getHandlerMW(r.URL.Path)
+		rw          = core.NewRW(r, w),
+	)
+	defer r.Body.Close()
+
+	// Обработчики не найдены. Статика.
+	if handler == nil && handlerList == nil {
+		if err = rw.ResponseStatic(core.Config.DirWww + r.URL.Path); err != nil {
+			lg.Error(err)
+		}
+		return
+	}
+
+	// Контекст
+	ctx, cancel := context.WithTimeout(context.Background(), hp.server.WriteTimeout)
+	defer cancel()
+
+	// middleware
+	for i, _ := range handlerList {
+		ctx, rw = handlerList[i](ctx, rw)
+	}
+	if handler != nil {
+		ctx, rw = handler(ctx, rw)
 	}
 }

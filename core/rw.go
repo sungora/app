@@ -7,13 +7,14 @@ import (
 	"io/ioutil"
 	"mime"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 )
 
-type requestResponse struct {
+type RW struct {
 	Request       *http.Request
 	RequestParams map[string][]string
 	Response      http.ResponseWriter
@@ -21,16 +22,25 @@ type requestResponse struct {
 	Status        int
 }
 
-func NewRW(r *http.Request, w http.ResponseWriter) *requestResponse {
-	rw := new(requestResponse)
+// NewRW Функционал по непосредственной работе с запросом и ответом
+func NewRW(w http.ResponseWriter, r *http.Request) *RW {
+	rw := new(RW)
 	rw.Request = r
 	rw.Response = w
 	rw.Status = http.StatusOK
+	// request parameter "application/x-www-form-urlencoded"
+	rw.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
+	if err := r.ParseForm(); err != nil {
+		return rw
+	}
+	for i, v := range r.Form {
+		rw.RequestParams[i] = v
+	}
 	return rw
 }
 
 // CookieGet Получение куки.
-func (rw *requestResponse) CookieGet(name string) (c string, err error) {
+func (rw *RW) CookieGet(name string) (c string, err error) {
 	sessionID, err := rw.Request.Cookie(name)
 	if err == http.ErrNoCookie {
 		return "", nil
@@ -41,7 +51,7 @@ func (rw *requestResponse) CookieGet(name string) (c string, err error) {
 }
 
 // CookieSet Установка куки. Если время не указано кука сессионная (пока открыт браузер).
-func (rw *requestResponse) CookieSet(name, value string, t ...time.Time) {
+func (rw *RW) CookieSet(name, value string, t ...time.Time) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
@@ -54,7 +64,7 @@ func (rw *requestResponse) CookieSet(name, value string, t ...time.Time) {
 }
 
 // CookieRem Удаление куков.
-func (rw *requestResponse) CookieRem(name string) {
+func (rw *RW) CookieRem(name string) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Domain = rw.Request.URL.Host
@@ -63,7 +73,7 @@ func (rw *requestResponse) CookieRem(name string) {
 	http.SetCookie(rw.Response, cookie)
 }
 
-func (rw *requestResponse) RequestBodyDecodeJson(object interface{}) (err error) {
+func (rw *RW) RequestBodyDecodeJson(object interface{}) (err error) {
 	var body []byte
 	if body, err = ioutil.ReadAll(rw.Request.Body); err != nil {
 		return
@@ -74,15 +84,15 @@ func (rw *requestResponse) RequestBodyDecodeJson(object interface{}) (err error)
 	return json.Unmarshal(body, object)
 }
 
-type DataApi struct {
+type dataApi struct {
 	Code    int
 	Message string
 	Error   bool
 	Data    interface{} `json:"Data,omitempty"`
 }
 
-func (rw *requestResponse) ResponseJsonApi200(object interface{}, code int, message string) {
-	res := new(DataApi)
+func (rw *RW) ResponseJsonApi200(object interface{}, code int, message string) {
+	res := new(dataApi)
 	res.Code = code
 	res.Message = message
 	res.Error = false
@@ -90,8 +100,8 @@ func (rw *requestResponse) ResponseJsonApi200(object interface{}, code int, mess
 	rw.ResponseJson(res, http.StatusOK)
 }
 
-func (rw *requestResponse) ResponseJsonApi409(object interface{}, code int, message string) {
-	res := new(DataApi)
+func (rw *RW) ResponseJsonApi409(object interface{}, code int, message string) {
+	res := new(dataApi)
 	res.Code = code
 	res.Message = message
 	res.Error = true
@@ -99,7 +109,7 @@ func (rw *requestResponse) ResponseJsonApi409(object interface{}, code int, mess
 	rw.ResponseJson(res, http.StatusConflict)
 }
 
-func (rw *requestResponse) ResponseJson(object interface{}, status int) {
+func (rw *RW) ResponseJson(object interface{}, status int) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -124,7 +134,7 @@ func (rw *requestResponse) ResponseJson(object interface{}, status int) {
 	}
 }
 
-func (rw *requestResponse) ResponseHtml(con string, status int) {
+func (rw *RW) ResponseHtml(con string, status int) {
 	data := []byte(con)
 	//
 	t := time.Now().In(Config.TimeLocation)
@@ -143,7 +153,7 @@ func (rw *requestResponse) ResponseHtml(con string, status int) {
 	rw.Response.Write(data)
 }
 
-func (rw *requestResponse) ResponseStatic(path string) (err error) {
+func (rw *RW) ResponseStatic(path string) (err error) {
 	var fi os.FileInfo
 	if fi, err = os.Stat(path); err != nil {
 		rw.ResponseHtml("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
