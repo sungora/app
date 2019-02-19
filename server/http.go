@@ -123,7 +123,7 @@ func (hp *HandlerHttp) getHandler(path string, met string) (hf HandlerFuncHttp) 
 // getHandlerBe Поиск и получение общих обработчиков (middleware)
 func (hp *HandlerHttp) getHandlerBe(path string) (hf []HandlerFuncHttp) {
 	if _, ok := hp.routeBe[path]; ok {
-		return hp.routeBe[path]
+		return append(hp.routeBe[`/`], hp.routeBe[path]...)
 	}
 	return nil
 }
@@ -131,7 +131,7 @@ func (hp *HandlerHttp) getHandlerBe(path string) (hf []HandlerFuncHttp) {
 // getHandlerAf Поиск и получение общих обработчиков (middleware)
 func (hp *HandlerHttp) getHandlerAf(path string) (hf []HandlerFuncHttp) {
 	if _, ok := hp.routeAf[path]; ok {
-		return hp.routeAf[path]
+		return append(hp.routeAf[`/`], hp.routeAf[path]...)
 	}
 	return nil
 }
