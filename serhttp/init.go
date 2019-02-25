@@ -1,4 +1,4 @@
-package http
+package serhttp
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/http/middl"
+	"github.com/sungora/app/serhttp/mid"
 )
 
 // init регистрация компонента в приложении
@@ -44,8 +44,8 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 		return
 	}
 
-	route.Use(middl.Main(time.Second*time.Duration(config.Http.WriteTimeout) - time.Millisecond))
-	route.NotFound(middl.NotFound)
+	route.Use(mid.Main(time.Second*time.Duration(config.Http.WriteTimeout) - time.Millisecond))
+	route.NotFound(mid.NotFound)
 
 	comp.server = &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port),
