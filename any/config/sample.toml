@@ -19,7 +19,7 @@ OutHttp = ""
 Limitch = 1000      # буфер канала задач
 Limitpool = 9       # максимальное количество воркеров обслуживающих задачи
 
-[Server]
+[Http]
 Proto = "http"
 Host = "localhost"
 Port = 8080
@@ -33,8 +33,3 @@ Name = "accounter"
 Login = "root"
 Password = "root"
 Charset = "utf8"
-
-[SampleCustomConfig]
-Name = "Vasya Pupkin"
-IsAccess = true
-Balance = 65.789

@@ -1,4 +1,4 @@
-package message
+package lg
 
 import (
 	"fmt"
@@ -15,6 +15,11 @@ func GetMessage(code int, params ...interface{}) (message string) {
 		}
 	}
 	return
+}
+
+// GetMessages получение всех лог шаблонов
+func GetMessages() map[int]string {
+	return messages
 }
 
 // SetMessage установка шаблона лог сообщения в справочник

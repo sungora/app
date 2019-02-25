@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/sungora/app/lg/message"
 )
 
 func Fatal(key interface{}, parametrs ...interface{}) {
@@ -91,7 +89,7 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 	case error:
 		msg.Message = k.Error()
 	case int:
-		msg.Message = message.GetMessage(k, parametrs...)
+		msg.Message = GetMessage(k, parametrs...)
 	case string:
 		msg.Message = fmt.Sprintf(k, parametrs...)
 	}
