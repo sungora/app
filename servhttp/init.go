@@ -1,4 +1,4 @@
-package serhttp
+package servhttp
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/serhttp/mid"
+	"github.com/sungora/app/servhttp/mid"
 )
 
 // init регистрация компонента в приложении

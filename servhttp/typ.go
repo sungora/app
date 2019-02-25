@@ -1,4 +1,4 @@
-package serhttp
+package servhttp
 
 // конфигурация подгружаемая из файла конфигурации
 type configFile struct {

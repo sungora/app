@@ -27,19 +27,14 @@ var (
 	chanelAppControl = make(chan os.Signal, 1) // Канал управления запуском и остановкой приложения
 )
 
-// Start Launch an application
-func Start() (code int) {
-
-	defer func() {
-		chanelAppControl <- os.Interrupt
-	}()
+// Init Инициализация компонентов приложения
+func Init() (code int) {
 	var err error
-	componentList = append([]Componenter{component}, componentList...)
-
-	if len(componentList) == 1 {
+	if len(componentList) == 0 {
 		fmt.Fprintln(os.Stderr, "Ни одного компонента не зарегистрировано")
 		return 1
 	}
+	componentList = append([]Componenter{component}, componentList...)
 
 	// инициализация компонентов
 	for i := 0; i < len(componentList); i++ {
@@ -49,6 +44,15 @@ func Start() (code int) {
 			return 1
 		}
 	}
+	return
+}
+
+// Start Launch an application
+func Start() (code int) {
+	defer func() {
+		chanelAppControl <- os.Interrupt
+	}()
+	var err error
 
 	// 	завершение работы компонентов
 	defer func() {
