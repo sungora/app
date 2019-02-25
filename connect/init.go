@@ -6,9 +6,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/jinzhu/gorm"
-
-	// _ "github.com/jinzhu/gorm/dialects/mysql"
-	// _ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"github.com/sungora/app/core"
 )
