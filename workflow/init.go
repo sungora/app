@@ -1,14 +1,12 @@
 package workflow
 
 import (
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/BurntSushi/toml"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/lg"
 )
 
 // init регистрация компонента в приложении
@@ -18,22 +16,21 @@ func init() {
 }
 
 var (
-	config    *configMain   // конфигурация
+	config    *configFile   // конфигурация
 	component *componentTyp // компонент
 )
 
 // компонент
 type componentTyp struct {
-	p               *pool
-	cronTaskManager map[string]*manager
-	cronTaskRun     map[string]Task
-	cronControlCH   chan struct{}
+	p             *pool
+	cronTaskRun   []Task
+	cronControlCH chan struct{}
 }
 
 // Init инициализация компонента в приложении
 func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	sep := string(os.PathSeparator)
-	config = new(configMain)
+	config = new(configFile)
 
 	// читаем конфигурацию
 	path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
@@ -42,13 +39,11 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	}
 
 	// читаем задачи из конфигурации
-	path = cfg.DirConfig + sep + cfg.ServiceName + "_workflow.toml"
-	if _, err := toml.DecodeFile(path, &comp.cronTaskManager); err != nil {
-		fmt.Fprintln(os.Stdout, err.Error())
-	}
-
-	comp.cronTaskRun = make(map[string]Task)
-
+	// cronTaskManager map[string]*Manager
+	// path = cfg.DirConfig + sep + cfg.ServiceName + "_workflow.toml"
+	// if _, err := toml.DecodeFile(path, &cronTaskManager); err != nil {
+	// 	fmt.Fprintln(os.Stdout, err.Error())
+	// }
 	return
 }
 
@@ -56,10 +51,8 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 func (comp *componentTyp) Start() (err error) {
 	var (
 		t           time.Time
-		index       string
-		taskManager *manager
+		taskManager Manager
 		task        Task
-		ok          bool
 	)
 	comp.cronControlCH = make(chan struct{})
 	comp.p = NewPool(config.Workflow.LimitCh, config.Workflow.LimitPool)
@@ -75,12 +68,8 @@ func (comp *componentTyp) Start() (err error) {
 				t = time.Now()
 			}
 			//
-			for index, taskManager = range comp.cronTaskManager {
-				task, ok = comp.cronTaskRun[index]
-				if ok == false {
-					lg.Error("not found cron task [%s]", index)
-					continue
-				}
+			for _, task = range comp.cronTaskRun {
+				taskManager = task.Manager()
 				if taskManager.IsExecute == false {
 					continue
 				}
@@ -109,7 +98,6 @@ func (comp *componentTyp) Start() (err error) {
 // Stop завершение работы компонента
 func (comp *componentTyp) Stop() (err error) {
 	comp.cronControlCH <- struct{}{}
-	time.Sleep(time.Millisecond)
 	comp.p.Wait()
 	return
 }

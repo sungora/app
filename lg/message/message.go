@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// GetMessage получение лог сообщения на основе шаблона из справочника
 func GetMessage(code int, params ...interface{}) (message string) {
 	var ok bool
 	if message, ok = messages[code]; ok == true {
@@ -16,8 +17,16 @@ func GetMessage(code int, params ...interface{}) (message string) {
 	return
 }
 
+// SetMessage установка шаблона лог сообщения в справочник
 func SetMessage(code int, msg string) {
 	messages[code] = msg
+}
+
+// SetMessages установка шаблонов лог сообщений в справочник
+func SetMessages(msg map[int]string) {
+	for i, v := range msg {
+		messages[i] = v
+	}
 }
 
 var messages = map[int]string{

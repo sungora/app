@@ -10,8 +10,8 @@ func TaskAdd(task Task) {
 	component.p.tasks <- task
 }
 
-func TaskAddCron(name string, task Task) {
-	component.cronTaskRun[name] = task
+func TaskAddCron(task Task) {
+	component.cronTaskRun = append(component.cronTaskRun, task)
 }
 
 func checkRuntime(val int, mask string) bool {

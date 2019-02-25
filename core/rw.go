@@ -15,27 +15,16 @@ import (
 )
 
 type RW struct {
-	Request       *http.Request
+	request       *http.Request
+	response      http.ResponseWriter
 	RequestParams map[string][]string
-	Response      http.ResponseWriter
-	Functions     map[string]interface{} // html/template.FuncMap (по умолчанию пустой)
-	Variables     map[string]interface{} // Variable (по умолчанию пустой)
-	TplLayout     string
-	TplController string
-	isResponse    bool
-	Status        int
 }
 
 // NewRW Функционал по непосредственной работе с запросом и ответом
 func NewRW(w http.ResponseWriter, r *http.Request) *RW {
 	var rw = &RW{
-		Request:       r,
-		Response:      w,
-		Functions:     make(map[string]interface{}),
-		Variables:     make(map[string]interface{}),
-		TplLayout:     Config.DirWww + "/layout",
-		TplController: Config.DirWww + "/controllers",
-		Status:        http.StatusOK,
+		request:  r,
+		response: w,
 	}
 	// request parameter "application/x-www-form-urlencoded"
 	rw.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
@@ -50,7 +39,7 @@ func NewRW(w http.ResponseWriter, r *http.Request) *RW {
 
 // CookieGet Получение куки.
 func (rw *RW) CookieGet(name string) (c string, err error) {
-	sessionID, err := rw.Request.Cookie(name)
+	sessionID, err := rw.request.Cookie(name)
 	if err == http.ErrNoCookie {
 		return "", nil
 	} else if err != nil {
@@ -64,27 +53,27 @@ func (rw *RW) CookieSet(name, value string, t ...time.Time) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
-	cookie.Domain = rw.Request.URL.Host
+	cookie.Domain = rw.request.URL.Host
 	cookie.Path = `/`
 	if 0 < len(t) {
 		cookie.Expires = t[0]
 	}
-	http.SetCookie(rw.Response, cookie)
+	http.SetCookie(rw.response, cookie)
 }
 
 // CookieRem Удаление куков.
 func (rw *RW) CookieRem(name string) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
-	cookie.Domain = rw.Request.URL.Host
+	cookie.Domain = rw.request.URL.Host
 	cookie.Path = `/`
 	cookie.Expires = time.Now().In(Config.TimeLocation)
-	http.SetCookie(rw.Response, cookie)
+	http.SetCookie(rw.response, cookie)
 }
 
 func (rw *RW) RequestBodyDecodeJson(object interface{}) (err error) {
 	var body []byte
-	if body, err = ioutil.ReadAll(rw.Request.Body); err != nil {
+	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
 		return
 	}
 	if 0 == len(body) {
@@ -125,19 +114,18 @@ func (rw *RW) ResponseJson(object interface{}, status int) {
 	}
 	//
 	t := time.Now().In(Config.TimeLocation)
-	rw.isResponse = true
 	// запрет кеширования
-	rw.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	rw.Response.Header().Set("Pragma", "no-cache")
-	rw.Response.Header().Set("Date", t.Format(time.RFC3339))
-	rw.Response.Header().Set("Last-Modified", t.Format(time.RFC3339))
+	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	rw.response.Header().Set("Pragma", "no-cache")
+	rw.response.Header().Set("Date", t.Format(time.RFC3339))
+	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
 	// размер и тип контента
-	rw.Response.Header().Set("Content-Type", "application/json; charset=utf-8")
-	rw.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	rw.response.Header().Set("Content-Type", "application/json; charset=utf-8")
+	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	// Статус ответа
-	rw.Response.WriteHeader(status)
+	rw.response.WriteHeader(status)
 	// Тело документа
-	_, err = rw.Response.Write(data)
+	_, err = rw.response.Write(data)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -147,19 +135,18 @@ func (rw *RW) ResponseHtml(con string, status int) {
 	data := []byte(con)
 	//
 	t := time.Now().In(Config.TimeLocation)
-	rw.isResponse = true
 	// запрет кеширования
-	rw.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	rw.Response.Header().Set("Pragma", "no-cache")
-	rw.Response.Header().Set("Date", t.Format(time.RFC3339))
-	rw.Response.Header().Set("Last-Modified", t.Format(time.RFC3339))
+	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	rw.response.Header().Set("Pragma", "no-cache")
+	rw.response.Header().Set("Date", t.Format(time.RFC3339))
+	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
 	// размер и тип контента
-	rw.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-	rw.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	rw.response.Header().Set("Content-Type", "text/html; charset=utf-8")
+	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	// Статус ответа
-	rw.Response.WriteHeader(status)
+	rw.response.WriteHeader(status)
 	// Тело документа
-	rw.Response.Write(data)
+	rw.response.Write(data)
 }
 
 func (rw *RW) ResponseStatic(path string) (err error) {
@@ -169,7 +156,7 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 		return
 	}
 	if fi.IsDir() == true {
-		if rw.Request.URL.Path != "/" {
+		if rw.request.URL.Path != "/" {
 			path += string(os.PathSeparator)
 		}
 		path += "index.html"
@@ -196,20 +183,20 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 	// headers
 	t := time.Now().In(Config.TimeLocation)
 	// запрет кеширования
-	rw.Response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	rw.Response.Header().Set("Pragma", "no-cache")
-	rw.Response.Header().Set("Date", t.Format(time.RFC3339))
-	rw.Response.Header().Set("Last-Modified", t.Format(time.RFC3339))
+	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	rw.response.Header().Set("Pragma", "no-cache")
+	rw.response.Header().Set("Date", t.Format(time.RFC3339))
+	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
 	// размер и тип контента
-	rw.Response.Header().Set("Content-Type", typ)
-	rw.Response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	rw.response.Header().Set("Content-Type", typ)
+	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
 	// Аттач если документ не картинка и не текстововой
 	if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
-		rw.Response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
+		rw.response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
 	}
 	// Статус ответа
-	rw.Response.WriteHeader(http.StatusOK)
+	rw.response.WriteHeader(http.StatusOK)
 	// Тело документа
-	_, err = rw.Response.Write(data)
+	_, err = rw.response.Write(data)
 	return
 }

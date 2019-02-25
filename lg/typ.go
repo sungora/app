@@ -1,13 +1,13 @@
 package lg
 
 // главная конфигурация
-type configMain struct {
+type configFile struct {
 	ServiceName string
-	Lg          configFile
+	Lg          configTyp
 }
 
 // конфигурация поджгружаемая из файла конфигурации
-type configFile struct {
+type configTyp struct {
 	Info     bool
 	Notice   bool
 	Warning  bool

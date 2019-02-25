@@ -2,14 +2,11 @@ package lg
 
 import (
 	"errors"
-	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/BurntSushi/toml"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/lg/message"
 )
 
 // init регистрация компонента в приложении
@@ -19,7 +16,7 @@ func init() {
 }
 
 var (
-	config    *configMain   // конфигурация
+	config    *configFile   // конфигурация
 	component *componentTyp // компонент
 )
 
@@ -33,7 +30,7 @@ type componentTyp struct {
 // Init инициализация компонента в приложении
 func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	sep := string(os.PathSeparator)
-	config = new(configMain)
+	config = new(configFile)
 	config.ServiceName = cfg.ServiceName
 
 	// диреткория логов приложения
@@ -53,17 +50,17 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	}
 
 	// читаем шаблоны сообщений логов
-	msgTmp := make(map[string]string)
-	path = cfg.DirConfig + sep + cfg.ServiceName + "_lg.toml"
-	if _, err := toml.DecodeFile(path, &msgTmp); err != nil {
-		fmt.Fprintln(os.Stdout, err.Error())
-	} else {
-		for codeStr, msg := range msgTmp {
-			if code, err := strconv.Atoi(codeStr); err == nil {
-				message.SetMessage(code, msg)
-			}
-		}
-	}
+	// msgTmp := make(map[string]string)
+	// path = cfg.DirConfig + sep + cfg.ServiceName + "_lg.toml"
+	// if _, err := toml.DecodeFile(path, &msgTmp); err != nil {
+	// 	fmt.Fprintln(os.Stdout, err.Error())
+	// } else {
+	// 	for codeStr, msg := range msgTmp {
+	// 		if code, err := strconv.Atoi(codeStr); err == nil {
+	// 			message.SetMessage(code, msg)
+	// 		}
+	// 	}
+	// }
 
 	comp.logCh = make(chan msg, 10000) // канал чтения и обработки логов
 	comp.logChClose = make(chan bool)  // канал управления закрытием работы

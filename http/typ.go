@@ -1,7 +1,12 @@
-package server
+package http
+
+// конфигурация подгружаемая из файла конфигурации
+type configFile struct {
+	Http configTyp
+}
 
 // конфигурация сервера
-type ConfigTyp struct {
+type configTyp struct {
 	Proto          string // Server Proto
 	Host           string // Server Host
 	Port           int    // Server Port
