@@ -11,7 +11,6 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/sungora/app/core"
-	"github.com/sungora/app/servhttp/mid"
 )
 
 // init регистрация компонента в приложении
@@ -43,9 +42,6 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	if _, err = toml.DecodeFile(path, config); err != nil {
 		return
 	}
-
-	route.Use(mid.Main(time.Second*time.Duration(config.Http.WriteTimeout) - time.Millisecond))
-	route.NotFound(mid.NotFound)
 
 	comp.server = &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port),

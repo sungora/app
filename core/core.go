@@ -65,7 +65,7 @@ func Start() (code int) {
 		}
 	}()
 
-	// начало в работы компонентов
+	// начало работы компонентов
 	for i := 0; i < len(componentList); i++ {
 		fmt.Fprintf(os.Stdout, "Start component %s\n", packageName(componentList[i]))
 		if err = componentList[i].Start(); err != nil {
