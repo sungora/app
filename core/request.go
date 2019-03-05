@@ -13,7 +13,8 @@ import (
 	"strconv"
 )
 
-func RequestGetParamsCompile(postData map[string]interface{}) string {
+// RequestUriParamsCompile
+func RequestUriParamsCompile(postData map[string]interface{}) string {
 	u := new(url.URL)
 	q := u.Query()
 	for k, v := range postData {
@@ -41,10 +42,12 @@ type requestHeader struct {
 	accept             string
 }
 
+// SetAuthorizationBasic установка заголовка Authorization
 func (rh *requestHeader) SetAuthorizationBasic(login, passw string) {
 	rh.authorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
 }
 
+// SetContentType установка заголовка ContentType
 func (rh *requestHeader) SetContentType(contentType string) {
 	rh.contentType = contentType
 }
@@ -53,6 +56,7 @@ func (rh *requestHeader) SetContentType(contentType string) {
 // 	rh.SetContentType("application/json")
 // }
 
+// SetAccept установка заголовка Accept
 func (rh *requestHeader) SetAccept(accept string) {
 	rh.accept = accept
 }
@@ -66,6 +70,7 @@ type request struct {
 	Header *requestHeader
 }
 
+// NewRequest создание запроса к внешнему ресурсу
 func NewRequest(url string) *request {
 	var r = new(request)
 	r.url = url
@@ -73,22 +78,27 @@ func NewRequest(url string) *request {
 	return r
 }
 
+// GET запрос
 func (r *request) GET(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodGet, uri, requestBody, responseBody)
 }
 
+// POST запрос
 func (r *request) POST(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodPost, uri, requestBody, responseBody)
 }
 
+// PUT запрос
 func (r *request) PUT(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodPut, uri, requestBody, responseBody)
 }
 
+// DELETE запрос
 func (r *request) DELETE(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodDelete, uri, requestBody, responseBody)
 }
 
+// OPTIONS запрос
 func (r *request) OPTIONS(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodOptions, uri, requestBody, responseBody)
 }
@@ -107,7 +117,7 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 			return
 		}
 	} else if p, ok := requestBody.(map[string]interface{}); ok {
-		url += "?" + RequestGetParamsCompile(p)
+		url += "?" + RequestUriParamsCompile(p)
 	}
 	// Запрос
 	if request, err = http.NewRequest(method, url, body); err == nil {

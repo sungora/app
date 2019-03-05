@@ -25,6 +25,7 @@ type sessionTyp struct {
 	data map[string]interface{}
 }
 
+// GetSession Получение сессии
 func GetSession(token string) *sessionTyp {
 	if elm, ok := session[token]; ok {
 		elm.t = time.Now().In(Config.TimeLocation)
@@ -36,17 +37,20 @@ func GetSession(token string) *sessionTyp {
 	return session[token]
 }
 
+// Get получение данных сессии
 func (s *sessionTyp) Get(index string) interface{} {
-	if elm, ok := s.data[index]; ok {
-		return elm
+	if _, ok := s.data[index]; ok {
+		return s.data[index]
 	}
 	return nil
 }
 
+// Set сохранение данных в сессии
 func (s *sessionTyp) Set(index string, value interface{}) {
 	s.data[index] = value
 }
 
+// Del удаление данных из сессии
 func (s *sessionTyp) Del(index string) {
 	delete(s.data, index)
 }

@@ -7,6 +7,7 @@ import (
 	"text/template"
 )
 
+// TplCompilation компиляция html шаблона
 func TplCompilation(pathTpl string, functions, variables map[string]interface{}) (ret bytes.Buffer, err error) {
 	if _, err = os.Stat(pathTpl); err != nil {
 		return

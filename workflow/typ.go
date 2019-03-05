@@ -1,22 +1,23 @@
 package workflow
 
-// главная конфигурация
+// конфигурация поджгружаемая из файла конфигурации
 type configFile struct {
 	Workflow configTyp
 }
 
-// конфигурация поджгружаемая из файла конфигурации
+// конфигурация workerPool
 type configTyp struct {
 	LimitCh   int // Лимит канала задач
 	LimitPool int // Лимит пула (количество воркеров)
 }
 
-// Task Задача
+// задача
 type Task interface {
-	Manager() Manager
-	Execute()
+	Manager() Manager // режим выполнения задачи
+	Execute()         // тело задачи
 }
 
+// управление режимом работы фоновой задачи
 type Manager struct {
 	Name      string
 	IsExecute bool

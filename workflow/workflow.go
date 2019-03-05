@@ -5,11 +5,12 @@ import (
 	"strings"
 )
 
-// TaskAdd Добавляем задачу в пул
+// TaskAdd добавляем задачу в пул
 func TaskAdd(task Task) {
 	component.p.tasks <- task
 }
 
+// TaskAddCron добавляем фоновую задачу в пул
 func TaskAddCron(task Task) {
 	component.cronTaskRun = append(component.cronTaskRun, task)
 }

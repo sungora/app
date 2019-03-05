@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// Структура для работы с запросом и ответом
 type RW struct {
 	request       *http.Request
 	response      http.ResponseWriter
@@ -71,26 +72,31 @@ func (rw *RW) CookieRem(name string) {
 	http.SetCookie(rw.response, cookie)
 }
 
+var errEmptyData = errors.New("Запрос пустой, данные отсутствуют")
+
+// RequestBodyDecodeJson
 func (rw *RW) RequestBodyDecodeJson(object interface{}) (err error) {
 	var body []byte
 	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
 		return
 	}
 	if 0 == len(body) {
-		return errors.New("Запрос пустой, данные отсутствуют")
+		return errEmptyData
 	}
 	return json.Unmarshal(body, object)
 }
 
-type dataApi struct {
-	Code    int
-	Message string
-	Error   bool
-	Data    interface{} `json:"Data,omitempty"`
+// обертка api ответа в формате json
+type ResponseJsonApi struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Error   bool        `json:"error"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
+// ResponseJsonApi200 ответ api в формате json
 func (rw *RW) ResponseJsonApi200(object interface{}, code int, message string) {
-	res := new(dataApi)
+	res := new(ResponseJsonApi)
 	res.Code = code
 	res.Message = message
 	res.Error = false
@@ -98,8 +104,9 @@ func (rw *RW) ResponseJsonApi200(object interface{}, code int, message string) {
 	rw.ResponseJson(res, http.StatusOK)
 }
 
+// ResponseJsonApi409 ответ api в формате json
 func (rw *RW) ResponseJsonApi409(object interface{}, code int, message string) {
-	res := new(dataApi)
+	res := new(ResponseJsonApi)
 	res.Code = code
 	res.Message = message
 	res.Error = true
@@ -107,21 +114,14 @@ func (rw *RW) ResponseJsonApi409(object interface{}, code int, message string) {
 	rw.ResponseJson(res, http.StatusConflict)
 }
 
+// ResponseJson ответ в формате json
 func (rw *RW) ResponseJson(object interface{}, status int) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
-	//
-	t := time.Now().In(Config.TimeLocation)
-	// запрет кеширования
-	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	rw.response.Header().Set("Pragma", "no-cache")
-	rw.response.Header().Set("Date", t.Format(time.RFC3339))
-	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
-	// размер и тип контента
-	rw.response.Header().Set("Content-Type", "application/json; charset=utf-8")
-	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	// headers
+	rw.responseHeader("application/json; charset=utf-8", len(data))
 	// Статус ответа
 	rw.response.WriteHeader(status)
 	// Тело документа
@@ -131,24 +131,18 @@ func (rw *RW) ResponseJson(object interface{}, status int) {
 	}
 }
 
+// ResponseHtml ответ в html формате
 func (rw *RW) ResponseHtml(con string, status int) {
 	data := []byte(con)
-	//
-	t := time.Now().In(Config.TimeLocation)
-	// запрет кеширования
-	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	rw.response.Header().Set("Pragma", "no-cache")
-	rw.response.Header().Set("Date", t.Format(time.RFC3339))
-	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
-	// размер и тип контента
-	rw.response.Header().Set("Content-Type", "text/html; charset=utf-8")
-	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	// headers
+	rw.responseHeader("text/html; charset=utf-8", len(data))
 	// Статус ответа
 	rw.response.WriteHeader(status)
 	// Тело документа
 	rw.response.Write(data)
 }
 
+// ResponseStatic ответ - отдача статических данных
 func (rw *RW) ResponseStatic(path string) (err error) {
 	var fi os.FileInfo
 	if fi, err = os.Stat(path); err != nil {
@@ -181,15 +175,7 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 		typ = mimeType
 	}
 	// headers
-	t := time.Now().In(Config.TimeLocation)
-	// запрет кеширования
-	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
-	rw.response.Header().Set("Pragma", "no-cache")
-	rw.response.Header().Set("Date", t.Format(time.RFC3339))
-	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
-	// размер и тип контента
-	rw.response.Header().Set("Content-Type", typ)
-	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", len(data)))
+	rw.responseHeader(typ, len(data))
 	// Аттач если документ не картинка и не текстововой
 	if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
 		rw.response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
@@ -199,4 +185,17 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 	// Тело документа
 	_, err = rw.response.Write(data)
 	return
+}
+
+// responseHeader общие заголовки любого ответа
+func (rw *RW) responseHeader(contentTyp string, l int) {
+	t := time.Now().In(Config.TimeLocation)
+	// запрет кеширования
+	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
+	rw.response.Header().Set("Pragma", "no-cache")
+	rw.response.Header().Set("Date", t.Format(time.RFC3339))
+	rw.response.Header().Set("Last-Modified", t.Format(time.RFC3339))
+	// размер и тип контента
+	rw.response.Header().Set("Content-Type", contentTyp)
+	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", l))
 }
