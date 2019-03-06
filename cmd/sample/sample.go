@@ -14,6 +14,10 @@ import (
 )
 
 func main() {
+
+
+
+
 	// инициализация компонентов
 	if 1 == core.Init() {
 		os.Exit(1)

@@ -1,7 +1,7 @@
 package workflow
 
 // конфигурация поджгружаемая из файла конфигурации
-type configFile struct {
+type Config struct {
 	Workflow configTyp
 }
 

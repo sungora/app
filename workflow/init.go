@@ -1,42 +1,39 @@
 package workflow
 
 import (
-	"os"
 	"time"
-
-	"github.com/BurntSushi/toml"
-
-	"github.com/sungora/app/core"
 )
 
 // init регистрация компонента в приложении
-func init() {
-	component = new(componentTyp)
-	core.ComponentReg(component)
-}
+// func init() {
+// 	component = new(Component)
+// 	core.ComponentReg(component)
+// }
 
 var (
-	config    *configFile   // конфигурация
-	component *componentTyp // компонент
+	config    *Config    // конфигурация
+	component *Component // компонент
 )
 
 // компонент
-type componentTyp struct {
+type Component struct {
 	p             *pool
 	cronTaskRun   []Task
 	cronControlCH chan struct{}
 }
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
-	sep := string(os.PathSeparator)
-	config = new(configFile)
+func Init(cfg *Config) (com *Component, err error) {
+	// 	sep := string(os.PathSeparator)
+	config = cfg
+	component = new(Component)
+	return component, nil
 
 	// читаем конфигурацию
-	path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
-	if _, err = toml.DecodeFile(path, config); err != nil {
-		return
-	}
+	// path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
+	// if _, err = toml.DecodeFile(path, config); err != nil {
+	// 	return
+	// }
 
 	// читаем задачи из конфигурации
 	// cronTaskManager map[string]*Manager
@@ -44,11 +41,11 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	// if _, err := toml.DecodeFile(path, &cronTaskManager); err != nil {
 	// 	fmt.Fprintln(os.Stdout, err.Error())
 	// }
-	return
+
 }
 
 // Start запуск компонента в работу
-func (comp *componentTyp) Start() (err error) {
+func (comp *Component) Start() (err error) {
 	var (
 		t           time.Time
 		taskManager Manager
@@ -96,7 +93,7 @@ func (comp *componentTyp) Start() (err error) {
 }
 
 // Stop завершение работы компонента
-func (comp *componentTyp) Stop() (err error) {
+func (comp *Component) Stop() (err error) {
 	comp.cronControlCH <- struct{}{}
 	comp.p.Wait()
 	return

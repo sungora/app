@@ -1,7 +1,7 @@
 package servhttp
 
 // конфигурация подгружаемая из файла конфигурации
-type configFile struct {
+type Config struct {
 	Http configTyp
 }
 

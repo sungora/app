@@ -1,7 +1,7 @@
 package lg
 
 // главная конфигурация
-type configFile struct {
+type Config struct {
 	ServiceName string
 	Lg          configTyp
 }
@@ -16,7 +16,7 @@ type configTyp struct {
 	Fatal    bool
 	Traces   bool
 	OutStd   bool
-	OutFile  bool
+	OutFile  string // лог файл
 	OutHttp  string // url куда отправляются логи
 }
 

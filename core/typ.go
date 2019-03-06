@@ -5,7 +5,7 @@ import (
 )
 
 // главная конфигурация
-type ConfigRoot struct {
+type Config struct {
 	SessionTimeout time.Duration  //
 	TimeZone       string         //
 	Mode           string         //

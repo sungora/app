@@ -10,7 +10,7 @@ func sessionGC() {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range session {
-				if Config.SessionTimeout < time.Now().In(Config.TimeLocation).Sub(s.t) {
+				if config.SessionTimeout < time.Now().In(config.TimeLocation).Sub(s.t) {
 					delete(session, i)
 				}
 			}
@@ -28,11 +28,11 @@ type sessionTyp struct {
 // GetSession Получение сессии
 func GetSession(token string) *sessionTyp {
 	if elm, ok := session[token]; ok {
-		elm.t = time.Now().In(Config.TimeLocation)
+		elm.t = time.Now().In(config.TimeLocation)
 		return elm
 	}
 	session[token] = new(sessionTyp)
-	session[token].t = time.Now().In(Config.TimeLocation)
+	session[token].t = time.Now().In(config.TimeLocation)
 	session[token].data = make(map[string]interface{})
 	return session[token]
 }

@@ -3,51 +3,54 @@ package lg
 import (
 	"errors"
 	"os"
-
-	"github.com/BurntSushi/toml"
-
-	"github.com/sungora/app/core"
+	"path/filepath"
 )
 
 // init регистрация компонента в приложении
-func init() {
-	component = new(componentTyp)
-	core.ComponentReg(component)
-}
+// func init() {
+// 	component = new(Component)
+// 	core.ComponentReg(component)
+// }
 
 var (
-	config    *configFile   // конфигурация
-	component *componentTyp // компонент
+	config    *Config    // конфигурация
+	component *Component // компонент
 )
 
 // компонент
-type componentTyp struct {
+type Component struct {
 	fp         *os.File  // запись логов в файл
 	logCh      chan msg  // канал чтения и обработки логов
 	logChClose chan bool // канал управления закрытием работы
 }
 
 // Init инициализация компонента в приложении
-func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
-	sep := string(os.PathSeparator)
-	config = new(configFile)
-	config.ServiceName = cfg.ServiceName
+func Init(cfg *Config) (com *Component, err error) {
+
+	config = cfg
+	component = new(Component)
+
+	// sep := string(os.PathSeparator)
+	// config = new(Config)
+	// config.ServiceName = cfg.ServiceName
 
 	// диреткория логов приложения
+	dir := filepath.Dir(os.Args[0])
+
 	var fi os.FileInfo
-	if fi, err = os.Stat(cfg.DirLog); err != nil {
-		if err = os.MkdirAll(cfg.DirLog, 0700); err != nil {
+	if fi, err = os.Stat(dir); err != nil {
+		if err = os.MkdirAll(dir, 0700); err != nil {
 			return
 		}
 	} else if fi.IsDir() == false {
-		return errors.New("не правильная директория логов\n" + cfg.DirLog)
+		err = errors.New("не правильная директория логов\n" + dir)
 	}
 
 	// читаем конфигурацию
-	path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
-	if _, err = toml.DecodeFile(path, config); err != nil {
-		return
-	}
+	// path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
+	// if _, err = toml.DecodeFile(path, config); err != nil {
+	// 	return
+	// }
 
 	// читаем шаблоны сообщений логов
 	// msgTmp := make(map[string]string)
@@ -62,16 +65,17 @@ func (comp *componentTyp) Init(cfg *core.ConfigRoot) (err error) {
 	// 	}
 	// }
 
-	comp.logCh = make(chan msg, 10000) // канал чтения и обработки логов
-	comp.logChClose = make(chan bool)  // канал управления закрытием работы
-
-	return
+	return component, nil
 }
 
 // Start запуск компонента в работу
-func (comp *componentTyp) Start() (err error) {
-	if config.Lg.OutFile {
-		if comp.fp, err = os.OpenFile(core.Config.DirLog+"/"+core.Config.ServiceName+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
+func (comp *Component) Start() (err error) {
+
+	comp.logCh = make(chan msg, 10000) // канал чтения и обработки логов
+	comp.logChClose = make(chan bool)  // канал управления закрытием работы
+
+	if config.Lg.OutFile != "" {
+		if comp.fp, err = os.OpenFile(config.Lg.OutFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
 			return
 		}
 	}
@@ -80,7 +84,7 @@ func (comp *componentTyp) Start() (err error) {
 			if config.Lg.OutStd == true {
 				saveStdout(msg)
 			}
-			if config.Lg.OutFile == true {
+			if config.Lg.OutFile != "" {
 				saveFile(msg)
 			}
 			if config.Lg.OutHttp != "" {
@@ -93,7 +97,7 @@ func (comp *componentTyp) Start() (err error) {
 }
 
 // Stop завершение работы компонента
-func (comp *componentTyp) Stop() (err error) {
+func (comp *Component) Stop() (err error) {
 	if comp.fp != nil {
 		err = comp.fp.Close()
 	}
