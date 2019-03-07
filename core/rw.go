@@ -68,7 +68,7 @@ func (rw *RW) CookieRem(name string) {
 	cookie.Name = name
 	cookie.Domain = rw.request.URL.Host
 	cookie.Path = `/`
-	cookie.Expires = time.Now().In(config.TimeLocation)
+	cookie.Expires = time.Now().In(Cfg.TimeLocation)
 	http.SetCookie(rw.response, cookie)
 }
 
@@ -189,7 +189,7 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 
 // responseHeader общие заголовки любого ответа
 func (rw *RW) responseHeader(contentTyp string, l int) {
-	t := time.Now().In(config.TimeLocation)
+	t := time.Now().In(Cfg.TimeLocation)
 	// запрет кеширования
 	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
 	rw.response.Header().Set("Pragma", "no-cache")

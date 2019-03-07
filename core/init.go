@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	config    *Config    // Корневая конфигурация главного конфигурационного файла
+	Cfg       *Config    // Корневая конфигурация главного конфигурационного файла
 	component *Component // Компонент
 )
 
@@ -19,47 +19,47 @@ type Component struct {
 // Init инициализация компонента в приложении
 func Init(cfg *Config) (com *Component, err error) {
 
-	config = cfg
+	Cfg = cfg
 	component = new(Component)
 
 	// временная зона
-	if config.TimeZone != "" {
-		config.TimeZone = "Europe/Moscow"
+	if Cfg.TimeZone != "" {
+		Cfg.TimeZone = "Europe/Moscow"
 	}
-	if loc, err := time.LoadLocation(config.TimeZone); err == nil {
-		config.TimeLocation = loc
+	if loc, err := time.LoadLocation(Cfg.TimeZone); err == nil {
+		Cfg.TimeLocation = loc
 	} else {
-		config.TimeLocation = time.UTC
+		Cfg.TimeLocation = time.UTC
 	}
 	// режим работы приложения
-	if config.TimeZone != "" {
-		config.Mode = "dev"
+	if Cfg.TimeZone != "" {
+		Cfg.Mode = "dev"
 	}
 	// техническое имя приложения
-	if config.ServiceName != "" {
+	if Cfg.ServiceName != "" {
 		if ext := filepath.Ext(os.Args[0]); ext != "" {
 			sl := strings.Split(filepath.Base(os.Args[0]), ext)
-			config.ServiceName = sl[0]
+			Cfg.ServiceName = sl[0]
 		} else {
-			config.ServiceName = filepath.Base(os.Args[0])
+			Cfg.ServiceName = filepath.Base(os.Args[0])
 		}
 	}
 	// пути
 	sep := string(os.PathSeparator)
-	if config.DirWork == "" {
-		config.DirWork, _ = filepath.Abs(filepath.Dir(filepath.Dir(os.Args[0])))
+	if Cfg.DirWork == "" {
+		Cfg.DirWork, _ = filepath.Abs(filepath.Dir(filepath.Dir(os.Args[0])))
 	}
-	if config.DirConfig == "" {
-		config.DirConfig = config.DirWork + sep + "config"
+	if Cfg.DirConfig == "" {
+		Cfg.DirConfig = Cfg.DirWork + sep + "config"
 	}
-	if config.DirLog == "" {
-		config.DirLog = config.DirWork + sep + "log"
+	if Cfg.DirLog == "" {
+		Cfg.DirLog = Cfg.DirWork + sep + "log"
 	}
-	if config.DirWww == "" {
-		config.DirWww = config.DirWork + sep + "www"
+	if Cfg.DirWww == "" {
+		Cfg.DirWww = Cfg.DirWork + sep + "www"
 	}
 	// сессия
-	config.SessionTimeout *= time.Second
+	Cfg.SessionTimeout *= time.Second
 
 	return component, nil
 }
@@ -67,7 +67,7 @@ func Init(cfg *Config) (com *Component, err error) {
 // Start запуск компонента в работу
 func (comp *Component) Start() (err error) {
 	// session
-	if 0 < config.SessionTimeout {
+	if 0 < Cfg.SessionTimeout {
 		sessionGC()
 	}
 	return
