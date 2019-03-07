@@ -9,12 +9,6 @@ import (
 	"github.com/go-chi/chi"
 )
 
-// init регистрация компонента в приложении
-// func init() {
-// 	component = new(Component)
-// 	core.ComponentReg(component)
-// }
-
 var (
 	config    *Config            // конфигурация
 	component *Component         // компонент

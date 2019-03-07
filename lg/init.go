@@ -6,12 +6,6 @@ import (
 	"path/filepath"
 )
 
-// init регистрация компонента в приложении
-// func init() {
-// 	component = new(Component)
-// 	core.ComponentReg(component)
-// }
-
 var (
 	config    *Config    // конфигурация
 	component *Component // компонент

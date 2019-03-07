@@ -7,11 +7,6 @@ import (
 	"time"
 )
 
-// init создание компонента ядра
-func init() {
-	component = new(Component)
-}
-
 var (
 	config    *Config    // Корневая конфигурация главного конфигурационного файла
 	component *Component // Компонент

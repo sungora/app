@@ -52,18 +52,10 @@ func (rh *requestHeader) SetContentType(contentType string) {
 	rh.contentType = contentType
 }
 
-// func (rh *requestHeader) SetContentTypeJson() {
-// 	rh.SetContentType("application/json")
-// }
-
 // SetAccept установка заголовка Accept
 func (rh *requestHeader) SetAccept(accept string) {
 	rh.accept = accept
 }
-
-// func (rh *requestHeader) SetAcceptJson() {
-// 	rh.SetAccept("application/json")
-// }
 
 type request struct {
 	url    string

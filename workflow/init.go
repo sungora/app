@@ -4,12 +4,6 @@ import (
 	"time"
 )
 
-// init регистрация компонента в приложении
-// func init() {
-// 	component = new(Component)
-// 	core.ComponentReg(component)
-// }
-
 var (
 	config    *Config    // конфигурация
 	component *Component // компонент
@@ -24,24 +18,9 @@ type Component struct {
 
 // Init инициализация компонента в приложении
 func Init(cfg *Config) (com *Component, err error) {
-	// 	sep := string(os.PathSeparator)
 	config = cfg
 	component = new(Component)
 	return component, nil
-
-	// читаем конфигурацию
-	// path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
-	// if _, err = toml.DecodeFile(path, config); err != nil {
-	// 	return
-	// }
-
-	// читаем задачи из конфигурации
-	// cronTaskManager map[string]*Manager
-	// path = cfg.DirConfig + sep + cfg.ServiceName + "_workflow.toml"
-	// if _, err := toml.DecodeFile(path, &cronTaskManager); err != nil {
-	// 	fmt.Fprintln(os.Stdout, err.Error())
-	// }
-
 }
 
 // Start запуск компонента в работу

@@ -13,8 +13,6 @@ import (
 
 // Интерфейс компонентов приложения
 type Componenter interface {
-	// Инициализация компонентов приложения
-//	Init(cfg interface{}) (err error)
 	// Запуск в работу компонентов приложения
 	Start() (err error)
 	// Завершение работы компонентов приложения
@@ -30,28 +28,6 @@ var (
 	componentList    []Componenter             // Срез зарегитрированных компонентов приложения
 	chanelAppControl = make(chan os.Signal, 1) // Канал управления запуском и остановкой приложения
 )
-
-// Init Инициализация компонентов приложения
-// TODO перенести в приложение
-// func Init() (code int) {
-// 	// var err error
-// 	if len(componentList) == 0 {
-// 		fmt.Fprintln(os.Stderr, "Ни одного компонента не зарегистрировано")
-// 		return 1
-// 	}
-// 	componentList = append([]Componenter{component}, componentList...)
-//
-// 	// инициализация компонентов
-//
-// 	// for i := 0; i < len(componentList); i++ {
-// 	// 	fmt.Fprintf(os.Stdout, "Init component %s\n", packageName(componentList[i]))
-// 	// 	if err = componentList[i].Init(Config); err != nil {
-// 	// 		fmt.Fprintln(os.Stderr, err.Error())
-// 	// 		return 1
-// 	// 	}
-// 	// }
-// 	return
-// }
 
 // Start Launch an application
 func Start() (code int) {
