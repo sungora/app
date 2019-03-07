@@ -25,6 +25,6 @@ func Main(d time.Duration) func(next http.Handler) http.Handler {
 
 // NotFound обработчик не реализованных запросов
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	// var rw = r.Context().Value(KeyRW).(*core.RW)
-	// rw.ResponseStatic(core.GetConfig().DirWww + r.URL.Path)
+	var rw = r.Context().Value(KeyRW).(*core.RW)
+	rw.ResponseStatic(core.GetConfig().DirWww + r.URL.Path)
 }

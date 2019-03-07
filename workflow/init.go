@@ -52,7 +52,7 @@ func (comp *Component) Start() (err error) {
 		task        Task
 	)
 	comp.cronControlCH = make(chan struct{})
-	comp.p = NewPool(config.Workflow.LimitCh, config.Workflow.LimitPool)
+	comp.p = NewPool(config.LimitCh, config.LimitPool)
 	comp.p.wg.Add(1)
 	go func() {
 		defer comp.p.wg.Done()

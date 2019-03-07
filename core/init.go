@@ -82,7 +82,3 @@ func (comp *Component) Start() (err error) {
 func (comp *Component) Stop() (err error) {
 	return
 }
-
-func GetConfig() {
-
-}

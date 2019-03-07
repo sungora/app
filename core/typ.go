@@ -6,13 +6,13 @@ import (
 
 // главная конфигурация
 type Config struct {
-	SessionTimeout time.Duration  //
-	TimeZone       string         //
-	Mode           string         //
-	DirWork        string         //
-	DirConfig      string         //
-	DirLog         string         //
-	DirWww         string         //
-	ServiceName    string         // Техническое название приложения
-	TimeLocation   *time.Location // Временная зона
+	SessionTimeout time.Duration  `yaml:"SessionTimeout"` //
+	TimeZone       string         `yaml:"TimeZone"`       //
+	Mode           string         `yaml:"Mode"`           //
+	DirWork        string         `yaml:"DirWork"`        //
+	DirConfig      string         `yaml:"DirConfig"`      //
+	DirLog         string         `yaml:"DirLog"`         //
+	DirWww         string         `yaml:"DirWww"`         //
+	ServiceName    string         `yaml:"ServiceName"`    // Техническое название приложения
+	TimeLocation   *time.Location ``                      // Временная зона
 }

@@ -1,14 +1,9 @@
 package workflow
 
-// конфигурация поджгружаемая из файла конфигурации
+// конфигурация
 type Config struct {
-	Workflow configTyp
-}
-
-// конфигурация workerPool
-type configTyp struct {
-	LimitCh   int // Лимит канала задач
-	LimitPool int // Лимит пула (количество воркеров)
+	LimitCh   int `yaml:"Limitch"`   // Лимит канала задач
+	LimitPool int `yaml:"Limitpool"` // Лимит пула (количество воркеров)
 }
 
 // задача

@@ -11,84 +11,84 @@ import (
 
 // Fatal error logging
 func Fatal(key interface{}, parametrs ...interface{}) {
-	if config.Lg.Fatal == true {
+	if config.Fatal == true {
 		sendLog("fatal", "system", key, parametrs...)
 	}
 }
 
 // FatalLogin error logging
 func FatalLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Lg.Fatal == true {
+	if config.Fatal == true {
 		sendLog("fatal", login, key, parametrs...)
 	}
 }
 
 // Critical error logging
 func Critical(key interface{}, parametrs ...interface{}) {
-	if config.Lg.Critical == true {
+	if config.Critical == true {
 		sendLog("critical", "system", key, parametrs...)
 	}
 }
 
 // CriticalLogin error logging
 func CriticalLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Lg.Critical == true {
+	if config.Critical == true {
 		sendLog("critical", login, key, parametrs...)
 	}
 }
 
 // Error error logging
 func Error(key interface{}, parametrs ...interface{}) {
-	if config.Lg.Error == true {
+	if config.Error == true {
 		sendLog("error", "system", key, parametrs...)
 	}
 }
 
 // ErrorLogin error logging
 func ErrorLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Lg.Error == true {
+	if config.Error == true {
 		sendLog("error", login, key, parametrs...)
 	}
 }
 
 // Warning error logging
 func Warning(key interface{}, parametrs ...interface{}) {
-	if config.Lg.Warning == true {
+	if config.Warning == true {
 		sendLog("warning", "system", key, parametrs...)
 	}
 }
 
 // WarningLogin error logging
 func WarningLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Lg.Warning == true {
+	if config.Warning == true {
 		sendLog("warning", login, key, parametrs...)
 	}
 }
 
 // Notice error logging
 func Notice(key interface{}, parametrs ...interface{}) {
-	if config.Lg.Notice == true {
+	if config.Notice == true {
 		sendLog("notice", "system", key, parametrs...)
 	}
 }
 
 // NoticeLogin error logging
 func NoticeLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Lg.Notice == true {
+	if config.Notice == true {
 		sendLog("notice", login, key, parametrs...)
 	}
 }
 
 // Info error logging
 func Info(key interface{}, parametrs ...interface{}) {
-	if config.Lg.Info == true {
+	if config.Info == true {
 		sendLog("info", "system", key, parametrs...)
 	}
 }
 
 // InfoLogin error logging
 func InfoLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Lg.Info == true {
+	if config.Info == true {
 		sendLog("info", login, key, parametrs...)
 	}
 }
@@ -115,7 +115,7 @@ func sendLog(level string, login string, key interface{}, parametrs ...interface
 	case string:
 		msg.Message = fmt.Sprintf(k, parametrs...)
 	}
-	if config.Lg.Traces == true {
+	if config.Traces == true {
 		msg.Traces, _ = getTrace()
 	}
 	component.logCh <- msg

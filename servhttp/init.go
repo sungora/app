@@ -32,12 +32,12 @@ func Init(cfg *Config) (com *Component, err error) {
 	config = cfg
 	component = new(Component)
 	component.server = &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", config.Http.Host, config.Http.Port),
+		Addr:           fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Handler:        route,
-		ReadTimeout:    time.Second * time.Duration(config.Http.ReadTimeout),
-		WriteTimeout:   time.Second * time.Duration(config.Http.WriteTimeout),
-		IdleTimeout:    time.Second * time.Duration(config.Http.IdleTimeout),
-		MaxHeaderBytes: config.Http.MaxHeaderBytes,
+		ReadTimeout:    time.Second * time.Duration(config.ReadTimeout),
+		WriteTimeout:   time.Second * time.Duration(config.WriteTimeout),
+		IdleTimeout:    time.Second * time.Duration(config.IdleTimeout),
+		MaxHeaderBytes: config.MaxHeaderBytes,
 	}
 	return component, nil
 }

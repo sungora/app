@@ -25,46 +25,29 @@ type Component struct {
 }
 
 // Init инициализация компонента в приложении
-func Init(cfg *Config) (com *Component, err error) {
-
+func Init(cfg *Config, serviceName string) (com *Component, err error) {
 	config = cfg
 	component = new(Component)
-
-	// sep := string(os.PathSeparator)
-	// config = new(Config)
-	// config.ServiceName = cfg.ServiceName
-
+	// сервис
+	if config.ServiceName == "" {
+		config.ServiceName = serviceName
+	}
 	// диреткория логов приложения
-	dir := filepath.Dir(os.Args[0])
-
+	var dir string
+	if config.OutFile == "" {
+		dir = filepath.Dir(os.Args[0]) + "/log"
+	} else {
+		dir = filepath.Dir(config.OutFile)
+	}
 	var fi os.FileInfo
 	if fi, err = os.Stat(dir); err != nil {
 		if err = os.MkdirAll(dir, 0700); err != nil {
 			return
 		}
 	} else if fi.IsDir() == false {
-		err = errors.New("не правильная директория логов\n" + dir)
+		return nil, errors.New("не правильная директория логов\n" + dir)
 	}
-
-	// читаем конфигурацию
-	// path := cfg.DirConfig + sep + cfg.ServiceName + ".toml"
-	// if _, err = toml.DecodeFile(path, config); err != nil {
-	// 	return
-	// }
-
-	// читаем шаблоны сообщений логов
-	// msgTmp := make(map[string]string)
-	// path = cfg.DirConfig + sep + cfg.ServiceName + "_lg.toml"
-	// if _, err := toml.DecodeFile(path, &msgTmp); err != nil {
-	// 	fmt.Fprintln(os.Stdout, err.Error())
-	// } else {
-	// 	for codeStr, msg := range msgTmp {
-	// 		if code, err := strconv.Atoi(codeStr); err == nil {
-	// 			message.SetMessage(code, msg)
-	// 		}
-	// 	}
-	// }
-
+	//
 	return component, nil
 }
 
@@ -74,20 +57,20 @@ func (comp *Component) Start() (err error) {
 	comp.logCh = make(chan msg, 10000) // канал чтения и обработки логов
 	comp.logChClose = make(chan bool)  // канал управления закрытием работы
 
-	if config.Lg.OutFile != "" {
-		if comp.fp, err = os.OpenFile(config.Lg.OutFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
+	if config.OutFile != "" {
+		if comp.fp, err = os.OpenFile(config.OutFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600); err != nil {
 			return
 		}
 	}
 	go func() {
 		for msg := range comp.logCh {
-			if config.Lg.OutStd == true {
+			if config.OutStd == true {
 				saveStdout(msg)
 			}
-			if config.Lg.OutFile != "" {
+			if config.OutFile != "" {
 				saveFile(msg)
 			}
-			if config.Lg.OutHttp != "" {
+			if config.OutHttp != "" {
 				saveHttp(msg)
 			}
 		}

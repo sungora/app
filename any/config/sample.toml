@@ -1,4 +1,6 @@
 # Основная конфигурация
+[Core]
+ServiceName = "sample"
 SessionTimeout = 14400
 TimeZone = "Europe/Moscow"
 Mode = "dev"
@@ -29,7 +31,16 @@ MaxHeaderBytes = 1048576 # Максимальный размер заголов�
 
 [Mysql]
 Host = "tcp(localhost:3306)"
-Name = "accounter"
+Name = "test"
 Login = "root"
 Password = "root"
+Charset = "utf8"
+
+[Postgresql]
+Host = "192.168.99.100"
+Port = 5432
+Name = "test"
+Login = "root"
+Password = "root"
+Ssl = "disable"
 Charset = "utf8"

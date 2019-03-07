@@ -1,23 +1,18 @@
 package lg
 
-// главная конфигурация
+// конфигурация
 type Config struct {
-	ServiceName string
-	Lg          configTyp
-}
-
-// конфигурация поджгружаемая из файла конфигурации
-type configTyp struct {
-	Info     bool
-	Notice   bool
-	Warning  bool
-	Error    bool
-	Critical bool
-	Fatal    bool
-	Traces   bool
-	OutStd   bool
-	OutFile  string // лог файл
-	OutHttp  string // url куда отправляются логи
+	ServiceName string `yaml:"ServiceName"`
+	Info        bool   `yaml:"Info"`
+	Notice      bool   `yaml:"Notice"`
+	Warning     bool   `yaml:"Warning"`
+	Error       bool   `yaml:"Error"`
+	Critical    bool   `yaml:"Critical"`
+	Fatal       bool   `yaml:"Fatal"`
+	Traces      bool   `yaml:"Traces"`
+	OutStd      bool   `yaml:"OutStd"`
+	OutFile     string `yaml:"OutFile"` // лог файл
+	OutHttp     string `yaml:"OutHttp"` // url куда отправляются логи
 }
 
 type msg struct {
