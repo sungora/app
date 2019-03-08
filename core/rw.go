@@ -146,7 +146,7 @@ func (rw *RW) Html(con string, status int) {
 func (rw *RW) Static(path string) (err error) {
 	var fi os.FileInfo
 	if fi, err = os.Stat(path); err != nil {
-		rw.Html("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
+		rw.Html("<H1>Not Found</H1>", http.StatusInternalServerError)
 		return
 	}
 	if fi.IsDir() == true {
