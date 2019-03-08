@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"syscall"
 )
 
 // Интерфейс компонентов приложения
@@ -53,7 +54,12 @@ func Start() (code int) {
 	}
 
 	// The correctness of the application is closed by a signal
-	signal.Notify(chanelAppControl, os.Interrupt)
+	signal.Notify(chanelAppControl,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+	)
 	<-chanelAppControl
 	return
 }
