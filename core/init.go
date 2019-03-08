@@ -47,7 +47,11 @@ func Init(cfg *Config) (com *Component, err error) {
 	// пути
 	sep := string(os.PathSeparator)
 	if Cfg.DirWork == "" {
-		Cfg.DirWork, _ = filepath.Abs(filepath.Dir(filepath.Dir(os.Args[0])))
+		Cfg.DirWork = filepath.Dir(filepath.Dir(os.Args[0]))
+		if Cfg.DirWork == "." {
+			Cfg.DirWork, _ = os.Getwd()
+			Cfg.DirWork = filepath.Dir(Cfg.DirWork)
+		}
 	}
 	if Cfg.DirConfig == "" {
 		Cfg.DirConfig = Cfg.DirWork + sep + "config"
