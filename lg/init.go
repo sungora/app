@@ -29,7 +29,14 @@ func Init(cfg *Config, serviceName string) (com *Component, err error) {
 	// диреткория логов приложения
 	var dir string
 	if config.OutFile == "" {
-		dir = filepath.Dir(os.Args[0]) + "/log"
+		sep := string(os.PathSeparator)
+		dir = filepath.Dir(filepath.Dir(os.Args[0]))
+		if dir == "." {
+			dir, _ = os.Getwd()
+			dir = filepath.Dir(filepath.Dir(dir))
+		}
+		dir += "/log"
+		config.OutFile = dir + sep + serviceName
 	} else {
 		dir = filepath.Dir(config.OutFile)
 	}

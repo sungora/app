@@ -24,11 +24,12 @@ func SearchConfigPath(serviceName string) (path, ext string) {
 	}
 	//
 	sep := string(os.PathSeparator)
-	path = filepath.Dir(filepath.Dir(os.Args[0])) + sep + "config" + sep + serviceName
+	path = filepath.Dir(filepath.Dir(os.Args[0]))
 	if path == "." {
 		path, _ = os.Getwd()
 		path = filepath.Dir(filepath.Dir(path))
 	}
+	path += sep + "config" + sep + serviceName
 	//
 	if inf, err := os.Stat(path + extYaml); err == nil {
 		if inf.Mode().IsRegular() == true {
