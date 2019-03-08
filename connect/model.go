@@ -26,6 +26,7 @@ type postgresql struct {
 	Login    string `yaml:"Login"`    // Логин к базе данных
 	Password string `yaml:"Password"` // Пароль к базе данных
 	Charset  string `yaml:"Charset"`  // Кодировка данных (utf-8 - по умолчанию)
+	Ssl      string `yaml:"Ssl"`      // Ssl
 }
 
 var db *gorm.DB
