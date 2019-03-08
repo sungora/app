@@ -33,10 +33,10 @@ func Init(cfg *Config, serviceName string) (com *Component, err error) {
 		dir = filepath.Dir(filepath.Dir(os.Args[0]))
 		if dir == "." {
 			dir, _ = os.Getwd()
-			dir = filepath.Dir(filepath.Dir(dir))
+			dir = filepath.Dir(dir)
 		}
 		dir += "/log"
-		config.OutFile = dir + sep + serviceName
+		config.OutFile = dir + sep + serviceName + ".log"
 	} else {
 		dir = filepath.Dir(config.OutFile)
 	}

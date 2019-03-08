@@ -27,7 +27,7 @@ func SearchConfigPath(serviceName string) (path, ext string) {
 	path = filepath.Dir(filepath.Dir(os.Args[0]))
 	if path == "." {
 		path, _ = os.Getwd()
-		path = filepath.Dir(filepath.Dir(path))
+		path = filepath.Dir(path)
 	}
 	path += sep + "config" + sep + serviceName
 	//
