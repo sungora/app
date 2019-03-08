@@ -1,4 +1,4 @@
-package core
+package connect
 
 import (
 	"bytes"
@@ -13,60 +13,37 @@ import (
 	"strconv"
 )
 
-// RequestUriParamsCompile
-func RequestUriParamsCompile(postData map[string]interface{}) string {
-	u := new(url.URL)
-	q := u.Query()
-	for k, v := range postData {
-		switch v1 := v.(type) {
-		case uint64:
-			q.Add(k, strconv.FormatUint(v1, 10))
-		case int64:
-			q.Add(k, strconv.FormatInt(v1, 10))
-		case int:
-			q.Add(k, strconv.Itoa(v1))
-		case float64:
-			q.Add(k, strconv.FormatFloat(v1, 'f', -1, 64))
-		case bool:
-			q.Add(k, strconv.FormatBool(v1))
-		case string:
-			q.Add(k, v1)
-		}
-	}
-	return q.Encode()
-}
-
-type requestHeader struct {
+type header struct {
 	authorizationBasic string
 	contentType        string
 	accept             string
 }
 
 // SetAuthorizationBasic установка заголовка Authorization
-func (rh *requestHeader) SetAuthorizationBasic(login, passw string) {
+func (rh *header) SetAuthorizationBasic(login, passw string) {
 	rh.authorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
 }
 
 // SetContentType установка заголовка ContentType
-func (rh *requestHeader) SetContentType(contentType string) {
+func (rh *header) SetContentType(contentType string) {
 	rh.contentType = contentType
 }
 
 // SetAccept установка заголовка Accept
-func (rh *requestHeader) SetAccept(accept string) {
+func (rh *header) SetAccept(accept string) {
 	rh.accept = accept
 }
 
 type request struct {
 	url    string
-	Header *requestHeader
+	Header *header
 }
 
 // NewRequest создание запроса к внешнему ресурсу
 func NewRequest(url string) *request {
 	var r = new(request)
 	r.url = url
-	r.Header = &requestHeader{}
+	r.Header = new(header)
 	return r
 }
 
@@ -109,7 +86,7 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 			return
 		}
 	} else if p, ok := requestBody.(map[string]interface{}); ok {
-		url += "?" + RequestUriParamsCompile(p)
+		url += "?" + uriParamsCompile(p)
 	}
 	// Запрос
 	if request, err = http.NewRequest(method, url, body); err == nil {
@@ -146,4 +123,27 @@ func (r *request) request(method, uri string, requestBody, responseBody interfac
 		}
 	}
 	return
+}
+
+// uriParamsCompile
+func uriParamsCompile(postData map[string]interface{}) string {
+	u := new(url.URL)
+	q := u.Query()
+	for k, v := range postData {
+		switch v1 := v.(type) {
+		case uint64:
+			q.Add(k, strconv.FormatUint(v1, 10))
+		case int64:
+			q.Add(k, strconv.FormatInt(v1, 10))
+		case int:
+			q.Add(k, strconv.Itoa(v1))
+		case float64:
+			q.Add(k, strconv.FormatFloat(v1, 'f', -1, 64))
+		case bool:
+			q.Add(k, strconv.FormatBool(v1))
+		case string:
+			q.Add(k, v1)
+		}
+	}
+	return q.Encode()
 }

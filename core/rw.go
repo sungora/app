@@ -86,42 +86,14 @@ func (rw *RW) RequestBodyDecodeJson(object interface{}) (err error) {
 	return json.Unmarshal(body, object)
 }
 
-// обертка api ответа в формате json
-type ResponseJsonApi struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Error   bool        `json:"error"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-// ResponseJsonApi200 ответ api в формате json
-func (rw *RW) ResponseJsonApi200(object interface{}, code int, message string) {
-	res := new(ResponseJsonApi)
-	res.Code = code
-	res.Message = message
-	res.Error = false
-	res.Data = object
-	rw.ResponseJson(res, http.StatusOK)
-}
-
-// ResponseJsonApi409 ответ api в формате json
-func (rw *RW) ResponseJsonApi409(object interface{}, code int, message string) {
-	res := new(ResponseJsonApi)
-	res.Code = code
-	res.Message = message
-	res.Error = true
-	res.Data = object
-	rw.ResponseJson(res, http.StatusConflict)
-}
-
-// ResponseJson ответ в формате json
-func (rw *RW) ResponseJson(object interface{}, status int) {
+// Json ответ в формате json
+func (rw *RW) Json(object interface{}, status int) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 	// headers
-	rw.responseHeader("application/json; charset=utf-8", len(data))
+	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
 	// Статус ответа
 	rw.response.WriteHeader(status)
 	// Тело документа
@@ -131,22 +103,50 @@ func (rw *RW) ResponseJson(object interface{}, status int) {
 	}
 }
 
-// ResponseHtml ответ в html формате
-func (rw *RW) ResponseHtml(con string, status int) {
+// обертка api ответа в формате json
+type JsonApi struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Error   bool        `json:"error"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+// JsonApi200 ответ api в формате json
+func (rw *RW) JsonApi200(object interface{}, code int, message string) {
+	res := new(JsonApi)
+	res.Code = code
+	res.Message = message
+	res.Error = false
+	res.Data = object
+	rw.Json(res, http.StatusOK)
+}
+
+// JsonApi409 ответ api в формате json
+func (rw *RW) JsonApi409(object interface{}, code int, message string) {
+	res := new(JsonApi)
+	res.Code = code
+	res.Message = message
+	res.Error = true
+	res.Data = object
+	rw.Json(res, http.StatusConflict)
+}
+
+// Html ответ в html формате
+func (rw *RW) Html(con string, status int) {
 	data := []byte(con)
 	// headers
-	rw.responseHeader("text/html; charset=utf-8", len(data))
+	rw.generalHeaderSet("text/html; charset=utf-8", len(data))
 	// Статус ответа
 	rw.response.WriteHeader(status)
 	// Тело документа
 	rw.response.Write(data)
 }
 
-// ResponseStatic ответ - отдача статических данных
-func (rw *RW) ResponseStatic(path string) (err error) {
+// Static ответ - отдача статических данных
+func (rw *RW) Static(path string) (err error) {
 	var fi os.FileInfo
 	if fi, err = os.Stat(path); err != nil {
-		rw.ResponseHtml("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
+		rw.Html("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
 		return
 	}
 	if fi.IsDir() == true {
@@ -159,11 +159,11 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 	var data []byte
 	if data, err = ioutil.ReadFile(path); err != nil {
 		if fi.IsDir() == true {
-			rw.ResponseHtml("<H1>Forbidden</H1>", http.StatusForbidden)
+			rw.Html("<H1>Forbidden</H1>", http.StatusForbidden)
 		} else if fi.Mode().IsRegular() == true {
-			rw.ResponseHtml("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
+			rw.Html("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
 		} else {
-			rw.ResponseHtml("<H1>Not Found</H1>", http.StatusNotFound)
+			rw.Html("<H1>Not Found</H1>", http.StatusNotFound)
 		}
 		return
 	}
@@ -175,7 +175,7 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 		typ = mimeType
 	}
 	// headers
-	rw.responseHeader(typ, len(data))
+	rw.generalHeaderSet(typ, len(data))
 	// Аттач если документ не картинка и не текстововой
 	if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
 		rw.response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
@@ -187,8 +187,8 @@ func (rw *RW) ResponseStatic(path string) (err error) {
 	return
 }
 
-// responseHeader общие заголовки любого ответа
-func (rw *RW) responseHeader(contentTyp string, l int) {
+// generalHeaderSet общие заголовки любого ответа
+func (rw *RW) generalHeaderSet(contentTyp string, l int) {
 	t := time.Now().In(Cfg.TimeLocation)
 	// запрет кеширования
 	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")

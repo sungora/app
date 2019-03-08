@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,7 +24,6 @@ func SearchConfigPath(serviceName string) (path, ext string) {
 	}
 	sep := string(os.PathSeparator)
 	path = filepath.Dir(filepath.Dir(os.Args[0])) + sep + "config" + sep + serviceName
-	fmt.Println(path)
 	if inf, err := os.Stat(path + extYaml); err == nil {
 		if inf.Mode().IsRegular() == true {
 			return path, extYaml

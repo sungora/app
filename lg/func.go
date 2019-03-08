@@ -1,7 +1,11 @@
 package lg
 
 import (
+	"bytes"
 	"fmt"
+	"go/ast"
+	"go/token"
+	"io"
 	"regexp"
 	"runtime"
 	"strconv"
@@ -150,4 +154,24 @@ func getTrace() (traces []trace, err error) {
 		traces = append(traces, t)
 	}
 	return
+}
+
+// Dump all variables to STDOUT
+func Dumper(idl ...interface{}) string {
+	ret := dump(idl...)
+	fmt.Print(ret.String())
+	return ret.String()
+}
+
+// dump all variables to bytes.Buffer
+func dump(idl ...interface{}) bytes.Buffer {
+	var buf bytes.Buffer
+	var wr io.Writer
+
+	wr = io.MultiWriter(&buf)
+	for _, field := range idl {
+		fset := token.NewFileSet()
+		ast.Fprint(wr, fset, field, ast.NotNilFilter)
+	}
+	return buf
 }
