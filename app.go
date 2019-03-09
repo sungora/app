@@ -45,7 +45,7 @@ func Start(IsStart *int8) (code int) {
 
 	// 	завершение работы компонентов
 	defer func() {
-		for i := len(componentList) - 1; 0 < i; i-- {
+		for i := len(componentList) - 1; -1 < i; i-- {
 			fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(componentList[i]))
 			if err = componentList[i].Stop(); err != nil {
 				fmt.Fprintln(os.Stderr, err.Error())
