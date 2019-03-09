@@ -27,31 +27,48 @@ var (
 )
 
 // Start Launch an application
-func Start() (code int) {
+func Start(IsStart *bool) (code int) {
 	defer func() {
 		chanelAppControl <- os.Interrupt
 	}()
 	var err error
 
-	// 	завершение работы компонентов
-	defer func() {
-		for i := 0; i < len(componentList); i++ {
-			fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(componentList[i]))
-			if err = componentList[i].Stop(); err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-				code = 1
-			}
-		}
-	}()
+	// // 	завершение работы компонентов
+	// defer func() {
+	// 	for i := 0; i < len(componentList); i++ {
+	// 		fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(componentList[i]))
+	// 		if err = componentList[i].Stop(); err != nil {
+	// 			fmt.Fprintln(os.Stderr, err.Error())
+	// 			code = 1
+	// 		}
+	// 	}
+	// }()
+	//
+	// // начало работы компонентов
+	// for i := 0; i < len(componentList); i++ {
+	// 	fmt.Fprintf(os.Stdout, "Start component %s\n", packageName(componentList[i]))
+	// 	if err = componentList[i].Start(); err != nil {
+	// 		fmt.Fprintln(os.Stderr, err.Error())
+	// 		return 1
+	// 	}
+	// }
 
-	// начало работы компонентов
-	for i := 0; i < len(componentList); i++ {
-		fmt.Fprintf(os.Stdout, "Start component %s\n", packageName(componentList[i]))
-		if err = componentList[i].Start(); err != nil {
+	// начало и завершение работы компонентов
+	for _, cmp := range componentList {
+		fmt.Fprintf(os.Stdout, "Start component %s\n", packageName(cmp))
+		if err = cmp.Start(); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return 1
 		}
+		defer func() {
+			fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(cmp))
+			if err = cmp.Stop(); err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+				code = 1
+			}
+		}()
 	}
+	*IsStart = true
 
 	// The correctness of the application is closed by a signal
 	signal.Notify(chanelAppControl,
