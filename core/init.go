@@ -17,9 +17,10 @@ type Component struct {
 }
 
 // Init инициализация компонента в приложении
-func Init(cfg *Config) (com *Component, err error) {
+func Init(cfg *Config, version string) (com *Component, err error) {
 
 	Cfg = cfg
+	Cfg.Version = version
 	component = new(Component)
 
 	// временная зона
