@@ -1,4 +1,4 @@
-package core
+package rw
 
 import (
 	"encoding/json"
@@ -18,24 +18,31 @@ import (
 type RW struct {
 	request       *http.Request
 	response      http.ResponseWriter
-	RequestParams map[string][]string
+	requestParams map[string][]string
 }
 
-// NewRW Функционал по непосредственной работе с запросом и ответом
-func NewRW(w http.ResponseWriter, r *http.Request) *RW {
+// New Функционал по непосредственной работе с запросом и ответом
+func New(w http.ResponseWriter, r *http.Request) *RW {
 	var rw = &RW{
 		request:  r,
 		response: w,
 	}
-	// request parameter "application/x-www-form-urlencoded"
-	rw.RequestParams, _ = url.ParseQuery(r.URL.Query().Encode())
-	if err := r.ParseForm(); err != nil {
-		return rw
-	}
-	for i, v := range r.Form {
-		rw.RequestParams[i] = v
-	}
 	return rw
+}
+
+// GetRequestParam Получение данных запроса пришедших в формате "application/x-www-form-urlencoded".
+func (rw *RW) GetRequestParam(name string) map[string][]string {
+	if rw.requestParams != nil {
+		return rw.requestParams
+	}
+	rw.requestParams, _ = url.ParseQuery(rw.request.URL.Query().Encode())
+	if err := rw.request.ParseForm(); err != nil {
+		return rw.requestParams
+	}
+	for i, v := range rw.request.Form {
+		rw.requestParams[i] = v
+	}
+	return rw.requestParams
 }
 
 // CookieGet Получение куки.
@@ -68,14 +75,14 @@ func (rw *RW) CookieRem(name string) {
 	cookie.Name = name
 	cookie.Domain = rw.request.URL.Host
 	cookie.Path = `/`
-	cookie.Expires = time.Now().In(Cfg.TimeLocation)
+	cookie.Expires = time.Now()
 	http.SetCookie(rw.response, cookie)
 }
 
 var errEmptyData = errors.New("Запрос пустой, данные отсутствуют")
 
-// RequestBodyDecodeJson
-func (rw *RW) RequestBodyDecodeJson(object interface{}) (err error) {
+// BodyDecodeJson декодирование полученного тела запроса в формате json в объект
+func (rw *RW) BodyDecodeJson(object interface{}) (err error) {
 	var body []byte
 	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
 		return
@@ -111,7 +118,7 @@ type JsonApi struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// JsonApi200 ответ api в формате json
+// JsonApi200 положительный ответ api в формате json
 func (rw *RW) JsonApi200(object interface{}, code int, message string) {
 	res := new(JsonApi)
 	res.Code = code
@@ -121,7 +128,7 @@ func (rw *RW) JsonApi200(object interface{}, code int, message string) {
 	rw.Json(res, http.StatusOK)
 }
 
-// JsonApi409 ответ api в формате json
+// JsonApi409 отрицательный ответ api в формате json
 func (rw *RW) JsonApi409(object interface{}, code int, message string) {
 	res := new(JsonApi)
 	res.Code = code
@@ -189,7 +196,7 @@ func (rw *RW) Static(path string) (err error) {
 
 // generalHeaderSet общие заголовки любого ответа
 func (rw *RW) generalHeaderSet(contentTyp string, l int) {
-	t := time.Now().In(Cfg.TimeLocation)
+	t := time.Now()
 	// запрет кеширования
 	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
 	rw.response.Header().Set("Pragma", "no-cache")
