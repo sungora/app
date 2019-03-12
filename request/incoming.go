@@ -1,4 +1,4 @@
-package rw
+package request
 
 import (
 	"encoding/json"
@@ -14,16 +14,16 @@ import (
 	"time"
 )
 
-// Структура для работы с запросом и ответом
-type RW struct {
+// Структура для работы с входящим запросом
+type Incoming struct {
 	request       *http.Request
 	response      http.ResponseWriter
 	requestParams map[string][]string
 }
 
-// New Функционал по непосредственной работе с запросом и ответом
-func New(w http.ResponseWriter, r *http.Request) *RW {
-	var rw = &RW{
+// NewIn Функционал по работе с входящим запросом
+func NewIn(w http.ResponseWriter, r *http.Request) *Incoming {
+	var rw = &Incoming{
 		request:  r,
 		response: w,
 	}
@@ -31,7 +31,7 @@ func New(w http.ResponseWriter, r *http.Request) *RW {
 }
 
 // GetRequestParam Получение данных запроса пришедших в формате "application/x-www-form-urlencoded".
-func (rw *RW) GetRequestParam(name string) map[string][]string {
+func (rw *Incoming) GetRequestParam(name string) map[string][]string {
 	if rw.requestParams != nil {
 		return rw.requestParams
 	}
@@ -46,7 +46,7 @@ func (rw *RW) GetRequestParam(name string) map[string][]string {
 }
 
 // CookieGet Получение куки.
-func (rw *RW) CookieGet(name string) (c string, err error) {
+func (rw *Incoming) CookieGet(name string) (c string, err error) {
 	sessionID, err := rw.request.Cookie(name)
 	if err == http.ErrNoCookie {
 		return "", nil
@@ -57,7 +57,7 @@ func (rw *RW) CookieGet(name string) (c string, err error) {
 }
 
 // CookieSet Установка куки. Если время не указано кука сессионная (пока открыт браузер).
-func (rw *RW) CookieSet(name, value string, t ...time.Time) {
+func (rw *Incoming) CookieSet(name, value string, t ...time.Time) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
@@ -70,7 +70,7 @@ func (rw *RW) CookieSet(name, value string, t ...time.Time) {
 }
 
 // CookieRem Удаление куков.
-func (rw *RW) CookieRem(name string) {
+func (rw *Incoming) CookieRem(name string) {
 	var cookie = new(http.Cookie)
 	cookie.Name = name
 	cookie.Domain = rw.request.URL.Host
@@ -82,7 +82,7 @@ func (rw *RW) CookieRem(name string) {
 var errEmptyData = errors.New("Запрос пустой, данные отсутствуют")
 
 // BodyDecodeJson декодирование полученного тела запроса в формате json в объект
-func (rw *RW) BodyDecodeJson(object interface{}) (err error) {
+func (rw *Incoming) BodyDecodeJson(object interface{}) (err error) {
 	var body []byte
 	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
 		return
@@ -94,7 +94,7 @@ func (rw *RW) BodyDecodeJson(object interface{}) (err error) {
 }
 
 // Json ответ в формате json
-func (rw *RW) Json(object interface{}, status int) {
+func (rw *Incoming) Json(object interface{}, status int) {
 	data, err := json.Marshal(object)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -119,7 +119,7 @@ type JsonApi struct {
 }
 
 // JsonApi200 положительный ответ api в формате json
-func (rw *RW) JsonApi200(object interface{}, code int, message string) {
+func (rw *Incoming) JsonApi200(object interface{}, code int, message string) {
 	res := new(JsonApi)
 	res.Code = code
 	res.Message = message
@@ -129,7 +129,7 @@ func (rw *RW) JsonApi200(object interface{}, code int, message string) {
 }
 
 // JsonApi409 отрицательный ответ api в формате json
-func (rw *RW) JsonApi409(object interface{}, code int, message string) {
+func (rw *Incoming) JsonApi409(object interface{}, code int, message string) {
 	res := new(JsonApi)
 	res.Code = code
 	res.Message = message
@@ -139,7 +139,7 @@ func (rw *RW) JsonApi409(object interface{}, code int, message string) {
 }
 
 // Html ответ в html формате
-func (rw *RW) Html(con string, status int) {
+func (rw *Incoming) Html(con string, status int) {
 	data := []byte(con)
 	// headers
 	rw.generalHeaderSet("text/html; charset=utf-8", len(data))
@@ -150,7 +150,7 @@ func (rw *RW) Html(con string, status int) {
 }
 
 // Static ответ - отдача статических данных
-func (rw *RW) Static(path string) (err error) {
+func (rw *Incoming) Static(path string) (err error) {
 	var fi os.FileInfo
 	if fi, err = os.Stat(path); err != nil {
 		rw.Html("<H1>Not Found</H1>", http.StatusInternalServerError)
@@ -195,7 +195,7 @@ func (rw *RW) Static(path string) (err error) {
 }
 
 // generalHeaderSet общие заголовки любого ответа
-func (rw *RW) generalHeaderSet(contentTyp string, l int) {
+func (rw *Incoming) generalHeaderSet(contentTyp string, l int) {
 	t := time.Now()
 	// запрет кеширования
 	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")

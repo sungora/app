@@ -1,9 +1,8 @@
-package rw
+package request
 
 import (
 	"bytes"
 	"crypto/tls"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,66 +12,40 @@ import (
 	"strconv"
 )
 
-type header struct {
-	authorizationBasic string
-	contentType        string
-	accept             string
-}
-
-// SetAuthorizationBasic установка заголовка Authorization
-func (rh *header) SetAuthorizationBasic(login, passw string) {
-	rh.authorizationBasic = "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+passw))
-}
-
-// SetContentType установка заголовка ContentType
-func (rh *header) SetContentType(contentType string) {
-	rh.contentType = contentType
-}
-
-// SetAccept установка заголовка Accept
-func (rh *header) SetAccept(accept string) {
-	rh.accept = accept
-}
-
-type request struct {
-	url    string
-	Header *header
-}
-
-// NewRequest создание запроса к внешнему ресурсу
-func NewRequest(url string) *request {
-	var r = new(request)
+// NewOut Функционал по работе с исходящими запросами к внешним ресурсам
+func NewOut(url string) *Outgoing {
+	var r = new(Outgoing)
 	r.url = url
 	r.Header = new(header)
 	return r
 }
 
 // GET запрос
-func (r *request) GET(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *Outgoing) GET(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodGet, uri, requestBody, responseBody)
 }
 
 // POST запрос
-func (r *request) POST(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *Outgoing) POST(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodPost, uri, requestBody, responseBody)
 }
 
 // PUT запрос
-func (r *request) PUT(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *Outgoing) PUT(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodPut, uri, requestBody, responseBody)
 }
 
 // DELETE запрос
-func (r *request) DELETE(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *Outgoing) DELETE(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodDelete, uri, requestBody, responseBody)
 }
 
 // OPTIONS запрос
-func (r *request) OPTIONS(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *Outgoing) OPTIONS(uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	return r.request(http.MethodOptions, uri, requestBody, responseBody)
 }
 
-func (r *request) request(method, uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
+func (r *Outgoing) request(method, uri string, requestBody, responseBody interface{}) (response *http.Response, err error) {
 	var url = r.url + uri
 	var request *http.Request
 	var data []byte
