@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	extToml = ".toml"
-	extYaml = ".yaml"
+	extToml = "toml"
+	extYaml = "yaml"
 )
 
 // SearchConfigPath поиск конфигурации
@@ -45,8 +45,10 @@ func SearchConfigPath(serviceName string) (path, ext string) {
 }
 
 // LoadConfig загрузка конфигурации
-func LoadConfig(path, ext string, cfg interface{}) (err error) {
+func LoadConfig(path string, cfg interface{}) (err error) {
 	var data []byte
+	l := strings.SplitAfter(path, ".")
+	ext := l[len(l)-1]
 	switch ext {
 	case extToml:
 		_, err = toml.DecodeFile(path+ext, cfg);

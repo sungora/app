@@ -12,10 +12,9 @@ import (
 
 const KeyRW string = "RW"
 
-// Main (middleware)
+// TimeoutContext (middleware)
 // инициализация таймаута контекста для контроля времени выполениня запроса
-// инициализация инструмента для ответа
-func Main(d time.Duration) func(next http.Handler) http.Handler {
+func TimeoutContext(d time.Duration) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx, cancel := context.WithTimeout(r.Context(), d)

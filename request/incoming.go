@@ -93,23 +93,6 @@ func (rw *Incoming) BodyDecodeJson(object interface{}) (err error) {
 	return json.Unmarshal(body, object)
 }
 
-// Json ответ в формате json
-func (rw *Incoming) Json(object interface{}, status int) {
-	data, err := json.Marshal(object)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-	// headers
-	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
-	// Статус ответа
-	rw.response.WriteHeader(status)
-	// Тело документа
-	_, err = rw.response.Write(data)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-	}
-}
-
 // обертка api ответа в формате json
 type JsonApi struct {
 	Code    int         `json:"code"`
@@ -138,13 +121,38 @@ func (rw *Incoming) JsonApi409(object interface{}, code int, message string) {
 	rw.Json(res, http.StatusConflict)
 }
 
+// Json ответ в формате json
+func (rw *Incoming) Json(object interface{}, status ...int) {
+	data, err := json.Marshal(object)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+	// headers
+	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
+	// Статус ответа
+	if len(status) == 0 {
+		rw.response.WriteHeader(http.StatusOK)
+	} else {
+		rw.response.WriteHeader(status[0])
+	}
+	// Тело документа
+	_, err = rw.response.Write(data)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+}
+
 // Html ответ в html формате
-func (rw *Incoming) Html(con string, status int) {
+func (rw *Incoming) Html(con string, status ...int) {
 	data := []byte(con)
 	// headers
 	rw.generalHeaderSet("text/html; charset=utf-8", len(data))
 	// Статус ответа
-	rw.response.WriteHeader(status)
+	if len(status) == 0 {
+		rw.response.WriteHeader(http.StatusOK)
+	} else {
+		rw.response.WriteHeader(status[0])
+	}
 	// Тело документа
 	rw.response.Write(data)
 }
