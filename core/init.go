@@ -37,7 +37,7 @@ func Init(cfg *Config, version string) (com *Component, err error) {
 		Cfg.Mode = "dev"
 	}
 	// техническое имя приложения
-	if Cfg.ServiceName != "" {
+	if Cfg.ServiceName == "" {
 		if ext := filepath.Ext(os.Args[0]); ext != "" {
 			sl := strings.Split(filepath.Base(os.Args[0]), ext)
 			Cfg.ServiceName = sl[0]
