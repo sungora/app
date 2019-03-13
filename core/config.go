@@ -51,16 +51,16 @@ func LoadConfig(path string, cfg interface{}) (err error) {
 	ext := l[len(l)-1]
 	switch ext {
 	case extToml:
-		_, err = toml.DecodeFile(path+ext, cfg);
+		_, err = toml.DecodeFile(path, cfg);
 	case extYaml:
-		if data, err = ioutil.ReadFile(path + ext); err != nil {
+		if data, err = ioutil.ReadFile(path); err != nil {
 			return
 		}
 		if err = yaml.Unmarshal(data, cfg); err != nil {
 			return
 		}
 	default:
-		return errors.New("undefined config: " + path + ext)
+		return errors.New("undefined config: " + path)
 	}
 	return
 }
