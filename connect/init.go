@@ -34,14 +34,13 @@ func Init(cfg *Config) (com *Component, err error) {
 		}
 	} else if config.Postgresql.Host != "" {
 		if db, err = gorm.Open("postgres", fmt.Sprintf(
-			"host=%s port=%d user=%s dbname=%s password=%s sslmode=%s charset=%s",
+			"host=%s port=%d user=%s dbname=%s password=%s sslmode=%s",
 			config.Postgresql.Host,
 			config.Postgresql.Port,
 			config.Postgresql.Login,
 			config.Postgresql.Name,
 			config.Postgresql.Password,
 			config.Postgresql.Ssl,
-			config.Postgresql.Charset,
 		)); err != nil {
 			return
 		}
