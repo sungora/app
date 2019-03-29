@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	config    *Config            // конфигурация
-	component *Component         // компонент
+	config    *Config    // конфигурация
+	component *Component // компонент
 )
 
 // компонент
@@ -60,4 +60,9 @@ func (comp *Component) Stop() (err error) {
 	}
 	<-comp.chControl
 	return
+}
+
+// GetRoute получение обработчика запросов
+func (comp *Component) GetRoute() *chi.Mux {
+	return comp.Server.Handler.(*chi.Mux)
 }
