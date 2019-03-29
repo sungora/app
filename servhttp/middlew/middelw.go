@@ -1,4 +1,4 @@
-package middelw
+package middlew
 
 import (
 	"context"

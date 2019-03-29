@@ -10,10 +10,11 @@ type Config struct {
 	IdleTimeout    int    `yaml:"IdleTimeout"`    // Время ожидания следующего запроса
 	MaxHeaderBytes int    `yaml:"MaxHeaderBytes"` // Максимальный размер заголовка получаемого от браузера клиента в байтах
 	Cors           Cors   `yaml:"Cors"`           // cors headers
+	Proxy          string `yaml:"Proxy"`          // format: "http://login:pass@bproxy.msk.mts.ru:3131"
 }
 
 type Cors struct {
-	IsUse            bool     `yaml:"IsUse"`
+	Use              bool     `yaml:"Use"`
 	AllowedOrigins   []string `yaml:"AllowedOrigins"`
 	AllowedMethods   []string `yaml:"AllowedMethods"`
 	AllowedHeaders   []string `yaml:"AllowedHeaders"`
