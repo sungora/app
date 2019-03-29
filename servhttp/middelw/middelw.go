@@ -1,24 +1,20 @@
-package middleware
+package middelw
 
 import (
 	"context"
-	"crypto/rand"
-	"io"
+	"github.com/sungora/app/servhttp"
 	"net/http"
 	"time"
 
-	"github.com/sungora/app/request"
+	"github.com/go-chi/cors"
 
 	"github.com/sungora/app/core"
+	"github.com/sungora/app/request"
 )
 
 const (
-	Num               = "0123456789"
-	Strdown           = "abcdefghijklmnopqrstuvwxyz"
-	Strup             = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	Symbol            = "~!@#$%^&*_+-="
-	KeyRW      string = "RW"
-	KeySession string = "SESSION"
+	KeyRW      = "RW"
+	KeySession = "SESSION"
 )
 
 // TimeoutContext (middleware)
@@ -48,37 +44,20 @@ func Session(next http.Handler) http.Handler {
 	})
 }
 
+// Cors добавление заголовка Cors
+func Cors(cfg servhttp.Cors) *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins:   cfg.AllowedOrigins,
+		AllowedMethods:   cfg.AllowedMethods,
+		AllowedHeaders:   cfg.AllowedHeaders,
+		ExposedHeaders:   cfg.ExposedHeaders,
+		AllowCredentials: cfg.AllowCredentials,
+		MaxAge:           cfg.MaxAge, // Maximum value not ignored by any of major browsers
+	})
+}
+
 // NotFound обработчик не реализованных запросов
 func NotFound(w http.ResponseWriter, r *http.Request) {
 	rw := request.NewIn(w, r)
 	rw.Static(core.Cfg.DirWww + r.URL.Path)
-}
-
-// newRandomString generates password key of a specified length (a-z0-9.)
-func newRandomString(length int) string {
-	return randChar(length, []byte(Strdown+Strup+Num))
-}
-
-func randChar(length int, chars []byte) string {
-	pword := make([]byte, length)
-	data := make([]byte, length+(length/4)) // storage for random bytes.
-	clen := byte(len(chars))
-	maxrb := byte(256 - (256 % len(chars)))
-	i := 0
-	for {
-		if _, err := io.ReadFull(rand.Reader, data); err != nil {
-			panic(err)
-		}
-		for _, c := range data {
-			if c >= maxrb {
-				continue
-			}
-			pword[i] = chars[c%clen]
-			i++
-			if i == length {
-				return string(pword)
-			}
-		}
-	}
-	panic("unreachable")
 }
