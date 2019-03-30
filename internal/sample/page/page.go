@@ -76,5 +76,5 @@ func Sample(w http.ResponseWriter, r *http.Request) {
 		orderID,
 		pageID,
 	}
-	request.NewIn(w, r).JsonApi200(response, 0, "OK")
+	request.NewIn(w, r).JsonOk(response, 0, "OK")
 }

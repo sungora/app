@@ -38,7 +38,6 @@ var Cfg *Config
 
 func configuration(cfg *Config) {
 	Cfg = cfg
-
 	// временная зона
 	if Cfg.TimeZone != "" {
 		Cfg.TimeZone = "Europe/Moscow"
@@ -82,13 +81,9 @@ func configuration(cfg *Config) {
 	}
 	// сессия
 	Cfg.SessionTimeout *= time.Second
-
-	// session
 	if 0 < Cfg.SessionTimeout {
-		session.SessionGC()
+		session.SessionGC(Cfg.SessionTimeout)
 	}
-	return
-
 }
 
 // SearchConfigPath поиск конфигурации

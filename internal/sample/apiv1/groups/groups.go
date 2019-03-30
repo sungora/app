@@ -14,27 +14,27 @@ func Gets(w http.ResponseWriter, r *http.Request) {
 
 // Post
 func Post(w http.ResponseWriter, r *http.Request) {
-	request.NewIn(w, r).JsonApi200("Groups", 0, "OK")
+	request.NewIn(w, r).JsonOk("Groups", 0, "OK")
 }
 
 // Options
 func Options(w http.ResponseWriter, r *http.Request) {
-	request.NewIn(w, r).JsonApi200("Groups", 0, "OK")
+	request.NewIn(w, r).JsonOk("Groups", 0, "OK")
 }
 
 // Get
 func Get(w http.ResponseWriter, r *http.Request) {
-	request.NewIn(w, r).JsonApi200("Groups", 0, "OK")
+	request.NewIn(w, r).JsonOk("Groups", 0, "OK")
 }
 
 // Put
 func Put(w http.ResponseWriter, r *http.Request) {
-	request.NewIn(w, r).JsonApi200("Groups", 0, "OK")
+	request.NewIn(w, r).JsonOk("Groups", 0, "OK")
 }
 
 // Delete
 func Delete(w http.ResponseWriter, r *http.Request) {
-	request.NewIn(w, r).JsonApi200("Groups", 0, "OK")
+	request.NewIn(w, r).JsonOk("Groups", 0, "OK")
 }
 
 // // GET действие по умолчанию

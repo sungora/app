@@ -10,7 +10,6 @@ import (
 
 	"github.com/sungora/app"
 	"github.com/sungora/app/connect"
-	"github.com/sungora/app/core"
 	"github.com/sungora/app/lg"
 	"github.com/sungora/app/servhttp"
 	"github.com/sungora/app/servhttp/middlew"
@@ -21,7 +20,7 @@ import (
 )
 
 type Config struct {
-	Core     core.Config     `yaml:"Core"`
+	App      app.Config      `yaml:"App"`
 	Lg       lg.Config       `yaml:"Lg"`
 	Workflow workflow.Config `yaml:"Workflow"`
 	Http     servhttp.Config `yaml:"Http"`
@@ -40,11 +39,9 @@ func Init() (code int) {
 		componentServer *servhttp.Component
 	)
 
+	// Флаги
 	flagConfigPath := flag.String("c", "config/sample.yaml", "used for set path to config file")
 	flag.Parse()
-
-
-	lg.Dumper(os.Getwd())
 
 	// загрузка конфигурации
 	cfg := &Config{}
@@ -54,14 +51,8 @@ func Init() (code int) {
 	}
 
 	// COMPONENTS
-	// core
-	if component, err = core.Init(&cfg.Core, version); err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		return 1
-	}
-	app.ComponentAdd(component)
 	// logs
-	if component, err = lg.Init(&cfg.Lg, cfg.Core.ServiceName); err != nil {
+	if component, err = lg.Init(&cfg.Lg); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
@@ -99,6 +90,8 @@ func Init() (code int) {
 	}
 
 	// запуск и остановка приложения
-	var isStart = int8(2)
-	return app.Start(&isStart)
+	if err = app.StartLock(&cfg.App); err != nil {
+		return 1
+	}
+	return
 }

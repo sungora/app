@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -19,13 +20,9 @@ type Component struct {
 }
 
 // Init инициализация компонента в приложении
-func Init(cfg *Config, serviceName string) (com *Component, err error) {
+func Init(cfg *Config) (com *Component, err error) {
 	config = cfg
 	component = new(Component)
-	// сервис
-	if config.ServiceName == "" {
-		config.ServiceName = serviceName
-	}
 	// диреткория логов приложения
 	var dir string
 	if config.OutFile == "" {
@@ -36,6 +33,8 @@ func Init(cfg *Config, serviceName string) (com *Component, err error) {
 			dir = filepath.Dir(dir)
 		}
 		dir += "/log"
+		serviceName := filepath.Base(os.Args[0])
+		serviceName = strings.Split(serviceName, filepath.Ext(serviceName))[0]
 		config.OutFile = dir + sep + serviceName + ".log"
 	} else {
 		dir = filepath.Dir(config.OutFile)

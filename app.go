@@ -26,35 +26,43 @@ var (
 	chanelAppControl = make(chan os.Signal, 1) // Канал управления запуском и остановкой приложения
 )
 
-// Start Launch an application
-func Start(IsStart *int8) (code int) {
-	defer func() {
-		chanelAppControl <- os.Interrupt
-	}()
-	var err error
-
-	// начало работы компонентов
+// Start Launch an application (начало работы компонентов)
+func Start(cfg *Config) (err error) {
+	configuration(cfg)
 	for i := 0; i < len(componentList); i++ {
 		fmt.Fprintf(os.Stdout, "Start component %s\n", packageName(componentList[i]))
 		if err = componentList[i].Start(); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
-			*IsStart = 1
-			return 1
+			return
 		}
 	}
+	return
+}
 
-	// 	завершение работы компонентов
-	defer func() {
-		for i := len(componentList) - 1; -1 < i; i-- {
-			fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(componentList[i]))
-			if err = componentList[i].Stop(); err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
-				*IsStart = 1
-				code = 1
-			}
+// Stop an application (завершение работы компонентов)
+func Stop() (err error) {
+	for i := len(componentList) - 1; -1 < i; i-- {
+		fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(componentList[i]))
+		if err = componentList[i].Stop(); err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			return
 		}
+	}
+	return
+}
+
+// StartLock Launch an application
+func StartLock(cfg *Config) (err error) {
+	defer func() {
+		chanelAppControl <- os.Interrupt
 	}()
-	*IsStart = 0
+
+	if err = Start(cfg); err != nil {
+		return
+	}
+	defer func() {
+		err = Stop()
+	}()
 
 	// The correctness of the application is closed by a signal
 	signal.Notify(chanelAppControl,
@@ -67,8 +75,8 @@ func Start(IsStart *int8) (code int) {
 	return
 }
 
-// Stop an application
-func Stop() {
+// StopLock an application
+func StopLock() {
 	chanelAppControl <- os.Interrupt
 	<-chanelAppControl
 }

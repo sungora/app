@@ -1,5 +1,5 @@
 # Основная конфигурация
-Core:
+App:
   SessionTimeout: 14400
   TimeZone: "Europe/Moscow"
   Mode: "dev"

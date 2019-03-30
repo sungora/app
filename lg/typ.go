@@ -2,7 +2,6 @@ package lg
 
 // конфигурация
 type Config struct {
-	ServiceName string `yaml:"ServiceName"`
 	Info        bool   `yaml:"Info"`
 	Notice      bool   `yaml:"Notice"`
 	Warning     bool   `yaml:"Warning"`
@@ -20,7 +19,6 @@ type msg struct {
 	Level      string
 	LineNumber int
 	Action     string
-	Service    string
 	Login      string
 	Message    string
 	Traces     []trace

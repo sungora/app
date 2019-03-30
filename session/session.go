@@ -2,17 +2,15 @@ package session
 
 import (
 	"time"
-
-	"github.com/sungora/app"
 )
 
 // SessionGC Запуск чистки старых сессий по таймауту
-func SessionGC() {
+func SessionGC(td time.Duration) {
 	go func() {
 		for {
 			time.Sleep(time.Minute * 1)
 			for i, s := range sessions {
-				if app.Cfg.SessionTimeout < time.Now().In(app.Cfg.TimeLocation).Sub(s.t) {
+				if td < time.Now().Sub(s.t) {
 					delete(sessions, i)
 				}
 			}
@@ -30,11 +28,11 @@ type Session struct {
 // GetSession Получение сессии
 func GetSession(token string) *Session {
 	if elm, ok := sessions[token]; ok {
-		elm.t = time.Now().In(app.Cfg.TimeLocation)
+		elm.t = time.Now()
 		return elm
 	}
 	sessions[token] = new(Session)
-	sessions[token].t = time.Now().In(app.Cfg.TimeLocation)
+	sessions[token].t = time.Now()
 	sessions[token].data = make(map[string]interface{})
 	return sessions[token]
 }
