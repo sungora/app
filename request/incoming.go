@@ -113,17 +113,13 @@ func (rw *Incoming) JsonApi200(object interface{}, code int, message string) {
 }
 
 // JsonOk положительный ответ в формате json (структурированный)
-func (rw *Incoming) JsonOk(object interface{}, code int, message string, status ...int) {
+func (rw *Incoming) JsonOk(object interface{}, code int, message string) {
 	res := new(JsonApi)
 	res.Code = code
 	res.Message = message
 	res.Error = true
 	res.Data = object
-	if len(status) == 0 {
-		rw.Json(res, http.StatusOK)
-	} else {
-		rw.Json(res, status[0])
-	}
+	rw.Json(res, http.StatusOK)
 }
 
 // JsonApi409 отрицательный ответ api в формате json
@@ -138,12 +134,11 @@ func (rw *Incoming) JsonApi409(object interface{}, code int, message string) {
 }
 
 // JsonError отрицательный ответ с ошибкой в формате json (структурированный)
-func (rw *Incoming) JsonError(object interface{}, code int, message string, status ...int) {
+func (rw *Incoming) JsonError(code int, message string, status ...int) {
 	res := new(JsonApi)
 	res.Code = code
 	res.Message = message
 	res.Error = true
-	res.Data = object
 	if len(status) == 0 {
 		rw.Json(res, http.StatusBadRequest)
 	} else {

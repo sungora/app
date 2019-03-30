@@ -2,13 +2,15 @@ package middlew
 
 import (
 	"context"
-	"github.com/sungora/app/servhttp"
 	"net/http"
 	"time"
 
+	"github.com/sungora/app"
+	"github.com/sungora/app/servhttp"
+	"github.com/sungora/app/session"
+
 	"github.com/go-chi/cors"
 
-	"github.com/sungora/app/core"
 	"github.com/sungora/app/request"
 )
 
@@ -33,13 +35,13 @@ func TimeoutContext(d time.Duration) func(next http.Handler) http.Handler {
 func Session(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rw := request.NewIn(w, r)
-		token, _ := rw.CookieGet(core.Cfg.ServiceName)
+		token, _ := rw.CookieGet(app.Cfg.ServiceName)
 		if token == "" {
 			token = newRandomString(10)
-			rw.CookieSet(core.Cfg.ServiceName, token)
+			rw.CookieSet(app.Cfg.ServiceName, token)
 		}
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, KeySession, core.GetSession(token))
+		ctx = context.WithValue(ctx, KeySession, session.GetSession(token))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -59,5 +61,5 @@ func Cors(cfg servhttp.Cors) *cors.Cors {
 // NotFound обработчик не реализованных запросов
 func NotFound(w http.ResponseWriter, r *http.Request) {
 	rw := request.NewIn(w, r)
-	rw.Static(core.Cfg.DirWww + r.URL.Path)
+	rw.Static(app.Cfg.DirWww + r.URL.Path)
 }

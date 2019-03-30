@@ -1,0 +1,9 @@
+/* CSS Document */
+a {
+    color: #336600;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
