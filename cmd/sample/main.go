@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	os.Exit(sample.Init())
+	os.Exit(sample.Start())
 }

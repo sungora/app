@@ -13,7 +13,7 @@ import (
 	"github.com/sungora/app/workflow"
 )
 
-func Init() (code int) {
+func Start() (code int) {
 	var (
 		err             error
 		component       app.Componenter
