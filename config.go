@@ -36,58 +36,8 @@ type Config struct {
 // конфигурация
 var Cfg *Config
 
-func configuration(cfg *Config) {
-	Cfg = cfg
-	// временная зона
-	if Cfg.TimeZone != "" {
-		Cfg.TimeZone = "Europe/Moscow"
-	}
-	if loc, err := time.LoadLocation(Cfg.TimeZone); err == nil {
-		Cfg.TimeLocation = loc
-	} else {
-		Cfg.TimeLocation = time.UTC
-	}
-	// режим работы приложения
-	if Cfg.Mode == "" {
-		Cfg.Mode = "dev"
-	}
-	// техническое имя приложения
-	if Cfg.ServiceName == "" {
-		if ext := filepath.Ext(os.Args[0]); ext != "" {
-			sl := strings.Split(filepath.Base(os.Args[0]), ext)
-			Cfg.ServiceName = sl[0]
-		} else {
-			Cfg.ServiceName = filepath.Base(os.Args[0])
-		}
-	}
-	// пути
-	sep := string(os.PathSeparator)
-	if Cfg.DirWork == "" {
-		Cfg.DirWork, _ = os.Getwd()
-		// Cfg.DirWork = filepath.Dir(filepath.Dir(os.Args[0]))
-		// if Cfg.DirWork == "." {
-		// 	Cfg.DirWork, _ = os.Getwd()
-		// 	Cfg.DirWork = filepath.Dir(Cfg.DirWork)
-		// }
-	}
-	if Cfg.DirConfig == "" {
-		Cfg.DirConfig = Cfg.DirWork + sep + "config"
-	}
-	if Cfg.DirLog == "" {
-		Cfg.DirLog = Cfg.DirWork + sep + "log"
-	}
-	if Cfg.DirWww == "" {
-		Cfg.DirWww = Cfg.DirWork + sep + "www"
-	}
-	// сессия
-	Cfg.SessionTimeout *= time.Second
-	if 0 < Cfg.SessionTimeout {
-		session.SessionGC(Cfg.SessionTimeout)
-	}
-}
-
-// SearchConfigPath поиск конфигурации
-func SearchConfigPath(serviceName string) (path, ext string) {
+// SConfigearchPath поиск конфигурации
+func ConfigSearchPath(serviceName string) (path, ext string) {
 	if serviceName == "" {
 		serviceName = filepath.Base(os.Args[0])
 		serviceName = strings.Split(serviceName, filepath.Ext(serviceName))[0]
@@ -114,8 +64,8 @@ func SearchConfigPath(serviceName string) (path, ext string) {
 	return
 }
 
-// LoadConfig загрузка конфигурации
-func LoadConfig(path string, cfg interface{}) (err error) {
+// ConfigLoad загрузка конфигурации
+func ConfigLoad(path string, cfg interface{}) (err error) {
 	var data []byte
 	l := strings.SplitAfter(path, ".")
 	ext := l[len(l)-1]
@@ -133,4 +83,57 @@ func LoadConfig(path string, cfg interface{}) (err error) {
 		return errors.New("undefined config: " + path)
 	}
 	return
+}
+
+// ConfigAppSetDefault инициализация дефолтовыми значениями
+func ConfigAppSetDefault(cfg *Config) {
+	// временная зона
+	if cfg.TimeZone != "" {
+		cfg.TimeZone = "Europe/Moscow"
+	}
+	if loc, err := time.LoadLocation(cfg.TimeZone); err == nil {
+		cfg.TimeLocation = loc
+	} else {
+		cfg.TimeLocation = time.UTC
+	}
+	// режим работы приложения
+	if cfg.Mode == "" {
+		cfg.Mode = "dev"
+	}
+	// техническое имя приложения
+	if cfg.ServiceName == "" {
+		if ext := filepath.Ext(os.Args[0]); ext != "" {
+			sl := strings.Split(filepath.Base(os.Args[0]), ext)
+			cfg.ServiceName = sl[0]
+		} else {
+			cfg.ServiceName = filepath.Base(os.Args[0])
+		}
+	}
+	// пути
+	sep := string(os.PathSeparator)
+	if cfg.DirWork == "" {
+		cfg.DirWork, _ = os.Getwd()
+		// Cfg.DirWork = filepath.Dir(filepath.Dir(os.Args[0]))
+		// if Cfg.DirWork == "." {
+		// 	Cfg.DirWork, _ = os.Getwd()
+		// 	Cfg.DirWork = filepath.Dir(Cfg.DirWork)
+		// }
+	}
+	if cfg.DirConfig == "" {
+		cfg.DirConfig = Cfg.DirWork + sep + "config"
+	}
+	if cfg.DirLog == "" {
+		cfg.DirLog = Cfg.DirWork + sep + "log"
+	}
+	if cfg.DirWww == "" {
+		cfg.DirWww = Cfg.DirWork + sep + "www"
+	}
+	// сессия
+	if cfg.SessionTimeout == 0 {
+		cfg.SessionTimeout = 86400
+	}
+	cfg.SessionTimeout *= time.Second
+	session.SessionGC(cfg.SessionTimeout)
+	//
+	Cfg = cfg
 }

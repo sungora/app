@@ -27,8 +27,7 @@ var (
 )
 
 // Start Launch an application (начало работы компонентов)
-func Start(cfg *Config) (err error) {
-	configuration(cfg)
+func Start() (err error) {
 	for i := 0; i < len(componentList); i++ {
 		fmt.Fprintf(os.Stdout, "Start component %s\n", packageName(componentList[i]))
 		if err = componentList[i].Start(); err != nil {
@@ -52,12 +51,12 @@ func Stop() {
 }
 
 // StartLock Launch an application
-func StartLock(cfg *Config) (err error) {
+func StartLock() (err error) {
 	defer func() {
 		chanelAppControl <- os.Interrupt
 	}()
 
-	if err = Start(cfg); err != nil {
+	if err = Start(); err != nil {
 		return
 	}
 	defer Stop()
