@@ -85,8 +85,8 @@ func ConfigLoad(path string, cfg interface{}) (err error) {
 	return
 }
 
-// ConfigAppSetDefault инициализация дефолтовыми значениями
-func ConfigAppSetDefault(cfg *Config) {
+// ConfigSetDefault инициализация дефолтовыми значениями
+func ConfigSetDefault(cfg *Config) {
 	// временная зона
 	if cfg.TimeZone != "" {
 		cfg.TimeZone = "Europe/Moscow"
@@ -120,13 +120,13 @@ func ConfigAppSetDefault(cfg *Config) {
 		// }
 	}
 	if cfg.DirConfig == "" {
-		cfg.DirConfig = Cfg.DirWork + sep + "config"
+		cfg.DirConfig = cfg.DirWork + sep + "config"
 	}
 	if cfg.DirLog == "" {
-		cfg.DirLog = Cfg.DirWork + sep + "log"
+		cfg.DirLog = cfg.DirWork + sep + "log"
 	}
 	if cfg.DirWww == "" {
-		cfg.DirWww = Cfg.DirWork + sep + "www"
+		cfg.DirWww = cfg.DirWork + sep + "www"
 	}
 	// сессия
 	if cfg.SessionTimeout == 0 {
