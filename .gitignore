@@ -8,7 +8,7 @@
 # Test binary, build with `go test -c`
 *.test
 test
-#bin
+bin
 log
 logs
 
