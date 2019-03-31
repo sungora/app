@@ -40,10 +40,10 @@ func Start(cfg *Config) (err error) {
 }
 
 // Stop an application (завершение работы компонентов)
-func Stop() (err error) {
+func Stop() {
 	for i := len(componentList) - 1; -1 < i; i-- {
 		fmt.Fprintf(os.Stdout, "Stop component %s\n", packageName(componentList[i]))
-		if err = componentList[i].Stop(); err != nil {
+		if err := componentList[i].Stop(); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			return
 		}
@@ -60,9 +60,7 @@ func StartLock(cfg *Config) (err error) {
 	if err = Start(cfg); err != nil {
 		return
 	}
-	defer func() {
-		err = Stop()
-	}()
+	defer Stop()
 
 	// The correctness of the application is closed by a signal
 	signal.Notify(chanelAppControl,
