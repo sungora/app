@@ -4,12 +4,14 @@ package users
 import (
 	"net/http"
 
+	"github.com/sungora/app/lg"
 	"github.com/sungora/app/request"
 )
 
 // Gets
 func Gets(w http.ResponseWriter, r *http.Request) {
-	request.NewIn(w, r).JsonOk("Users", 0, "OK")
+	lg.Info(1000, "testing")
+	request.NewIn(w, r).JsonOk("Users Gets", 0, "OK")
 }
 
 // Post

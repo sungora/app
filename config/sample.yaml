@@ -3,6 +3,7 @@ App:
   SessionTimeout: 14400
   TimeZone: "Europe/Moscow"
   Mode: "dev"
+  Version: "1.1.1"
 
 Lg:
   Info: true

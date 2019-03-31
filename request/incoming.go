@@ -117,7 +117,7 @@ func (rw *Incoming) JsonOk(object interface{}, code int, message string) {
 	res := new(JsonApi)
 	res.Code = code
 	res.Message = message
-	res.Error = true
+	res.Error = false
 	res.Data = object
 	rw.Json(res, http.StatusOK)
 }

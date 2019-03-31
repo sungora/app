@@ -7,13 +7,14 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/sungora/app"
+	"github.com/sungora/app/internal/core"
 	"github.com/sungora/app/request"
 	"github.com/sungora/app/tpl"
 
 	"github.com/sungora/app/internal/sample/model"
 )
 
-// Main главная страница
+// Main главная страница /
 func Main(w http.ResponseWriter, r *http.Request) {
 	var err error
 
@@ -56,12 +57,12 @@ func Main(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Api страница api
+// Api страница /api
 func Api(w http.ResponseWriter, r *http.Request) {
 	request.NewIn(w, r).Html("IndexApi")
 }
 
-// ApiV1 страница api v1
+// ApiV1 страница /api/v1
 func ApiV1(w http.ResponseWriter, r *http.Request) {
 	request.NewIn(w, r).Html("PageApiV1")
 }
@@ -77,4 +78,14 @@ func Sample(w http.ResponseWriter, r *http.Request) {
 		pageID,
 	}
 	request.NewIn(w, r).JsonOk(response, 0, "OK")
+}
+
+// Ping проверка работы приложения /ping
+func Ping(w http.ResponseWriter, r *http.Request) {
+	request.NewIn(w, r).Json("pong")
+}
+
+// Version версия приложения /version
+func Version(w http.ResponseWriter, r *http.Request) {
+	request.NewIn(w, r).Json(core.Cfg.App.Version)
 }

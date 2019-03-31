@@ -30,7 +30,7 @@ type Config struct {
 	DirWww         string         `yaml:"DirWww"`         //
 	ServiceName    string         `yaml:"ServiceName"`    // Техническое название приложения
 	TimeLocation   *time.Location ``                      // Временная зона
-	Version        string         ``                      // Версия приложения
+	Version        string         `yaml:"Version"`        // Версия приложения
 }
 
 // конфигурация
