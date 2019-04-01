@@ -6,12 +6,12 @@ import (
 
 // главная конфигурация
 type Config struct {
-	Mysql      mysql      `yaml:"Mysql"`
-	Postgresql postgresql `yaml:"Postgresql"`
+	Mysql      Mysql      `yaml:"Mysql"`
+	Postgresql Postgresql `yaml:"Postgresql"`
 }
 
 // конфигурация поджгружаемая из файла конфигурации
-type mysql struct {
+type Mysql struct {
 	Host     string `yaml:"Host"`     // протокол, хост и порт подключения
 	Name     string `yaml:"Name"`     // Имя базы данных
 	Login    string `yaml:"Login"`    // Логин к базе данных
@@ -19,7 +19,7 @@ type mysql struct {
 	Charset  string `yaml:"Charset"`  // Кодировка данных (utf-8 - по умолчанию)
 }
 
-type postgresql struct {
+type Postgresql struct {
 	Host     string `yaml:"Host"`     // Хост базы данных (localhost - по умолчанию)
 	Port     int64  `yaml:"Port"`     // Порт подключения по протоколу tcp/ip (3306 по умолчанию)
 	Name     string `yaml:"Name"`     // Имя базы данных
