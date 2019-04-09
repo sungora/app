@@ -113,6 +113,12 @@ func ConfigSetDefault(cfg *Config) {
 	sep := string(os.PathSeparator)
 	if cfg.DirWork == "" {
 		cfg.DirWork, _ = os.Getwd()
+		sl := strings.Split(cfg.DirWork, sep)
+		if sl[len(sl)-1] == "bin" {
+			sl = sl[:len(sl)-1]
+		}
+		cfg.DirWork = strings.Join(sl, sep)
+		// cfg.DirWork = strings.Replace(cfg.DirWork, "/bin", "", -1)
 		// Cfg.DirWork = filepath.Dir(filepath.Dir(os.Args[0]))
 		// if Cfg.DirWork == "." {
 		// 	Cfg.DirWork, _ = os.Getwd()
