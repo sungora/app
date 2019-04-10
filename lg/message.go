@@ -10,10 +10,10 @@ func GetError(code int, params ...interface{}) error {
 	var message string
 	var ok bool
 	if message, ok = messages[code]; ok == true {
-		errors.New(fmt.Sprintf(message, params...))
+		return errors.New(fmt.Sprintf(message, params...))
 	} else if 0 < len(params) {
 		if s, ok := params[0].(string); ok == true {
-			errors.New(fmt.Sprintf(s, params[1:]...))
+			return errors.New(fmt.Sprintf(s, params[1:]...))
 		}
 	}
 	return nil
