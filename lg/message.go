@@ -1,8 +1,23 @@
 package lg
 
 import (
+	"errors"
 	"fmt"
 )
+
+// GetError получение ошибки на основе шаблона из справочника
+func GetError(code int, params ...interface{}) error {
+	var message string
+	var ok bool
+	if message, ok = messages[code]; ok == true {
+		errors.New(fmt.Sprintf(message, params...))
+	} else if 0 < len(params) {
+		if s, ok := params[0].(string); ok == true {
+			errors.New(fmt.Sprintf(s, params[1:]...))
+		}
+	}
+	return nil
+}
 
 // GetMessage получение лог сообщения на основе шаблона из справочника
 func GetMessage(code int, params ...interface{}) (message string) {
