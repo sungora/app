@@ -23,6 +23,7 @@ const (
 type Config struct {
 	SessionTimeout time.Duration  `yaml:"SessionTimeout"` //
 	TimeZone       string         `yaml:"TimeZone"`       //
+	Domain         string         `yaml:"Domain"`         //
 	Mode           string         `yaml:"Mode"`           //
 	DirWork        string         `yaml:"DirWork"`        //
 	DirConfig      string         `yaml:"DirConfig"`      //
