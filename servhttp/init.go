@@ -61,3 +61,8 @@ func (comp *Component) Stop() (err error) {
 	<-comp.chControl
 	return
 }
+
+// GetRoute получение обработчика запросов
+func GetRoute() *chi.Mux {
+	return component.Server.Handler.(*chi.Mux)
+}

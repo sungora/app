@@ -10,8 +10,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v2"
-
-	"github.com/sungora/app/session"
 )
 
 const (
@@ -128,7 +126,6 @@ func ConfigSetDefault(cfg *Config) {
 		cfg.SessionTimeout = 86400
 	}
 	cfg.SessionTimeout *= time.Second
-	session.SessionGC(cfg.SessionTimeout)
 	//
 	Cfg = cfg
 }
