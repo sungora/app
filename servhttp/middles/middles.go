@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/cors"
+
 	"github.com/sungora/app"
 	"github.com/sungora/app/servhttp"
 	"github.com/sungora/app/session"
-
-	"github.com/go-chi/cors"
-
 	"github.com/sungora/app/request"
 )
 

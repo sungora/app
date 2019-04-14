@@ -1,5 +1,7 @@
 package servhttp
 
+import "time"
+
 // конфигурация
 type Config struct {
 	Proto          string        `yaml:"Proto"`          // Server Proto
