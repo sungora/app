@@ -1,4 +1,4 @@
-package middlew
+package middles
 
 import (
 	"context"
@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	KeyRW      = "RW"
 	KeySession = "SESSION"
 )
 
@@ -24,6 +23,7 @@ const (
 func TimeoutContext(d time.Duration) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			d = time.Second*d - time.Millisecond
 			ctx, cancel := context.WithTimeout(r.Context(), d)
 			defer cancel()
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -61,5 +61,5 @@ func Cors(cfg servhttp.Cors) *cors.Cors {
 // NotFound обработчик не реализованных запросов
 func NotFound(w http.ResponseWriter, r *http.Request) {
 	rw := request.NewIn(w, r)
-	rw.Static(app.Cfg.DirWww + r.URL.Path)
+	rw.Static(app.Cfg.DirWork + r.URL.Path)
 }

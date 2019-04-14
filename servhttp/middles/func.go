@@ -1,4 +1,4 @@
-package middlew
+package middles
 
 import (
 	"crypto/rand"
