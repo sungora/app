@@ -17,7 +17,7 @@ type Mysql struct {
 	Login     string `yaml:"Login"`     // Логин к базе данных
 	Password  string `yaml:"Password"`  // Пароль к базе данных
 	Charset   string `yaml:"Charset"`   // Кодировка данных (utf-8 - по умолчанию)
-	Migration int    `yaml:"Migration"` // Режим миграции
+	Migration int64  `yaml:"Migration"` // Режим миграции
 }
 
 type Postgresql struct {
@@ -28,7 +28,7 @@ type Postgresql struct {
 	Password  string `yaml:"Password"`  // Пароль к базе данных
 	Charset   string `yaml:"Charset"`   // Кодировка данных (utf-8 - по умолчанию)
 	Ssl       string `yaml:"Ssl"`       // Ssl
-	Migration int    `yaml:"Migration"` // Режим миграции
+	Migration int64  `yaml:"Migration"` // Режим миграции
 }
 
 var db *gorm.DB
