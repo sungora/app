@@ -21,19 +21,19 @@ type Component struct {
 }
 
 // Init инициализация компонента в приложении
-func Init(cfg *Config) (com *Component, err error) {
+func Init(cfg *Config) (com *Component, router *chi.Mux, err error) {
 	config = cfg
 	component = &Component{
 		Server: &http.Server{
 			Addr:           fmt.Sprintf("%s:%d", config.Host, config.Port),
 			Handler:        chi.NewRouter(),
-			ReadTimeout:    time.Second * time.Duration(config.ReadTimeout),
-			WriteTimeout:   time.Second * time.Duration(config.WriteTimeout),
-			IdleTimeout:    time.Second * time.Duration(config.IdleTimeout),
+			ReadTimeout:    time.Second * config.ReadTimeout,
+			WriteTimeout:   time.Second * config.WriteTimeout,
+			IdleTimeout:    time.Second * config.IdleTimeout,
 			MaxHeaderBytes: config.MaxHeaderBytes,
 		},
 	}
-	return component, nil
+	return component, component.Server.Handler.(*chi.Mux), nil
 }
 
 // Start запуск компонента в работу
@@ -63,6 +63,6 @@ func (comp *Component) Stop() (err error) {
 }
 
 // GetRoute получение обработчика запросов
-func (comp *Component) GetRoute() *chi.Mux {
-	return comp.Server.Handler.(*chi.Mux)
+func GetRoute() *chi.Mux {
+	return component.Server.Handler.(*chi.Mux)
 }

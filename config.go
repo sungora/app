@@ -10,8 +10,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v2"
-
-	"github.com/sungora/app/session"
 )
 
 const (
@@ -26,9 +24,6 @@ type Config struct {
 	Domain         string         `yaml:"Domain"`         //
 	Mode           string         `yaml:"Mode"`           //
 	DirWork        string         `yaml:"DirWork"`        //
-	DirConfig      string         `yaml:"DirConfig"`      //
-	DirLog         string         `yaml:"DirLog"`         //
-	DirWww         string         `yaml:"DirWww"`         //
 	ServiceName    string         `yaml:"ServiceName"`    // Техническое название приложения
 	TimeLocation   *time.Location ``                      // Временная зона
 	Version        string         `yaml:"Version"`        // Версия приложения
@@ -126,21 +121,11 @@ func ConfigSetDefault(cfg *Config) {
 		// 	Cfg.DirWork = filepath.Dir(Cfg.DirWork)
 		// }
 	}
-	if cfg.DirConfig == "" {
-		cfg.DirConfig = cfg.DirWork + sep + "config"
-	}
-	if cfg.DirLog == "" {
-		cfg.DirLog = cfg.DirWork + sep + "log"
-	}
-	if cfg.DirWww == "" {
-		cfg.DirWww = cfg.DirWork + sep + "www"
-	}
 	// сессия
 	if cfg.SessionTimeout == 0 {
 		cfg.SessionTimeout = 86400
 	}
 	cfg.SessionTimeout *= time.Second
-	session.SessionGC(cfg.SessionTimeout)
 	//
 	Cfg = cfg
 }
