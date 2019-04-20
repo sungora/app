@@ -114,18 +114,11 @@ func ConfigSetDefault(cfg *Config) {
 			sl = sl[:len(sl)-1]
 		}
 		cfg.DirWork = strings.Join(sl, sep)
-		// cfg.DirWork = strings.Replace(cfg.DirWork, "/bin", "", -1)
-		// Cfg.DirWork = filepath.Dir(filepath.Dir(os.Args[0]))
-		// if Cfg.DirWork == "." {
-		// 	Cfg.DirWork, _ = os.Getwd()
-		// 	Cfg.DirWork = filepath.Dir(Cfg.DirWork)
-		// }
 	}
 	// сессия
 	if cfg.SessionTimeout == 0 {
 		cfg.SessionTimeout = 86400
 	}
-	cfg.SessionTimeout *= time.Second
 	//
 	Cfg = cfg
 }
