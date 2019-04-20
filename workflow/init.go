@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	config    *Config    // конфигурация
-	component *Component // компонент
+	config    *Config        // конфигурация
+	component = &Component{} // компонент
 )
 
 // компонент
@@ -19,7 +19,6 @@ type Component struct {
 // Init инициализация компонента в приложении
 func Init(cfg *Config) (com *Component, err error) {
 	config = cfg
-	component = new(Component)
 	return component, nil
 }
 

@@ -20,24 +20,10 @@ func Fatal(key interface{}, parametrs ...interface{}) {
 	}
 }
 
-// FatalLogin error logging
-func FatalLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Fatal == true {
-		sendLog("fatal", login, key, parametrs...)
-	}
-}
-
 // Critical error logging
 func Critical(key interface{}, parametrs ...interface{}) {
 	if config.Critical == true {
 		sendLog("critical", "system", key, parametrs...)
-	}
-}
-
-// CriticalLogin error logging
-func CriticalLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Critical == true {
-		sendLog("critical", login, key, parametrs...)
 	}
 }
 
@@ -48,24 +34,10 @@ func Error(key interface{}, parametrs ...interface{}) {
 	}
 }
 
-// ErrorLogin error logging
-func ErrorLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Error == true {
-		sendLog("error", login, key, parametrs...)
-	}
-}
-
 // Warning error logging
 func Warning(key interface{}, parametrs ...interface{}) {
 	if config.Warning == true {
 		sendLog("warning", "system", key, parametrs...)
-	}
-}
-
-// WarningLogin error logging
-func WarningLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Warning == true {
-		sendLog("warning", login, key, parametrs...)
 	}
 }
 
@@ -76,24 +48,10 @@ func Notice(key interface{}, parametrs ...interface{}) {
 	}
 }
 
-// NoticeLogin error logging
-func NoticeLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Notice == true {
-		sendLog("notice", login, key, parametrs...)
-	}
-}
-
 // Info error logging
 func Info(key interface{}, parametrs ...interface{}) {
 	if config.Info == true {
 		sendLog("info", "system", key, parametrs...)
-	}
-}
-
-// InfoLogin error logging
-func InfoLogin(login string, key interface{}, parametrs ...interface{}) {
-	if config.Info == true {
-		sendLog("info", login, key, parametrs...)
 	}
 }
 
