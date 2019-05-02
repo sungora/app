@@ -90,3 +90,7 @@ func (comp *Component) Stop() (err error) {
 	<-comp.logChClose
 	return
 }
+
+func GetConfig() *Config {
+	return config
+}

@@ -6,6 +6,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+
+	"github.com/sungora/app"
 )
 
 // компонент
@@ -32,6 +34,9 @@ func Init(cfg *Config) (com *Component, err error) {
 		)); err != nil {
 			return
 		}
+		if app.Cfg.Mode == "dev" {
+			db = db.Debug()
+		}
 	} else if config.Postgresql.Host != "" {
 		if db, err = gorm.Open("postgres", fmt.Sprintf(
 			"host=%s port=%d user=%s dbname=%s password=%s sslmode=%s",
@@ -43,6 +48,9 @@ func Init(cfg *Config) (com *Component, err error) {
 			config.Postgresql.Ssl,
 		)); err != nil {
 			return
+		}
+		if app.Cfg.Mode == "dev" {
+			db = db.Debug()
 		}
 	}
 	return component, nil
@@ -61,4 +69,8 @@ func (comp *Component) Stop() (err error) {
 	}
 
 	return
+}
+
+func GetConfig() *Config {
+	return config
 }

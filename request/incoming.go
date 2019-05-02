@@ -94,48 +94,16 @@ func (rw *Incoming) BodyDecodeJson(object interface{}) (err error) {
 }
 
 // обертка api ответа в формате json
-type JsonApi struct {
+type JsonData struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Error   bool        `json:"error"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// JsonApi200 положительный ответ api в формате json
-// Deprecated: Use JsonOk
-func (rw *Incoming) JsonApi200(object interface{}, code int, message string) {
-	res := new(JsonApi)
-	res.Code = code
-	res.Message = message
-	res.Error = false
-	res.Data = object
-	rw.Json(res, http.StatusOK)
-}
-
-// JsonOk положительный ответ в формате json (структурированный)
-func (rw *Incoming) JsonOk(object interface{}, code int, message string) {
-	res := new(JsonApi)
-	res.Code = code
-	res.Message = message
-	res.Error = true
-	res.Data = object
-	rw.Json(res, http.StatusOK)
-}
-
-// JsonApi409 отрицательный ответ api в формате json
-// Deprecated: Use JsonError
-func (rw *Incoming) JsonApi409(object interface{}, code int, message string) {
-	res := new(JsonApi)
-	res.Code = code
-	res.Message = message
-	res.Error = true
-	res.Data = object
-	rw.Json(res, http.StatusConflict)
-}
-
 // JsonError отрицательный ответ с ошибкой в формате json (структурированный)
 func (rw *Incoming) JsonError(code int, message string, status ...int) {
-	res := new(JsonApi)
+	res := new(JsonData)
 	res.Code = code
 	res.Message = message
 	res.Error = true

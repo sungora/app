@@ -128,7 +128,7 @@ func dump(idl ...interface{}) bytes.Buffer {
 	wr = io.MultiWriter(&buf)
 	for _, field := range idl {
 		fset := token.NewFileSet()
-		ast.Fprint(wr, fset, field, ast.NotNilFilter)
+		_ = ast.Fprint(wr, fset, field, ast.NotNilFilter)
 	}
 	return buf
 }

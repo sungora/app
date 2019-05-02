@@ -66,3 +66,7 @@ func (comp *Component) Stop() (err error) {
 func GetRoute() *chi.Mux {
 	return component.Server.Handler.(*chi.Mux)
 }
+
+func GetConfig() *Config {
+	return config
+}
