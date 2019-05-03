@@ -93,20 +93,24 @@ func (rw *Incoming) BodyDecodeJson(object interface{}) (err error) {
 	return json.Unmarshal(body, object)
 }
 
-// обертка api ответа в формате json
-type JsonData struct {
+// Error ответ на запрос с ошибкой
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+// Data ответ на запрос с данными
+type Data struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
-	Error   bool        `json:"error"`
-	Data    interface{} `json:"data,omitempty"`
+	Data    interface{} `json:"data"`
 }
 
 // JsonError отрицательный ответ с ошибкой в формате json (структурированный)
 func (rw *Incoming) JsonError(code int, message string, status ...int) {
-	res := new(JsonData)
+	res := new(Error)
 	res.Code = code
 	res.Message = message
-	res.Error = true
 	if len(status) == 0 {
 		rw.Json(res, http.StatusBadRequest)
 	} else {

@@ -18,3 +18,4 @@ logs
 .project
 .settings
 .idea
+/vendor
