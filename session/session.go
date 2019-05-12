@@ -8,7 +8,7 @@ import (
 func SessionGC(td time.Duration) {
 	go func() {
 		for {
-			time.Sleep(time.Minute * 1)
+			time.Sleep(time.Minute)
 			for i, s := range sessions {
 				if td < time.Now().Sub(s.t) {
 					delete(sessions, i)

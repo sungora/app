@@ -7,18 +7,22 @@ import (
 	"io/ioutil"
 	"mime"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi"
+
+	"github.com/sungora/app/keys"
 )
 
 // Структура для работы с входящим запросом
 type Incoming struct {
-	request       *http.Request
-	response      http.ResponseWriter
-	requestParams map[string][]string
+	request  *http.Request
+	response http.ResponseWriter
+	Param    Param
 }
 
 // NewIn Функционал по работе с входящим запросом
@@ -26,23 +30,11 @@ func NewIn(w http.ResponseWriter, r *http.Request) *Incoming {
 	var rw = &Incoming{
 		request:  r,
 		response: w,
+		Param: Param{
+			request: r,
+		},
 	}
 	return rw
-}
-
-// GetRequestParam Получение данных запроса пришедших в формате "application/x-www-form-urlencoded".
-func (rw *Incoming) GetRequestParam(name string) map[string][]string {
-	if rw.requestParams != nil {
-		return rw.requestParams
-	}
-	rw.requestParams, _ = url.ParseQuery(rw.request.URL.Query().Encode())
-	if err := rw.request.ParseForm(); err != nil {
-		return rw.requestParams
-	}
-	for i, v := range rw.request.Form {
-		rw.requestParams[i] = v
-	}
-	return rw.requestParams
 }
 
 // CookieGet Получение куки.
@@ -81,8 +73,8 @@ func (rw *Incoming) CookieRem(name string) {
 
 var errEmptyData = errors.New("Запрос пустой, данные отсутствуют")
 
-// BodyDecodeJson декодирование полученного тела запроса в формате json в объект
-func (rw *Incoming) BodyDecodeJson(object interface{}) (err error) {
+// GetBodyJson декодирование полученного тела запроса в формате json в объект
+func (rw *Incoming) GetBodyJson(object interface{}) (err error) {
 	var body []byte
 	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
 		return
@@ -122,20 +114,23 @@ func (rw *Incoming) JsonError(code int, message string, status ...int) {
 func (rw *Incoming) Json(object interface{}, status ...int) {
 	data, err := json.Marshal(object)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		_, _ = fmt.Fprintln(os.Stderr, err.Error())
 	}
 	// headers
 	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
 	// Статус ответа
 	if len(status) == 0 {
 		rw.response.WriteHeader(http.StatusOK)
+		rw.response.Header().Set(keys.Hand.Status, strconv.Itoa(http.StatusOK))
 	} else {
 		rw.response.WriteHeader(status[0])
+		rw.response.Header().Set(keys.Hand.Status, strconv.Itoa(status[0]))
 	}
+	rw.response.Header().Set(keys.Hand.RoutePattern, chi.RouteContext(rw.request.Context()).RoutePattern())
 	// Тело документа
 	_, err = rw.response.Write(data)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		_, _ = fmt.Fprintln(os.Stderr, err.Error())
 	}
 }
 
@@ -151,7 +146,7 @@ func (rw *Incoming) Html(con string, status ...int) {
 		rw.response.WriteHeader(status[0])
 	}
 	// Тело документа
-	rw.response.Write(data)
+	_, _ = rw.response.Write(data)
 }
 
 // Static ответ - отдача статических данных
@@ -166,17 +161,15 @@ func (rw *Incoming) Static(path string) (err error) {
 			path += string(os.PathSeparator)
 		}
 		path += "index.html"
+		if fi, err = os.Stat(path); err != nil {
+			rw.Html("<H1>Not Found</H1>", http.StatusNotFound)
+			return
+		}
 	}
 	// content
 	var data []byte
 	if data, err = ioutil.ReadFile(path); err != nil {
-		if fi.IsDir() == true {
-			rw.Html("<H1>Forbidden</H1>", http.StatusForbidden)
-		} else if fi.Mode().IsRegular() == true {
-			rw.Html("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
-		} else {
-			rw.Html("<H1>Not Found</H1>", http.StatusNotFound)
-		}
+		rw.Html("<H1>Internal Server Error</H1>", http.StatusInternalServerError)
 		return
 	}
 	// type

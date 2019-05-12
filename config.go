@@ -30,7 +30,7 @@ type Config struct {
 }
 
 // конфигурация
-var Cfg *Config
+var config *Config
 
 // SConfigearchPath поиск конфигурации
 func ConfigSearchPath(serviceName string) (path, ext string) {
@@ -83,6 +83,9 @@ func ConfigLoad(path string, cfg interface{}) (err error) {
 
 // ConfigSetDefault инициализация дефолтовыми значениями
 func ConfigSetDefault(cfg *Config) {
+	if cfg == nil {
+		cfg = &Config{}
+	}
 	// временная зона
 	if cfg.TimeZone != "" {
 		cfg.TimeZone = "Europe/Moscow"
@@ -120,5 +123,19 @@ func ConfigSetDefault(cfg *Config) {
 		cfg.SessionTimeout = 86400
 	}
 	//
-	Cfg = cfg
+	if cfg.Domain == "" {
+		cfg.Domain = "localhost"
+	}
+	if cfg.Version == "" {
+		cfg.Version = "1.0.0"
+	}
+	//
+	config = cfg
+}
+
+func GetConfig() *Config {
+	if config == nil {
+		ConfigSetDefault(nil)
+	}
+	return config
 }

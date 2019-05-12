@@ -9,13 +9,6 @@ var (
 	component = &Component{} // компонент
 )
 
-// компонент
-type Component struct {
-	p             *pool
-	cronTaskRun   []Task
-	cronControlCH chan struct{}
-}
-
 // Init инициализация компонента в приложении
 func Init(cfg *Config) (com *Component, err error) {
 	config = cfg

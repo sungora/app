@@ -1,6 +1,4 @@
-// Deprecated
-// Use db
-package connect
+package db
 
 import (
 	"github.com/jinzhu/gorm"
@@ -8,6 +6,6 @@ import (
 
 var db *gorm.DB
 
-func GetDB() *gorm.DB {
+func Conn() *gorm.DB {
 	return db
 }

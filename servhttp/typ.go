@@ -1,6 +1,15 @@
 package servhttp
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
+
+// компонент
+type Component struct {
+	Server    *http.Server  // сервер HTTP
+	chControl chan struct{} // управление ожиданием завершения работы сервера
+}
 
 // конфигурация
 type Config struct {

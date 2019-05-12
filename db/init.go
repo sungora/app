@@ -1,6 +1,4 @@
-// Deprecated
-// Use db
-package connect
+package db
 
 import (
 	"fmt"

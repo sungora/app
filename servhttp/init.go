@@ -14,12 +14,6 @@ var (
 	component *Component // компонент
 )
 
-// компонент
-type Component struct {
-	Server    *http.Server  // сервер HTTP
-	chControl chan struct{} // управление ожиданием завершения работы сервера
-}
-
 // Init инициализация компонента в приложении
 func Init(cfg *Config) (com *Component, router *chi.Mux, err error) {
 	config = cfg
