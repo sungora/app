@@ -12,11 +12,18 @@ import (
 	"strconv"
 )
 
+// Структура для работы с исходящими запросами
+type Outgoing struct {
+	url    string
+	Header http.Header
+}
+
 // NewOut Функционал по работе с исходящими запросами к внешним ресурсам
 func NewOut(url string) *Outgoing {
 	var r = new(Outgoing)
 	r.url = url
-	r.Header = new(header)
+	// r.Header = new(header)
+	r.Header = http.Header{}
 	return r
 }
 
@@ -64,15 +71,16 @@ func (r *Outgoing) request(method, uri string, requestBody, responseBody interfa
 	// Запрос
 	if request, err = http.NewRequest(method, url, body); err == nil {
 		// Заголовки
-		if r.Header.authorizationBasic != "" {
-			request.Header.Set("Authorization", r.Header.authorizationBasic)
-		}
-		if r.Header.contentType != "" {
-			request.Header.Set("Content-Type", r.Header.contentType)
-		}
-		if r.Header.accept != "" {
-			request.Header.Set("Accept", r.Header.accept)
-		}
+		request.Header = r.Header
+		// if r.Header.authorizationBasic != "" {
+		// 	request.Header.Set("Authorization", r.Header.authorizationBasic)
+		// }
+		// if r.Header.contentType != "" {
+		// 	request.Header.Set("Content-Type", r.Header.contentType)
+		// }
+		// if r.Header.accept != "" {
+		// 	request.Header.Set("Accept", r.Header.accept)
+		// }
 		//
 		transCfg := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
@@ -87,7 +95,7 @@ func (r *Outgoing) request(method, uri string, requestBody, responseBody interfa
 			if err != nil {
 				return
 			}
-			if r.Header.contentType == "application/json" {
+			if r.Header.Get("Content-Type") == "application/json" {
 				err = json.Unmarshal(bodyResponse, responseBody)
 			}
 			if response.StatusCode != 200 {

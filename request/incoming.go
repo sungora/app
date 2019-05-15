@@ -9,20 +9,17 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
-
-	"github.com/go-chi/chi"
 
 	"github.com/sungora/app/keys"
 )
 
 // Структура для работы с входящим запросом
 type Incoming struct {
-	request  *http.Request
-	response http.ResponseWriter
-	Param    Param
+	request       *http.Request
+	response      http.ResponseWriter
+	QueryFormPath queryFormData
 }
 
 // NewIn Функционал по работе с входящим запросом
@@ -30,11 +27,25 @@ func NewIn(w http.ResponseWriter, r *http.Request) *Incoming {
 	var rw = &Incoming{
 		request:  r,
 		response: w,
-		Param: Param{
+		QueryFormPath: queryFormData{
 			request: r,
 		},
 	}
 	return rw
+}
+
+var errEmptyData = errors.New("Запрос пустой, данные отсутствуют")
+
+// GetBodyJson декодирование полученного тела запроса в формате json в объект
+func (rw *Incoming) GetBodyJson(object interface{}) (err error) {
+	var body []byte
+	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
+		return
+	}
+	if 0 == len(body) {
+		return errEmptyData
+	}
+	return json.Unmarshal(body, object)
 }
 
 // CookieGet Получение куки.
@@ -71,20 +82,6 @@ func (rw *Incoming) CookieRem(name string) {
 	http.SetCookie(rw.response, cookie)
 }
 
-var errEmptyData = errors.New("Запрос пустой, данные отсутствуют")
-
-// GetBodyJson декодирование полученного тела запроса в формате json в объект
-func (rw *Incoming) GetBodyJson(object interface{}) (err error) {
-	var body []byte
-	if body, err = ioutil.ReadAll(rw.request.Body); err != nil {
-		return
-	}
-	if 0 == len(body) {
-		return errEmptyData
-	}
-	return json.Unmarshal(body, object)
-}
-
 // Error ответ на запрос с ошибкой
 type Error struct {
 	Code    int    `json:"code"`
@@ -97,6 +94,8 @@ type Data struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 }
+
+type Log func(r *http.Request, status int)
 
 // JsonError отрицательный ответ с ошибкой в формате json (структурированный)
 func (rw *Incoming) JsonError(code int, message string, status ...int) {
@@ -116,41 +115,41 @@ func (rw *Incoming) Json(object interface{}, status ...int) {
 	if err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err.Error())
 	}
-	// headers
-	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
 	// Статус ответа
 	if len(status) == 0 {
-		rw.response.WriteHeader(http.StatusOK)
-		rw.response.Header().Set(keys.Hand.Status, strconv.Itoa(http.StatusOK))
-	} else {
-		rw.response.WriteHeader(status[0])
-		rw.response.Header().Set(keys.Hand.Status, strconv.Itoa(status[0]))
+		status = append(status, http.StatusOK)
 	}
-	if ctx := rw.request.Context(); ctx != nil {
-		if ctxChi := chi.RouteContext(ctx); ctxChi != nil {
-			rw.response.Header().Set(keys.Hand.RoutePattern, strings.TrimRight(ctxChi.RoutePattern(), "/"))
-		}
-	}
+	// Заголовки
+	rw.response.WriteHeader(status[0])
+	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
 	// Тело документа
-	_, err = rw.response.Write(data)
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err.Error())
+	_, _ = rw.response.Write(data)
+	// sample from middleware:
+	// r = r.WithContext(context.WithValue(r.Context(), keys.Handler.Log, request.Log(Test)))
+	if log, ok := rw.request.Context().Value(keys.Handler.Log).(Log); ok == true {
+		log(rw.request, status[0])
 	}
+	// strings.TrimRight(chi.RouteContext(rw.request.Context()).RoutePattern(), "/")
 }
 
 // Html ответ в html формате
 func (rw *Incoming) Html(con string, status ...int) {
 	data := []byte(con)
-	// headers
-	rw.generalHeaderSet("text/html; charset=utf-8", len(data))
 	// Статус ответа
 	if len(status) == 0 {
-		rw.response.WriteHeader(http.StatusOK)
-	} else {
-		rw.response.WriteHeader(status[0])
+		status = append(status, http.StatusOK)
 	}
+	// Заголовки
+	rw.response.WriteHeader(status[0])
+	rw.generalHeaderSet("text/html; charset=utf-8", len(data))
 	// Тело документа
 	_, _ = rw.response.Write(data)
+	// sample from middleware:
+	// r = r.WithContext(context.WithValue(r.Context(), keys.Handler.Log, request.Log(Test)))
+	if log, ok := rw.request.Context().Value(keys.Handler.Log).(Log); ok == true {
+		log(rw.request, status[0])
+	}
+	// strings.TrimRight(chi.RouteContext(rw.request.Context()).RoutePattern(), "/")
 }
 
 // Static ответ - отдача статических данных

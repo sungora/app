@@ -1,17 +1,19 @@
 package keys
 
 func init() {
-	Hand = &hand{
+	Handler = &handler{
 		Session:      "Session",
 		Status:       "Status",
 		RoutePattern: "RoutePattern",
+		Log:          "LogHandler",
 	}
 }
 
-var Hand *hand
+var Handler *handler
 
-type hand struct {
+type handler struct {
 	Session      string
 	Status       string
 	RoutePattern string
+	Log          string
 }
