@@ -126,8 +126,10 @@ func (rw *Incoming) Json(object interface{}, status ...int) {
 		rw.response.WriteHeader(status[0])
 		rw.response.Header().Set(keys.Hand.Status, strconv.Itoa(status[0]))
 	}
-	if ctx := chi.RouteContext(rw.request.Context()); ctx != nil {
-		rw.response.Header().Set(keys.Hand.RoutePattern, strings.TrimRight(ctx.RoutePattern(), "/"))
+	if ctx := rw.request.Context(); ctx != nil {
+		if ctx := chi.RouteContext(ctx); ctx != nil {
+			rw.response.Header().Set(keys.Hand.RoutePattern, strings.TrimRight(ctx.RoutePattern(), "/"))
+		}
 	}
 	// Тело документа
 	_, err = rw.response.Write(data)
