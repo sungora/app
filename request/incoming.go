@@ -127,8 +127,8 @@ func (rw *Incoming) Json(object interface{}, status ...int) {
 		rw.response.Header().Set(keys.Hand.Status, strconv.Itoa(status[0]))
 	}
 	if ctx := rw.request.Context(); ctx != nil {
-		if ctx := chi.RouteContext(ctx); ctx != nil {
-			rw.response.Header().Set(keys.Hand.RoutePattern, strings.TrimRight(ctx.RoutePattern(), "/"))
+		if ctxChi := chi.RouteContext(ctx); ctxChi != nil {
+			rw.response.Header().Set(keys.Hand.RoutePattern, strings.TrimRight(ctxChi.RoutePattern(), "/"))
 		}
 	}
 	// Тело документа
