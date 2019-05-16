@@ -64,13 +64,13 @@ func Static(w http.ResponseWriter, r *http.Request) {
 // LogRequestSample логирование выполнение запроса
 func LogRequestSample(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		context.WithValue(r.Context(), keys.Handler.Log, request.Log(func(r *http.Request, status int) {
+		r = r.WithContext(context.WithValue(r.Context(), keys.Handler.Log, request.Log(func(r *http.Request, status int) {
 			task := &TaskLogRequest{
 				Request: r,
 				Status:  status,
 			}
 			workflow.TaskAdd(task)
-		}))
+		})))
 		next.ServeHTTP(w, r)
 	})
 }
