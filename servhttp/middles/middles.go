@@ -12,6 +12,7 @@ import (
 	"github.com/sungora/app/request"
 	"github.com/sungora/app/servhttp"
 	"github.com/sungora/app/session"
+	"github.com/sungora/app/workflow"
 )
 
 // TimeoutContext (middleware)
@@ -37,7 +38,7 @@ func Session(next http.Handler) http.Handler {
 			rw.CookieSet(app.GetConfig().ServiceName, token)
 		}
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, keys.Hand.Session, session.GetSession(token))
+		ctx = context.WithValue(ctx, keys.Handler.Session, session.GetSession(token))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -58,4 +59,18 @@ func Cors(cfg servhttp.Cors) *cors.Cors {
 func Static(w http.ResponseWriter, r *http.Request) {
 	rw := request.NewIn(w, r)
 	_ = rw.Static(app.GetConfig().DirWork + r.URL.Path)
+}
+
+// LogRequestSample логирование выполнение запроса
+func LogRequestSample(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		context.WithValue(r.Context(), keys.Handler.Log, request.Log(func(r *http.Request, status int) {
+			task := &TaskLogRequest{
+				Request: r,
+				Status:  status,
+			}
+			workflow.TaskAdd(task)
+		}))
+		next.ServeHTTP(w, r)
+	})
 }
