@@ -11,8 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/sungora/app/keys"
 )
 
 // Структура для работы с входящим запросом
@@ -126,7 +124,7 @@ func (rw *Incoming) Json(object interface{}, status ...int) {
 	_, _ = rw.response.Write(data)
 	// sample from middleware:
 	// r = r.WithContext(context.WithValue(r.Context(), keys.Handler.Log, request.Log(Test)))
-	if log, ok := rw.request.Context().Value(keys.Handler.Log).(Log); ok == true {
+	if log, ok := rw.request.Context().Value(KeyLogHandler).(Log); ok == true {
 		log(rw.request, status[0])
 	}
 	// strings.TrimRight(chi.RouteContext(rw.request.Context()).RoutePattern(), "/")
@@ -146,7 +144,7 @@ func (rw *Incoming) Html(con string, status ...int) {
 	_, _ = rw.response.Write(data)
 	// sample from middleware:
 	// r = r.WithContext(context.WithValue(r.Context(), keys.Handler.Log, request.Log(Test)))
-	if log, ok := rw.request.Context().Value(keys.Handler.Log).(Log); ok == true {
+	if log, ok := rw.request.Context().Value(KeyLogHandler).(Log); ok == true {
 		log(rw.request, status[0])
 	}
 	// strings.TrimRight(chi.RouteContext(rw.request.Context()).RoutePattern(), "/")

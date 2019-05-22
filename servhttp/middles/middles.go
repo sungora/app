@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/cors"
 
 	"github.com/sungora/app"
-	"github.com/sungora/app/keys"
 	"github.com/sungora/app/request"
 	"github.com/sungora/app/servhttp"
 	"github.com/sungora/app/session"
@@ -38,7 +37,7 @@ func Session(next http.Handler) http.Handler {
 			rw.CookieSet(app.GetConfig().ServiceName, token)
 		}
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, keys.Handler.Session, session.GetSession(token))
+		ctx = context.WithValue(ctx, request.KeySession, session.GetSession(token))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -64,7 +63,7 @@ func Static(w http.ResponseWriter, r *http.Request) {
 // LogRequestSample логирование выполнение запроса
 func LogRequestSample(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(context.WithValue(r.Context(), keys.Handler.Log, request.Log(func(r *http.Request, status int) {
+		r = r.WithContext(context.WithValue(r.Context(), request.KeyLogHandler, request.Log(func(r *http.Request, status int) {
 			task := &TaskLogRequest{
 				Request: r,
 				Status:  status,
