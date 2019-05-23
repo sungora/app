@@ -118,8 +118,7 @@ func (rw *Incoming) Json(object interface{}, status ...int) {
 		status = append(status, http.StatusOK)
 	}
 	// Заголовки
-	rw.response.WriteHeader(status[0])
-	rw.generalHeaderSet("application/json; charset=utf-8", len(data))
+	rw.generalHeaderSet("application/json; charset=utf-8", len(data), status[0])
 	// Тело документа
 	_, _ = rw.response.Write(data)
 	// sample from middleware:
@@ -138,8 +137,7 @@ func (rw *Incoming) Html(con string, status ...int) {
 		status = append(status, http.StatusOK)
 	}
 	// Заголовки
-	rw.response.WriteHeader(status[0])
-	rw.generalHeaderSet("text/html; charset=utf-8", len(data))
+	rw.generalHeaderSet("text/html; charset=utf-8", len(data), status[0])
 	// Тело документа
 	_, _ = rw.response.Write(data)
 	// sample from middleware:
@@ -180,21 +178,19 @@ func (rw *Incoming) Static(path string) (err error) {
 	if mimeType := mime.TypeByExtension(fileExt); mimeType != `` {
 		typ = mimeType
 	}
-	// headers
-	rw.generalHeaderSet(typ, len(data))
 	// Аттач если документ не картинка и не текстововой
 	if strings.LastIndex(typ, `image`) == -1 && strings.LastIndex(typ, `text`) == -1 {
 		rw.response.Header().Set("Content-Disposition", "attachment; filename = "+filepath.Base(path))
 	}
-	// Статус ответа
-	rw.response.WriteHeader(http.StatusOK)
+	// Заголовки
+	rw.generalHeaderSet(typ, len(data), http.StatusOK)
 	// Тело документа
 	_, err = rw.response.Write(data)
 	return
 }
 
 // generalHeaderSet общие заголовки любого ответа
-func (rw *Incoming) generalHeaderSet(contentTyp string, l int) {
+func (rw *Incoming) generalHeaderSet(contentTyp string, l int, status int) {
 	t := time.Now()
 	// запрет кеширования
 	rw.response.Header().Set("Cache-Control", "no-cache, must-revalidate")
@@ -204,4 +200,6 @@ func (rw *Incoming) generalHeaderSet(contentTyp string, l int) {
 	// размер и тип контента
 	rw.response.Header().Set("Content-Type", contentTyp)
 	rw.response.Header().Set("Content-Length", fmt.Sprintf("%d", l))
+	// status
+	rw.response.WriteHeader(status)
 }
