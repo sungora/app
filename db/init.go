@@ -6,8 +6,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-
-	"github.com/sungora/app"
 )
 
 var (
@@ -16,7 +14,7 @@ var (
 )
 
 // Init инициализация компонента в приложении
-func Init(cfg *Config) (com *Component, err error) {
+func Init(cfg *Config, IsLog bool) (com *Component, err error) {
 	config = cfg
 	component = new(Component)
 	if config.Mysql.Host != "" {
@@ -30,7 +28,7 @@ func Init(cfg *Config) (com *Component, err error) {
 		)); err != nil {
 			return
 		}
-		if app.GetConfig().Mode == "dev" {
+		if IsLog == true {
 			db = db.Debug()
 		}
 	} else if config.Postgresql.Host != "" {
@@ -45,7 +43,7 @@ func Init(cfg *Config) (com *Component, err error) {
 		)); err != nil {
 			return
 		}
-		if app.GetConfig().Mode == "dev" {
+		if IsLog == true {
 			db = db.Debug()
 		}
 	}

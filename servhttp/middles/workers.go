@@ -3,7 +3,7 @@ package middles
 import (
 	"net/http"
 
-	"github.com/sungora/app/lg"
+	"github.com/sungora/app"
 	"github.com/sungora/app/workflow"
 )
 
@@ -23,5 +23,5 @@ func (task *TaskLogRequest) Manager() workflow.Manager {
 
 // Execute выполняемая задача
 func (task *TaskLogRequest) Execute() {
-	lg.Dumper(task)
+	app.Dumper(task)
 }
