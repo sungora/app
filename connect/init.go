@@ -23,7 +23,7 @@ func Init(cfg *Config, IsLog bool) (com *Component, err error) {
 			config.Mysql.Login,
 			config.Mysql.Password,
 			config.Mysql.Host,
-			config.Mysql.Name,
+			config.Mysql.DbName,
 			config.Mysql.Charset,
 		)); err != nil {
 			return
@@ -37,7 +37,7 @@ func Init(cfg *Config, IsLog bool) (com *Component, err error) {
 			config.Postgresql.Host,
 			config.Postgresql.Port,
 			config.Postgresql.Login,
-			config.Postgresql.Name,
+			config.Postgresql.DbName,
 			config.Postgresql.Password,
 			config.Postgresql.Ssl,
 		)); err != nil {
