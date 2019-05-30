@@ -1,5 +1,3 @@
-// Deprecated
-// Use db
 package connect
 
 import (
