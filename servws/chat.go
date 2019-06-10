@@ -24,6 +24,11 @@ func ControlBusChat() {
 // шина чатов
 var busChat = map[string]*BusChat{}
 
+type registerClientChat struct {
+	ws      *websocket.Conn
+	handler Message
+}
+
 // чат
 type BusChat struct {
 	register  chan *websocket.Conn     // канал регистрации нового клиента

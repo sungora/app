@@ -96,7 +96,33 @@ type Data struct {
 type Log func(r *http.Request, status int)
 
 // JsonError отрицательный ответ с ошибкой в формате json (структурированный)
+// Deprecated
+// See JsonErr JsonErrCode
 func (rw *Incoming) JsonError(code int, message string, status ...int) {
+	res := new(Error)
+	res.Code = code
+	res.Message = message
+	if len(status) == 0 {
+		rw.Json(res, http.StatusBadRequest)
+	} else {
+		rw.Json(res, status[0])
+	}
+}
+
+// JsonErr отрицательный ответ с ошибкой в формате json (структурированный)
+func (rw *Incoming) JsonErr(message string, status ...int) {
+	res := new(Error)
+	res.Code = -1
+	res.Message = message
+	if len(status) == 0 {
+		rw.Json(res, http.StatusBadRequest)
+	} else {
+		rw.Json(res, status[0])
+	}
+}
+
+// JsonErrCode отрицательный ответ с ошибкой в формате json (структурированный)
+func (rw *Incoming) JsonErrCode(message string, code int, status ...int) {
 	res := new(Error)
 	res.Code = code
 	res.Message = message

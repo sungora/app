@@ -8,6 +8,7 @@ import (
 // интерфейс сообщения и его обработчиков
 type Message interface {
 	HookStartClient()
+	HookGetMessage()
 	HookSendMessage()
 	String() string
 }
@@ -26,11 +27,19 @@ func (m *MessageSample) HookStartClient() () {
 	fmt.Println("WS hook start client")
 }
 
-// HookSend обработка входящего сообщения
+// HookSend обработка отправляемого сообщения на сервер
+// (для других пользователей)
 func (m *MessageSample) HookSendMessage() {
 	fmt.Println("WS hook send message: ", m)
 }
 
+// HookSend обработка входящего сообщения от сервера
+// (от других пользователей)
+func (m *MessageSample) HookGetMessage() {
+	fmt.Println("WS hook get message: ", m)
+}
+
+// String удобоваримый вывод значения структуры
 func (m *MessageSample) String() string {
 	return m.ClientID + " - " + m.Author + " - " + m.Body
 }
