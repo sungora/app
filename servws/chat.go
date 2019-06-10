@@ -76,7 +76,7 @@ func (b *BusChat) control() {
 			fmt.Println("WS registered new user")
 			b.clients[client.ws] = client.handler
 			// hook handler new client
-			client.handler.HookStartClient()
+			client.handler.HookStartClient(client.ws)
 		}
 	}
 }

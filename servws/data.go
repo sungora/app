@@ -3,11 +3,13 @@ package servws
 import (
 	"fmt"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // интерфейс сообщения и его обработчиков
 type Message interface {
-	HookStartClient()
+	HookStartClient(ws *websocket.Conn)
 	HookGetMessage()
 	HookSendMessage()
 	String() string
@@ -23,7 +25,7 @@ type MessageSample struct {
 }
 
 // HookStartClient обработка входящего сообщения
-func (m *MessageSample) HookStartClient() () {
+func (m *MessageSample) HookStartClient(ws *websocket.Conn) () {
 	fmt.Println("WS hook start client")
 }
 
