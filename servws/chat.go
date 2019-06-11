@@ -65,11 +65,11 @@ func (b *BusChat) control() {
 					delete(b.clients, client)
 					continue
 				}
+				// hook handler get other client message
+				handler.HookGetMessage(client)
 				if err := client.WriteJSON(message); err != nil {
 					fmt.Println("WS error send message")
 				}
-				// hook handler get other client message
-				handler.HookGetMessage(client)
 			}
 		// регистрируем новго клиента
 		case client := <-b.register:
@@ -92,9 +92,10 @@ func (b *BusChat) StartClient(ws *websocket.Conn, msg Message) {
 			delete(b.clients, ws)
 			return
 		} else {
-			b.broadcast <- msg
 			// hook handler send owher client message
 			msg.HookSendMessage(ws)
+			// посылаем всем подключенным пользователям
+			b.broadcast <- msg
 		}
 	}
 }
