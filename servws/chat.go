@@ -24,25 +24,20 @@ func ControlBusChat() {
 // шина чатов
 var busChat = map[string]*BusChat{}
 
-type registerClientChat struct {
-	ws      *websocket.Conn
-	handler Message
-}
-
 // чат
 type BusChat struct {
-	register  chan *registerClientChat    // канал регистрации нового клиента
-	broadcast chan Message                // канал рассылки сообщений клиентам
-	clients   map[*websocket.Conn]Message // массив всех клиентов чата
+	register  chan *websocket.Conn     // канал регистрации нового клиента
+	broadcast chan Message             // канал рассылки сообщений клиентам
+	clients   map[*websocket.Conn]bool // массив всех клиентов чата
 }
 
 // InitChat инициализация чата по условному идентификатору
 func InitChat(chatID string) *BusChat {
 	if _, ok := busChat[chatID]; ok == false {
 		b := &BusChat{
-			register:  make(chan *registerClientChat),
+			register:  make(chan *websocket.Conn),
 			broadcast: make(chan Message),
-			clients:   make(map[*websocket.Conn]Message),
+			clients:   make(map[*websocket.Conn]bool),
 		}
 		go b.control()
 		busChat[chatID] = b
@@ -59,23 +54,19 @@ func (b *BusChat) control() {
 		select {
 		// каждому зарегистрированному клиенту шлем сообщение
 		case message := <-b.broadcast:
-			for client, handler := range b.clients {
+			for client := range b.clients {
 				// если достучаться до клиента не удалось, то удаляем его
 				if _, err := client.NextWriter(websocket.PingMessage); err != nil {
 					delete(b.clients, client)
 					continue
 				}
-				// hook handler get other client message
-				handler.HookGetMessage(client)
 				if err := client.WriteJSON(message); err != nil {
 					fmt.Println("WS error send message")
 				}
 			}
 		// регистрируем новго клиента
 		case client := <-b.register:
-			b.clients[client.ws] = client.handler
-			// hook handler new client
-			client.handler.HookStartClient(client.ws)
+			b.clients[client] = true
 		}
 	}
 }
@@ -85,14 +76,16 @@ func (b *BusChat) StartClient(ws *websocket.Conn, msg Message) {
 	if msg == nil {
 		msg = &MessageSample{}
 	}
-	b.register <- &registerClientChat{ws, msg}
+	b.register <- ws
+	// hook handler new client
+	msg.HookStartClient(ws)
 	for {
 		// var msg Message
 		if err := ws.ReadJSON(msg); err != nil {
 			delete(b.clients, ws)
 			return
 		} else {
-			// hook handler send owher client message
+			// hook handler send owner client message
 			msg.HookSendMessage(ws)
 			// посылаем всем подключенным пользователям
 			b.broadcast <- msg
