@@ -31,7 +31,7 @@ type registerClientChat struct {
 
 // чат
 type BusChat struct {
-	register  chan registerClientChat     // канал регистрации нового клиента
+	register  chan *registerClientChat    // канал регистрации нового клиента
 	broadcast chan Message                // канал рассылки сообщений клиентам
 	clients   map[*websocket.Conn]Message // массив всех клиентов чата
 }
@@ -40,7 +40,7 @@ type BusChat struct {
 func InitChat(chatID string) *BusChat {
 	if _, ok := busChat[chatID]; ok == false {
 		b := &BusChat{
-			register:  make(chan registerClientChat),
+			register:  make(chan *registerClientChat),
 			broadcast: make(chan Message),
 			clients:   make(map[*websocket.Conn]Message),
 		}
@@ -85,7 +85,7 @@ func (b *BusChat) StartClient(ws *websocket.Conn, msg Message) {
 	if msg == nil {
 		msg = &MessageSample{}
 	}
-	b.register <- registerClientChat{ws, msg}
+	b.register <- &registerClientChat{ws, msg}
 	for {
 		// var msg Message
 		if err := ws.ReadJSON(msg); err != nil {
