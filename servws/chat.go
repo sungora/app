@@ -62,7 +62,7 @@ func (b *BusChat) control() {
 		case <-time.After(time.Second * 50):
 			for client := range b.clients {
 				// если достучаться до клиента не удалось, то удаляем его
-				if _, err := client.NextWriter(websocket.PingMessage); err != nil {
+				if err := client.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 					delete(b.clients, client)
 					continue
 				}
