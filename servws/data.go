@@ -9,9 +9,9 @@ import (
 
 // интерфейс сообщения и его обработчиков
 type Message interface {
-	HookStartClient(ws *websocket.Conn)
-	HookGetMessage(ws *websocket.Conn)
-	HookSendMessage(ws *websocket.Conn)
+	HookStartClient(ws *websocket.Conn, cnt int)
+	HookGetMessage(ws *websocket.Conn, cnt int)
+	HookSendMessage(ws *websocket.Conn, cnt int)
 	String() string
 }
 
@@ -25,19 +25,19 @@ type MessageSample struct {
 }
 
 // HookStartClient обработка входящего сообщения
-func (m *MessageSample) HookStartClient(ws *websocket.Conn) () {
+func (m *MessageSample) HookStartClient(ws *websocket.Conn, cnt int) () {
 	fmt.Println("WS hook start client")
 }
 
 // HookSend обработка отправляемого сообщения на сервер
 // (для других пользователей)
-func (m *MessageSample) HookSendMessage(ws *websocket.Conn) {
+func (m *MessageSample) HookSendMessage(ws *websocket.Conn, cnt int) {
 	fmt.Println("WS hook send message: ", m)
 }
 
 // HookSend обработка входящего сообщения от сервера
 // (от других пользователей)
-func (m *MessageSample) HookGetMessage(ws *websocket.Conn) {
+func (m *MessageSample) HookGetMessage(ws *websocket.Conn, cnt int) {
 	fmt.Println("WS hook get message: ", m)
 }
 

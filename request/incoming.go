@@ -133,18 +133,24 @@ func (rw *Incoming) JsonErr(message string, status ...int) {
 }
 
 // JsonErr отрицательный ответ с ошибкой в формате json (структурированный)
-func (rw *Incoming) JsonErrForbidden() {
+func (rw *Incoming) JsonErrForbidden(msg ...string) {
 	res := new(Error)
 	res.Code = -1
 	res.Message = "Forbidden"
+	if len(msg) == 0 {
+		res.Message = msg[0]
+	}
 	rw.Json(res, http.StatusForbidden)
 }
 
 // JsonErr отрицательный ответ с ошибкой в формате json (структурированный)
-func (rw *Incoming) JsonErrNotFound() {
+func (rw *Incoming) JsonErrNotFound(msg ...string) {
 	res := new(Error)
 	res.Code = -1
 	res.Message = "Not Found"
+	if len(msg) == 0 {
+		res.Message = msg[0]
+	}
 	rw.Json(res, http.StatusNotFound)
 }
 
